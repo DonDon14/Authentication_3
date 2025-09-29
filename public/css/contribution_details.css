@@ -1,0 +1,649 @@
+/* ======================================
+   Contribution Details Page Styles
+   ====================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+    padding-bottom: 80px;
+}
+
+.contribution-details-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1000px;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ======================================
+   Header Section
+   ====================================== */
+.contribution-details-header {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    padding: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.back-button {
+    flex-shrink: 0;
+}
+
+.back-btn {
+    color: white;
+    font-size: 1.2em;
+    text-decoration: none;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-2px);
+}
+
+.header-content {
+    flex: 1;
+}
+
+.header-content h2 {
+    font-size: 1.6em;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.description {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.header-actions .btn-primary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 15px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-actions .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ======================================
+   Contribution Summary
+   ====================================== */
+.contribution-summary {
+    padding: 25px;
+}
+
+.summary-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid #e2e8f0;
+}
+
+.contribution-info h3 {
+    color: #1a202c;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.contribution-description {
+    color: #4a5568;
+    font-size: 1em;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.contribution-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.amount-badge {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.category-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85em;
+    text-transform: capitalize;
+}
+
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-active {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+}
+
+.status-inactive {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+    color: white;
+}
+
+/* ======================================
+   Statistics Grid
+   ====================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 0 25px 25px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    color: white;
+}
+
+.stat-primary .stat-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-success .stat-icon {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.stat-info .stat-icon {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.stat-warning .stat-icon {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.stat-content h4 {
+    color: #1a202c;
+    font-size: 1.6em;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.stat-content p {
+    color: #718096;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+/* ======================================
+   Payment History Section
+   ====================================== */
+.payment-history-section {
+    flex: 1;
+    padding: 0 25px;
+    margin-bottom: 25px;
+}
+
+.section-header {
+    margin-bottom: 20px;
+}
+
+.section-header h3 {
+    color: #1a202c;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-header i {
+    color: #667eea;
+}
+
+.section-description {
+    color: #718096;
+    font-size: 0.9em;
+}
+
+/* ======================================
+   Payments List
+   ====================================== */
+.payments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.payment-item {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.payment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.student-details h4 {
+    color: #1a202c;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.payment-date {
+    color: #718096;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.payment-meta {
+    display: flex;
+    align-items: center;
+}
+
+.payment-method {
+    background: #f7fafc;
+    color: #4a5568;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #e2e8f0;
+}
+
+.payment-amount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.amount {
+    color: #1a202c;
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+.status {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-completed {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.status-pending {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+/* ======================================
+   No Payments State
+   ====================================== */
+.no-payments {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(247, 250, 252, 0.5);
+    border-radius: 15px;
+    border: 2px dashed #e2e8f0;
+}
+
+.no-payments-icon {
+    font-size: 4em;
+    color: #cbd5e0;
+    margin-bottom: 20px;
+}
+
+.no-payments h3 {
+    color: #4a5568;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+}
+
+.no-payments p {
+    color: #718096;
+    margin-bottom: 25px;
+}
+
+.no-payments .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.no-payments .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* ======================================
+   Export Section
+   ====================================== */
+.export-section {
+    padding: 20px 25px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.export-section h4 {
+    color: #1a202c;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-secondary {
+    background: #f7fafc;
+    color: #4a5568;
+    border: 1px solid #e2e8f0;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+/* ======================================
+   Bottom Navigation
+   ====================================== */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+.nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #6b7280;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    min-width: 60px;
+}
+
+.nav-link:hover {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.nav-link.active {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.nav-link i {
+    font-size: 1.2em;
+    margin-bottom: 4px;
+}
+
+.nav-link span {
+    font-size: 0.7em;
+    font-weight: 500;
+}
+
+/* ======================================
+   Responsive Design
+   ====================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        padding-bottom: 80px;
+    }
+
+    .contribution-details-container {
+        border-radius: 15px;
+    }
+
+    .contribution-details-header {
+        padding: 15px;
+    }
+
+    .header-content h2 {
+        font-size: 1.3em;
+    }
+
+    .contribution-summary {
+        padding: 20px;
+    }
+
+    .summary-card {
+        padding: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 0 20px 20px;
+    }
+
+    .stat-card {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .payment-history-section {
+        padding: 0 20px;
+        margin-bottom: 20px;
+    }
+
+    .payment-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .student-info {
+        width: 100%;
+    }
+
+    .payment-amount {
+        align-items: flex-start;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .export-section {
+        padding: 15px 20px;
+    }
+
+    .export-buttons {
+        flex-direction: column;
+    }
+
+    .nav-link span {
+        display: none;
+    }
+
+    .nav-link {
+        min-width: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contribution-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .header-actions .btn-primary {
+        padding: 8px 12px;
+        font-size: 0.8em;
+    }
+}
+
+/* ======================================
+   Print Styles
+   ====================================== */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .contribution-details-container {
+        box-shadow: none;
+        border-radius: 0;
+        max-width: none;
+        width: 100%;
+    }
+
+    .bottom-nav,
+    .header-actions,
+    .export-section {
+        display: none;
+    }
+
+    .contribution-details-header {
+        background: #667eea;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .payment-item {
+        border: 1px solid #e2e8f0;
+        break-inside: avoid;
+    }
+}

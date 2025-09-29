@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Contributions Add</title>
+</head>
+<body>
+    <h2>Test Add Contribution</h2>
+    <form action="/contributions/add" method="POST">
+        <div>
+            <label>Title:</label>
+            <input type="text" name="title" value="Test Contribution" required>
+        </div>
+        <div>
+            <label>Description:</label>
+            <input type="text" name="description" value="Test Description">
+        </div>
+        <div>
+            <label>Amount:</label>
+            <input type="number" name="amount" value="50.00" step="0.01" required>
+        </div>
+        <div>
+            <label>Category:</label>
+            <select name="category" required>
+                <option value="Test">Test</option>
+                <option value="Uniform">Uniform</option>
+                <option value="Activity">Activity</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Add Contribution</button>
+        </div>
+    </form>
+
+    <script>
+        // Override form submission to use fetch and show result
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            
+            console.log('Submitting form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+            
+            try {
+                const response = await fetch('/contributions/add', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const result = await response.json();
+                console.log('Result:', result);
+                
+                alert('Response: ' + JSON.stringify(result, null, 2));
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
