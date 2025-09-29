@@ -482,6 +482,7 @@ async function verifyPaymentQR(qrData) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: `qr_data=${encodeURIComponent(qrData)}`
         });
