@@ -170,7 +170,7 @@
               <i class="fas fa-check"></i>
               Verify
             </button>
-            <button class="btn-secondary btn-info">
+            <button class="btn-secondary btn-info" onclick="window.location.href='<?= base_url('contributions') ?>'">
               <i class="fas fa-hand-holding-usd"></i>
               Contributions
             </button>

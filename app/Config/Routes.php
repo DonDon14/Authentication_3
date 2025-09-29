@@ -28,6 +28,7 @@ $routes->get('/contributions/get/(:num)', 'Contributions::get/$1');
 
 // Payment routes
 $routes->get('/payments/history', 'Payments::history');
+$routes->get('/payments', 'Payments::index');
 $routes->post('/payments/save', 'Payments::save');
 $routes->post('/payments/searchByQR', 'Payments::searchByQR');
 $routes->post('/payments/generateReceipt/(:num)', 'Payments::generateReceipt/$1');
@@ -38,6 +39,9 @@ $routes->get('/payments/getPaymentDetails/(:num)', 'Payments::getPaymentDetails/
 $routes->get('/payments/viewContribution/(:num)', 'Payments::viewContribution/$1');
 $routes->get('/writable/uploads/(:any)', 'Payments::serveUpload/$1');
 $routes->get('/payments/test/(:num)', 'Payments::test/$1'); // Test route
+$routes->get('/payments/testQR/(:num)', 'Payments::testQR/$1');
+$routes->get('/payments/testQRSimple', 'Payments::testQRSimple');
+$routes->get('/payments/serveUpload/(:any)', 'Payments::serveUpload/$1');
 
 // Alternative routes to handle routing issues
 $routes->get('payments/viewContribution/(:num)', 'Payments::viewContribution/$1');
