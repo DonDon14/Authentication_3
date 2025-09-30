@@ -16,7 +16,7 @@ body {
     align-items: flex-start;
     justify-content: center;
     padding: 20px;
-    padding-bottom: 80px;
+    padding-bottom: 50px;
 }
 
 .history-container {
@@ -24,14 +24,13 @@ body {
     border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 900px;
     min-height: 90vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
     padding: 20px;
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -40,12 +39,15 @@ body {
    ====================================== */
 .history-header {
     background: linear-gradient(45deg, #667eea, #764ba2);
-    padding: 30px 20px;
+    padding: 40px 0 30px 20px;
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative;
+    position: relative;;
+    width: 120%;
+    margin: -20px -20px 20px -20px;
+    
 }
 
 .welcome-section h2 {
@@ -60,33 +62,6 @@ body {
     font-size: 1rem;
     font-weight: 400;
     margin: 0;
-}
-
-.logout-section {
-    display: flex;
-    align-items: center;
-}
-
-.logout-btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(10px);
-}
-
-.logout-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
-    transform: translateY(-2px);
 }
 
 /* ======================================
@@ -450,25 +425,62 @@ body {
    Bottom Navigation
    ====================================== */
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 900px;
+  background: white;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  padding: 20px 0;
+  border-top: 1px solid #e1e1e1;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 20px 20px 0 0;
 }
 
 .nav-link {
-    text-decoration: none;
-    color: #333;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  color: #999;
+  transition: all 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 8px;
 }
 
-.nav-link.active {
-    color: #007bff;
+.nav-link.active,
+.nav-link:hover {
+  color: #667eea;
+  transform: translateY(-1px);
+}
+
+.nav-link i {
+  font-size: 1.2em;
+}
+
+.nav-link span {
+  font-size: 0.7em;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .nav-link i {
+        font-size: 16px;
+        margin-bottom: 0px;
+    }
+    
+    .nav-link span {
+        display: none;
+    }
+    
+    .nav-link {
+        padding: 8px 2px;
+    }
 }
 
 /* ======================================
@@ -567,7 +579,7 @@ body {
 
 @media (max-width: 480px) {
     .history-container {
-        padding: 0;
+        padding: 15px;
     }
     
     .welcome-section h2 {
