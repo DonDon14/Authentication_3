@@ -222,12 +222,20 @@ body {
 .view-all-btn {
   color: #667eea;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .view-all-btn:hover {
-  text-decoration: underline;
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
 }
 
 /* User Dropdown */
@@ -459,8 +467,9 @@ body {
 
 /* Main Content Layout */
 .dashboard-main {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 30px;
   padding: 0 30px;
   margin-bottom: 30px;
@@ -468,7 +477,6 @@ body {
 
 @media (max-width: 768px) {
   .dashboard-main {
-    grid-template-columns: 1fr;
     gap: 20px;
     padding: 0 20px;
   }
@@ -477,6 +485,8 @@ body {
 /* Quick Actions */
 .quick-actions {
   margin-bottom: 25px;
+  width: 100%;
+  max-width: 400px
 }
 
 .quick-actions h3 {
@@ -484,19 +494,21 @@ body {
   font-weight: 600;
   color: #333;
   margin-bottom: 15px;
+  text-align: center;
 }
 
 .action-buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  align-items: center;
 }
 
 .btn-primary {
   background: linear-gradient(45deg, #667eea, #764ba2);
   color: white;
   border: none;
-  padding: 15px 20px;
+  padding: 15px 25px;
   border-radius: 10px;
   font-size: 1em;
   font-weight: 600;
@@ -506,6 +518,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
 }
 
 .btn-primary:hover {
@@ -516,12 +531,15 @@ body {
 .button-row {
   display: flex;
   gap: 10px;
+  justify-content: center;
+  width: 100%;
 }
 
 .btn-secondary {
-  flex: 1;
+  background: linear-gradient(45deg, #6c757d, #5a6268);
+  color: white;
   border: none;
-  padding: 12px 15px;
+  padding: 12px 20px;
   border-radius: 8px;
   font-size: 0.9em;
   font-weight: 600;
@@ -531,15 +549,15 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  color: white;
+  flex: 1;
 }
 
 .btn-success {
-  background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+  background: linear-gradient(45deg, #28a745, #20c997);
 }
 
 .btn-info {
-  background: linear-gradient(45deg, #4facfe, #00f2fe);
+  background: linear-gradient(45deg, #17a2b8, #6f42c1);
 }
 
 .btn-secondary:hover {
@@ -550,17 +568,23 @@ body {
 /* Recent Payments */
 .recent-payments {
   margin-bottom: 80px;
-  flex: 1;
+  width: 100%;
+  max-width: 600px;
 }
 
-.section-header h3 {
+.recent-payments .section-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.recent-payments .section-header h3 {
   font-size: 1.1em;
   font-weight: 600;
   color: #333;
   margin-bottom: 5px;
 }
 
-.section-header .description {
+.recent-payments .section-header .description {
   font-size: 0.85em;
   color: #666;
   margin-bottom: 15px;
@@ -803,5 +827,53 @@ body {
   .recent-payments {
     padding: 0 15px;
   }
+  
+  /* Mobile responsive adjustments */
+  .quick-actions {
+    max-width: 100%;
+  }
+  
+  .button-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-secondary {
+    padding: 10px 15px;
+    font-size: 0.85em;
+  }
+  
+  .recent-payments {
+    max-width: 100%;
+  }
+  
+  .payment-item {
+    padding: 12px;
+  }
+}
+
+/* No payments state styling */
+.no-payments {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(247, 250, 252, 0.5);
+  border-radius: 15px;
+  border: 2px dashed #e2e8f0;
+}
+
+.empty-state i {
+  font-size: 3em;
+  color: #cbd5e0;
+  margin-bottom: 15px;
+}
+
+.empty-state h4 {
+  color: #4a5568;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #718096;
+  margin-bottom: 20px;
 }
 
