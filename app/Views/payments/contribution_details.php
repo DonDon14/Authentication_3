@@ -634,11 +634,6 @@
 
 </div>
 
-<!-- Simple Modal - Keep it basic -->
-<div id="paymentDetailsModal" style="display: none;">
-  <div id="paymentDetailsContent">Test</div>
-</div>
-
 <script>
 // Simple test
 console.log('Modal script loaded');
@@ -667,39 +662,7 @@ window.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <script>
-    // Payment Details Functions
-    function showPaymentDetails(paymentId) {
-      console.log('showPaymentDetails called with ID:', paymentId);
-      
-      const modal = document.getElementById('paymentDetailsModal');
-      const content = document.getElementById('paymentDetailsContent');
-      
-      if (!modal || !content) {
-        alert('Modal not found');
-        return;
-      }
-      
-      modal.style.display = 'block';
-      
-      // Show loading
-      content.innerHTML = '<div style="text-align: center; padding: 20px;"><div style="font-size: 20px; color: #007bff;">⏳</div><p>Loading payment details...</p></div>';
-      
-      // Fetch payment details
-      fetch('<?= base_url('payments/getPaymentDetails/') ?>' + paymentId)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            displayPaymentDetails(data.data);
-          } else {
-            content.innerHTML = '<div style="text-align: center; padding: 20px; color: red;"><p>Error: ' + (data.message || 'Failed to load payment details') + '</p></div>';
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          content.innerHTML = '<div style="text-align: center; padding: 20px; color: red;"><p>Error loading payment details</p></div>';
-        });
-    }
-
+    
     function displayPaymentDetails(data) {
       const content = document.getElementById('paymentDetailsContent');
       const payment = data.payment;

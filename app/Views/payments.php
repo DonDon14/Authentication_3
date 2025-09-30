@@ -39,7 +39,7 @@
           <h4><?= esc($contribution['title']) ?></h4>
           <p class="contribution-desc"><?= esc($contribution['description']) ?></p>
           <div class="contribution-meta">
-            <span class="contribution-amount">Amount: $<?= number_format($contribution['amount'], 2) ?></span>
+            <span class="contribution-amount">Amount: ₱<?= number_format($contribution['amount'], 2) ?></span>
             <span class="contribution-category"><?= esc($contribution['category']) ?></span>
           </div>
         </div>
@@ -52,7 +52,7 @@
         </div>
         <div class="stat-item">
           <span class="stat-label">Total Collected:</span>
-          <span class="stat-value">$<?= number_format(array_sum(array_column($payments, 'amount')), 2) ?></span>
+          <span class="stat-value">₱<?= number_format(array_sum(array_column($payments, 'amount_paid')), 2) ?></span>
         </div>
       </div>
       <?php endif; ?>
@@ -232,7 +232,11 @@
         <strong>Note:</strong>
         A QR receipt will be automatically generated after recording the payment. Students can use this receipt for verification purposes.
         <div class="note-footer">
-          <a href="#" class="contribution-link">5 contribution types available</a>
+          <a href="#" class="contribution-link">
+            <?php 
+            $contributionCount = isset($all_contributions) ? count($all_contributions) : 0;
+            echo $contributionCount;
+            ?> contribution<?= $contributionCount !=1 ? ' types' : ' type' ?> available
         </div>
       </div>
     </div>

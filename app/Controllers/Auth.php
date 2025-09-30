@@ -188,16 +188,67 @@ class Auth extends BaseController
 
     public function dashboard()
     {
-        $session = session();
-        if (!$session->get('logged_in')) {
+        if (!$this->isLoggedIn()) {
             return redirect()->to('/');
         }
+        $session = session();
 
-        return view('dashboard', [
-            'username' => $session->get('username'),
+        try{
+        // Load models
+        $paymentModel = new \App\Models\PaymentModel();
+        $contributionModel = new \App\Models\ContributionModel();
+
+        // Get recent payments (last 10)
+        $recentPayments = $paymentModel->select('
+            payments.*, contributions.title as contribution_title,
+            contributions.category
+            ')
+            ->join('contributions', 'contributions.id = payments.contribution_id', 'left')
+            ->orderBy('payments.payment_date', 'DESC')
+            ->limit(10)
+            ->findAll();
+
+        // Get dashboard stats
+        $totalCollections = $paymentModel->selectSum('amount_paid')->first()['amount_paid'] ?? 0;
+        
+
+        $verifiedCount = $paymentModel->where('payment_status', 'completed')->countAllResults();
+        $pendingCount = $paymentModel->where('payment_status', 'pending')->countAllResults();
+
+        // Get today's payments count
+        $todayCount = $paymentModel->where('DATE(payment_date)', date('Y-m-d'))->countAllResults();
+
+        // Debug logging
+        log_message('debug', 'Recent payments count: ' . count($recentPayments));
+        log_message('debug', 'Total collections: ' . $totalCollections);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Dashboard data retrieval error: ' . $e->getMessage());
+            $recentPayments = [];
+            $totalCollections = 0;
+            $verifiedCount = 0;
+            $pendingCount = 0;
+            $todayCount = 0;
+        }
+        $data = [
             'name' => $session->get('name'),
-            'email' => $session->get('email')
-        ]);
+            'recentPayments' => $recentPayments,
+            'stats' => [
+                'total_collections' => $totalCollections,
+                'verified_count' => $verifiedCount,
+                'pending_count' => $pendingCount,
+                'today_count' => $todayCount
+            ]
+        ];
+
+        return view('dashboard', $data); // app/Views/dashboard.php
+            
+    }
+
+    private function isLoggedIn()
+    {
+        $session = session();
+        return $session->get('logged_in') === true;
     }
 
     public function profile()

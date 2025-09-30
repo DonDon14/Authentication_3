@@ -116,11 +116,11 @@
     <div class="stats-grid">
       <div class="stat-card stat-card-primary">
         <div class="stat-icon">
-          <i class="fas fa-dollar-sign"></i>
+          <i class="fas fa-peso-sign"></i>
         </div>
         <div class="stat-content">
           <p class="stat-label">Total Collections</p>
-          <p class="stat-value">$150</p>
+          <p class="stat-value">₱<?= number_format($stats['total_collections'], 2) ?></p>
         </div>
       </div>
       
@@ -130,7 +130,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Verified</p>
-          <p class="stat-value">1</p>
+          <p class="stat-value"><?= $stats['verified_count'] ?></p>
         </div>
       </div>
       
@@ -140,7 +140,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Pending</p>
-          <p class="stat-value">1</p>
+          <p class="stat-value"><?= $stats['pending_count'] ?></p>
         </div>
       </div>
       
@@ -150,7 +150,7 @@
         </div>
         <div class="stat-content">
           <p class="stat-label">Today</p>
-          <p class="stat-value">0</p>
+          <p class="stat-value"><?= $stats['today_count'] ?></p>
         </div>
       </div>
     </div>
@@ -180,55 +180,52 @@
 
       <!-- Recent Payments -->
       <div class="recent-payments">
-        <div class="section-header">
-          <h3>Recent Payments</h3>
-          <p class="description">Latest payment activities</p>
-        </div>
-        
-        <div class="payments-list">
-          <div class="payment-item">
-            <div class="payment-info">
-              <div class="student-info">
-                <h4>John Doe</h4>
-                <p class="payment-type">Uniform Payments</p>
-                <p class="payment-date">2024-01-15</p>
-              </div>
-              <div class="payment-amount">
-                <span class="amount">$150</span>
-                <span class="status status-verified">Verified</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="payment-item">
-            <div class="payment-info">
-              <div class="student-info">
-                <h4>Jane Smith</h4>
-                <p class="payment-type">Daily Dues</p>
-                <p class="payment-date">2024-01-14</p>
-              </div>
-              <div class="payment-amount">
-                <span class="amount">$25</span>
-                <span class="status status-paid">Paid</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="payment-item">
-            <div class="payment-info">
-              <div class="student-info">
-                <h4>Mike Johnson</h4>
-                <p class="payment-type">Daily Dues</p>
-                <p class="payment-date">2024-01-14</p>
-              </div>
-              <div class="payment-amount">
-                <span class="amount">$15</span>
-                <span class="status status-pending">Pending</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="section-header">
+        <h3>Recent Payments</h3>
+        <p class="description">Latest payment activities</p>
       </div>
+      
+      <div class="payments-list">
+        <?php if (isset($recentPayments) && count($recentPayments) > 0): ?>
+          <?php foreach ($recentPayments as $payment): ?>
+            <div class="payment-item">
+              <div class="payment-info">
+                <div class="student-info">
+                  <h4><?= esc($payment['student_name']) ?></h4>
+                  <p class="payment-type"><?= esc($payment['contribution_title'] ?? 'General Payment') ?></p>
+                  <p class="payment-date"><?= date('M j, Y', strtotime($payment['payment_date'])) ?></p>
+                </div>
+                <div class="payment-amount">
+                  <span class="amount">₱<?= number_format($payment['amount_paid'], 2) ?></span>
+                  <span class="status status-<?= strtolower($payment['payment_status']) ?>">
+                    <?= ucfirst($payment['payment_status']) ?>
+                  </span>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="no-payments">
+            <div class="empty-state">
+              <i class="fas fa-receipt"></i>
+              <h4>No Recent Payments</h4>
+              <p>No payment activities found.</p>
+              <a href="<?= base_url('payments') ?>" class="btn-primary">
+                <i class="fas fa-plus"></i>
+                Record First Payment
+              </a>
+            </div>
+          </div>
+        <?php endif; ?>
+      </div>
+      
+      <?php if (isset($recent_payments) && count($recent_payments) > 0): ?>
+        <div class="view-all-section">
+          <a href="<?= base_url('payments/history') ?>" class="view-all-btn">
+            View All Payments <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      <?php endif; ?>
     </div>
 
     <!-- Bottom Navigation -->

@@ -327,6 +327,7 @@ body {
 .payment-meta {
     display: flex;
     align-items: center;
+    gap: 15px;
 }
 
 .payment-method {
@@ -346,7 +347,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 5px;
+    gap: 25px;
 }
 
 .amount {
@@ -432,6 +433,7 @@ body {
 }
 
 .export-section h4 {
+    justify-content: center;
     color: #1a202c;
     font-size: 1.1em;
     font-weight: 600;
@@ -443,31 +445,9 @@ body {
 
 .export-buttons {
     display: flex;
+    justify-content: center;
     gap: 10px;
 }
-
-.btn-secondary {
-    background: #f7fafc;
-    color: #4a5568;
-    border: 1px solid #e2e8f0;
-    padding: 10px 16px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-secondary:hover {
-    background: #edf2f7;
-    border-color: #cbd5e0;
-    transform: translateY(-1px);
-}
-
 /* ======================================
    Bottom Navigation
    ====================================== */
@@ -486,6 +466,7 @@ body {
     border-top: 1px solid #e1e1e1;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     border-radius: 20px 20px 0 0;
+    z-index: 1000;
 }
 
 .nav-link {
@@ -561,7 +542,7 @@ body {
 
     .payment-history-section {
         padding: 0 20px;
-        margin-bottom: 20px;
+        margin-bottom: 120px;
     }
 
     .payment-item {
@@ -582,14 +563,6 @@ body {
         width: 100%;
     }
 
-    .export-section {
-        margin-bottom: 100px;
-        padding: 20px;
-    }
-
-    .export-buttons {
-        flex-direction: column;
-    }
 
     .nav-link span {
         display: none;

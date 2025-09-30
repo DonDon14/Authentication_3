@@ -21,11 +21,11 @@
     <div class="stats-grid">
       <div class="stat-card stat-card-primary">
         <div class="stat-icon">
-          <i class="fas fa-dollar-sign"></i>
+          <i class="fas fa-peso-sign"></i>
         </div>
         <div class="stat-content">
           <p class="stat-label">Total</p>
-          <p class="stat-value">$<?= number_format($totalAmount ?? 0, 2) ?></p>
+          <p class="stat-value">₱<?= number_format($totalAmount ?? 0, 2) ?></p>
         </div>
       </div>
       
