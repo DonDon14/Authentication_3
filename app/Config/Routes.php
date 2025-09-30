@@ -36,7 +36,7 @@ $routes->get('/payments/downloadReceipt/(:num)', 'Payments::downloadReceipt/$1')
 $routes->post('/payments/verifyPayment', 'Payments::verifyPayment');
 $routes->get('/payments/getPayments/(:num)', 'Payments::getPayments/$1');
 $routes->get('/payments/getPaymentDetails/(:num)', 'Payments::getPaymentDetails/$1');
-$routes->get('/payments/viewContribution/(:num)', 'Payments::viewContribution/$1');
+$routes->get('/payments/viewContribution/(:num)', 'Contributions::viewContribution/$1');
 $routes->get('/writable/uploads/(:any)', 'Payments::serveUpload/$1');
 $routes->get('/payments/test/(:num)', 'Payments::test/$1'); // Test route
 $routes->get('/payments/testQR/(:num)', 'Payments::testQR/$1');
@@ -47,6 +47,8 @@ $routes->get('/payments/partial', 'Payments::partialPayments');
 $routes->get('/payments/addPartial', 'Payments::addPartialPayment');
 $routes->get('/payments/cleanup', 'Payments::cleanupPaymentStatuses');
 $routes->get('/payments/fixPartialPayments', 'Payments::fixPartialPayments');
+$routes->get('/contributions/getStudentPaymentHistory/(:num)/(:any)', 'Contributions::getStudentPaymentHistory/$1/$2');
+$routes->get('/payments/studentPaymentHistory/(:num)/(:any)', 'Contributions::getStudentPaymentHistory/$1/$2');
 
 // Alternative routes to handle routing issues
 $routes->get('payments/viewContribution/(:num)', 'Payments::viewContribution/$1');
@@ -56,3 +58,5 @@ $routes->get('Authentication_3/payments/viewContribution/(:num)', 'Payments::vie
 $routes->get('/profile', 'Auth::profile');
 $routes->post('/profile/update', 'Auth::updateProfile');
 $routes->get('/settings', 'Auth::settings');
+$routes->get('payments/getQRCode/(:any)/(:num)', 'Payments::getQRCode/$1/$2');
+//$routes->get('/public/js/contribution_details.js', 'Home::serveJs');

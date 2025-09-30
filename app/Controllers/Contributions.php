@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ContributionModel;
+use App\Models\PaymentModel;
 use CodeIgniter\Controller;
 
 class Contributions extends Controller
@@ -206,5 +207,151 @@ class Contributions extends Controller
             'success' => false,
             'message' => 'Contribution not found!'
         ]);
+    }
+
+    // View contribution details
+    public function viewContribution($contributionId)
+    {
+        $contributionModel = new ContributionModel();
+        $paymentModel = new PaymentModel();
+        
+        // Get contribution details
+        $contribution = $contributionModel->find($contributionId);
+        if (!$contribution) {
+            return redirect()->to('/contributions')->with('error', 'Contribution not found.');
+        }
+        
+        // Get all payments for this contribution - grouped by student
+        $allPayments = $paymentModel->findByContribution($contributionId);
+        
+        // Group payments by student and calculate totals
+        $studentPayments = [];
+        foreach ($allPayments as $payment) {
+            $studentId = $payment['student_id'];
+            
+            if (!isset($studentPayments[$studentId])) {
+                $studentPayments[$studentId] = [
+                    'id' => $payment['id'], // Use first payment ID for modal reference
+                    'student_id' => $payment['student_id'],
+                    'student_name' => $payment['student_name'],
+                    'contribution_id' => $payment['contribution_id'],
+                    'total_paid' => 0,
+                    'payment_count' => 1,
+                    'first_payment_date' => $payment['payment_date'],
+                    'last_payment_date' => $payment['payment_date'],
+                    'payment_status' => $payment['payment_status'], // Will be updated based on total
+                    'payment_method' => $payment['payment_method'], // Last payment method
+                    'verification_code' => $payment['verification_code']
+                ];
+            }
+            
+            // Accumulate payment data
+            $studentPayments[$studentId]['total_paid'] += $payment['amount_paid'];
+            $studentPayments[$studentId]['payment_count']++;
+            
+            // Update dates
+            if (strtotime($payment['payment_date']) < strtotime($studentPayments[$studentId]['first_payment_date'])) {
+                $studentPayments[$studentId]['first_payment_date'] = $payment['payment_date'];
+            }
+            if (strtotime($payment['payment_date']) > strtotime($studentPayments[$studentId]['last_payment_date'])) {
+                $studentPayments[$studentId]['last_payment_date'] = $payment['payment_date'];
+                $studentPayments[$studentId]['payment_method'] = $payment['payment_method'];
+            }
+            
+            // Determine overall status
+            if ($payment['payment_status'] === 'partial') {
+                $studentPayments[$studentId]['payment_status'] = 'partial';
+            }
+        }
+        
+        // Convert back to array and determine final payment status
+        $payments = array_values($studentPayments);
+        foreach ($payments as &$payment) {
+            if (!isset($payment['payment_count'])) {
+                $payment['payment_count'] = 1;
+            }
+            if (!isset($payment['total_paid'])) {
+                $payment['total_paid'] = 0;
+            }
+            
+            $contributionAmount = (float)$contribution['amount'];
+            $totalPaid = $payment['total_paid'];
+            
+            if ($totalPaid >= $contributionAmount) {
+                $payment['payment_status'] = 'fully_paid';
+                $payment['remaining_balance'] = 0;
+            } else {
+                $payment['payment_status'] = 'partial';
+                $payment['remaining_balance'] = $contributionAmount - $totalPaid;
+            }
+            
+            // Add amount_paid for compatibility
+            $payment['amount_paid'] = $payment['total_paid'];
+            $payment['payment_date'] = $payment['last_payment_date'];
+        }
+
+        foreach ($payments as $p) {
+            log_message('debug', 'Student: ' . $p['student_id'] . ' payment_count: ' . (isset($p['payment_count']) ? $p['payment_count'] : 'NOT SET'));
+        }
+                
+        // Calculate statistics
+        $stats = [
+            'total_payments' => count($payments),
+            'total_amount' => array_sum(array_column($payments, 'total_paid')),
+            'average_amount' => count($payments) > 0 ? array_sum(array_column($payments, 'total_paid')) / count($payments) : 0,
+            'unique_students' => count($payments)
+        ];
+        
+        $data = [
+            'contribution' => $contribution,
+            'payments' => $payments,
+            'stats' => $stats
+        ];
+        
+        return view('payments/contribution_details', $data);
+    }
+
+    /**
+     * Get complete payment history for a student and contribution
+     */
+    public function getStudentPaymentHistory($contributionId, $studentId)
+    {
+        $paymentModel = new PaymentModel();
+        
+        try {
+            $payments = $paymentModel->where([
+                'contribution_id' => $contributionId,
+                'student_id' => $studentId
+            ])->orderBy('payment_date', 'DESC')->findAll();
+
+            if (!$payments) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No payment history found'
+                ]);
+            }
+
+            // Calculate totals
+            $totalPaid = array_sum(array_column($payments, 'amount_paid'));
+            $contribution = (new ContributionModel())->find($contributionId);
+            $remainingBalance = $contribution['amount'] - $totalPaid;
+
+            return $this->response->setJSON([
+                'success' => true,
+                'payments' => $payments,
+                'summary' => [
+                    'total_paid' => $totalPaid,
+                    'remaining_balance' => $remainingBalance,
+                    'payment_count' => count($payments)
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Payment history error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error retrieving payment history'
+            ]);
+        }
     }
 }

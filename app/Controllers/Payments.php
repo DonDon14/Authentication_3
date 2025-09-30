@@ -349,7 +349,8 @@ public function history()
                 'stats' => [
                     'total_payments' => count($payments),
                     'total_amount' => $totalAmount,
-                    'average_amount' => count($payments) > 0 ? $totalAmount / count($payments) : 0
+                    'average_amount' => count($payments) > 0 ? $totalAmount / count($payments) : 0,
+                    'payment_count' => count($payments)
                 ]
                 ];
         
@@ -852,70 +853,32 @@ public function history()
     }
     
     // Get payment details with QR code for modal display
-    public function getPaymentDetails($paymentId = null)
+    public function getPaymentDetails($paymentId)
     {
-        if (!$paymentId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Payment ID is required.'
-            ]);
-        }
+        $paymentModel = new PaymentModel();
+        $contributionModel = new ContributionModel();
 
         try {
-            $paymentModel = new PaymentModel();
-            $contributionModel = new ContributionModel();
-            
-            // Get payment details
             $payment = $paymentModel->find($paymentId);
             if (!$payment) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Payment not found.'
+                    'message' => 'Payment not found'
                 ]);
             }
-            
-            // Get related data
-            $contribution = $contributionModel->find($payment['contribution_id']);
-            
-            // Check if QR receipt exists
-            $qrImagePath = null;
-            if (!empty($payment['qr_receipt_path'])) {
-                $fullfilePath = WRITEPATH . 'uploads/' . $payment['qr_receipt_path'];
-                if (file_exists($fullfilePath)) {
-                    $qrImagePath = base_url('writable/uploads/' . $payment['qr_receipt_path']);
-                }
-            }
 
-            // Prepare response data
-            $responseData = [
-                'payment' => [
-                    'id' => $payment['id'],
-                    'student_id' => $payment['student_id'],
-                    'student_name' => $payment['student_name'],
-                    'amount_paid' => $payment['amount_paid'],
-                    'payment_method' => $payment['payment_method'],
-                    'payment_date' => $payment['payment_date'],
-                    'payment_status' => $payment['payment_status'],
-                    'verification_code' => $payment['verification_code'] ?? 'N/A',
-                    'debug_all_fields' => $payment  // Show all fields for debugging
-                ],
-                'contribution' => [
-                    'title' => $contribution['title'],
-                    'amount' => $contribution['amount']
-                ],
-                'qr_image_url' => $qrImagePath
-            ];
-            
+            $contribution = $contributionModel->find($payment['contribution_id']);
+
             return $this->response->setJSON([
                 'success' => true,
-                'data' => $responseData
+                'payment' => $payment,
+                'contribution' => $contribution
             ]);
-            
         } catch (\Exception $e) {
-            log_message('error', 'Get payment details error: ' . $e->getMessage());
+            log_message('error', 'Error getting payment details: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error retrieving payment details.'
+                'message' => 'Error retrieving payment details'
             ]);
         }
     }
@@ -1248,5 +1211,67 @@ public function history()
             'message' => "Fixed $fixedCount payment records",
             'fixed_count' => $fixedCount
         ]);
+    }
+
+    /**
+     * Get student payment history for a contribution
+     */
+    public function getStudentPaymentHistory($studentId, $contributionId)
+    {
+        $paymentModel = new PaymentModel();
+        
+        try {
+            $payments = $paymentModel->select('
+                payments.*, 
+                qr_receipt_path
+            ')
+            ->where('student_id', $studentId)
+            ->where('contribution_id', $contributionId)
+            ->orderBy('payment_date', 'DESC')
+            ->findAll();
+
+            $totalPaid = array_sum(array_column($payments, 'amount_paid'));
+            $contribution = (new ContributionModel())->find($contributionId);
+            $remainingBalance = $contribution['amount'] - $totalPaid;
+
+            return $this->response->setJSON([
+                'success' => true,
+                'payments' => $payments,
+                'summary' => [
+                    'total_paid' => $totalPaid,
+                    'remaining_balance' => $remainingBalance,
+                    'payment_count' => count($payments)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Payment history error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error retrieving payment history'
+            ]);
+        }
+    }
+
+    public function getQRCode($studentId, $contributionId) 
+    {
+        $qrData = json_encode([
+            'student_id' => $studentId,
+            'contribution_id' => $contributionId,
+            'timestamp' => time()
+        ]);
+        
+        $writer = new PngWriter();
+        $qrCode = QrCode::create($qrData)
+            ->setSize(300)
+            ->setMargin(10)
+            ->setForegroundColor(new Color(0, 0, 0))
+            ->setBackgroundColor(new Color(255, 255, 255));
+        
+        $result = $writer->write($qrCode);
+        
+        return $this->response
+            ->setHeader('Content-Type', $result->getMimeType())
+            ->setHeader('Content-Disposition', 'inline; filename="payment_qr.png"')
+            ->setBody($result->getString());
     }
 }

@@ -38,9 +38,13 @@ class PaymentModel extends Model
      */
     public function findByContribution($contributionId)
     {
-        return $this->where('contribution_id', $contributionId)
-                   ->orderBy('payment_date', 'DESC')
-                   ->findAll();
+        return $this->select('
+            payments.*,
+            COUNT(*) OVER (PARTITION BY student_id) as payment_count
+        ')
+        ->where('contribution_id', $contributionId)
+        ->orderBy('payment_date', 'DESC')
+        ->findAll();
     }
 
     /**
@@ -327,7 +331,7 @@ class PaymentModel extends Model
     {
         return $this->where('contribution_id', $contributionId)
                    ->where('student_id', $studentId)
-                   ->orderBy('payment_sequence', 'ASC')
+                   ->orderBy('payment_date', 'DESC')
                    ->findAll();
     }
 
