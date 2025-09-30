@@ -15,6 +15,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-bottom: 0;
+    margin-bottom: 0;
 }
 
 .contribution-details-container {
@@ -23,11 +25,12 @@ body {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 900px;
-    min-height: 90vh;
+    min-height: calc(100vh + 120px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    padding-bottom: 120px;
 }
 
 /* ======================================

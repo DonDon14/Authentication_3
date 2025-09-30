@@ -320,7 +320,7 @@
           <i class="fas fa-dollar-sign"></i>
         </div>
         <div class="stat-content">
-          <h4>$<?= number_format($stats['total_amount'], 2) ?></h4>
+          <h4>₱<?= number_format($stats['total_amount'], 2) ?></h4>
           <p>Total Collected</p>
         </div>
       </div>
@@ -330,7 +330,7 @@
           <i class="fas fa-chart-line"></i>
         </div>
         <div class="stat-content">
-          <h4>$<?= number_format($stats['average_amount'], 2) ?></h4>
+          <h4>₱<?= number_format($stats['average_amount'], 2) ?></h4>
           <p>Average Payment</p>
         </div>
       </div>
@@ -383,7 +383,7 @@
                 </div>
               </div>
               <div class="payment-amount">
-                <span class="amount">$<?= number_format((float)($payment['amount_paid'] ?? $payment['amount'] ?? 0), 2) ?></span>
+                <span class="amount">₱<?= number_format((float)($payment['amount_paid'] ?? $payment['amount'] ?? 0), 2) ?></span>
                 <span class="status status-<?= strtolower($payment['payment_status']) ?>">
                   <i class="fas fa-<?= $payment['payment_status'] === 'completed' ? 'check-circle' : 'clock' ?>"></i>
                   <?= ucfirst($payment['payment_status']) ?>
@@ -449,56 +449,188 @@
   <script>
     // Export to CSV functionality
     function exportToCSV() {
-      const csvData = [];
-      csvData.push(['Student ID', 'Payment Date', 'Amount', 'Payment Method', 'Status']);
-      
-      <?php if (count($payments) > 0): ?>
-      <?php foreach ($payments as $payment): ?>
-      csvData.push([
-        '<?= esc($payment['student_id']) ?>',
-        '<?= date('Y-m-d H:i:s', strtotime($payment['payment_date'])) ?>',
-        '<?= $payment['amount'] ?>',
-        '<?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?>',
-        '<?= ucfirst($payment['payment_status']) ?>'
-      ]);
-      <?php endforeach; ?>
-      <?php endif; ?>
-      
-      const csvContent = csvData.map(row => row.join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = '<?= esc($contribution['title']) ?>_payments.csv';
-      a.click();
-      window.URL.revokeObjectURL(url);
+      console.log('Export to CSV triggered');
+
+      try {
+        const csvData = [];
+        csvData.push(['Student Name', 'Student ID', 'Payment Date', 'Amount', 'Payment Method', 'Status', 'Verification Code']);
+        
+        // Add payment data
+        <?php if (count($payments) > 0): ?>
+        <?php foreach ($payments as $payment): ?>
+        csvData.push([
+          '<?= addslashes(esc($payment['student_name'])) ?>',
+          '<?= esc($payment['student_id']) ?>',
+          '<?= date('Y-m-d H:i:s', strtotime($payment['payment_date'])) ?>',
+          '<?= number_format((float)($payment['amount_paid'] ?? $payment['amount'] ?? 0), 2) ?>',
+          '<?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?>',
+          '<?= ucfirst($payment['payment_status']) ?>',
+          '<?= esc($payment['verification_code']) ?>'
+        ]);
+        <?php endforeach; ?>
+        <?php endif; ?>
+
+        if (csvData.length <= 1) {
+          alert('No payment data available to export.');
+          return;
+        }
+        
+        // Convert to CSV format
+        const csvContent = csvData.map(row => 
+          row.map(cell => {
+            // Escape quotes and wrap in quotes if contains comma
+            const escaped = String(cell).replace(/"/g, '""');
+            return escaped.includes(',') ? `"${escaped}"` : escaped;
+          }).join(',')
+        ).join('\n');
+        
+        // Create and download file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        
+        // Create filename with contribution title and date
+        const contributionTitle = '<?= preg_replace('/[^a-zA-Z0-9_-]/', '_', esc($contribution['title'])) ?>';
+        const currentDate = new Date().toISOString().split('T')[0];
+        const filename = `${contributionTitle}_payments_${currentDate}.csv`;
+        
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        console.log('CSV export completed successfully');
+
+      } catch (error) {
+        console.error('Error exporting to CSV:', error);
+        alert('An error occurred while exporting to CSV: ' + error.message);
+      }
     }
 
     // Print report functionality
     function printReport() {
-      window.print();
+      console.log('Print report triggered');
+      
+      try {
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank');
+        
+        if (!printWindow) {
+          alert('Please allow popups to print the report');
+          return;
+        }
+        
+        // Generate print-friendly HTML
+        const printContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title><?= esc($contribution['title']) ?> - Payment Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+              .contribution-info { margin-bottom: 20px; }
+              .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+              .stat { text-align: center; padding: 10px; border: 1px solid #ddd; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; font-weight: bold; }
+              .amount { text-align: right; font-weight: bold; }
+              .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+              @media print {
+                body { margin: 0; }
+                .no-print { display: none; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1><?= esc($contribution['title']) ?></h1>
+              <h2>Payment Report</h2>
+              <p>Generated on ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <div class="contribution-info">
+              <p><strong>Description:</strong> <?= esc($contribution['description']) ?></p>
+              <p><strong>Amount:</strong> $<?= number_format($contribution['amount'], 2) ?></p>
+              <p><strong>Category:</strong> <?= esc($contribution['category']) ?></p>
+              <p><strong>Status:</strong> <?= ucfirst($contribution['status']) ?></p>
+            </div>
+            
+            <div class="stats">
+              <div class="stat">
+                <h3><?= $stats['total_payments'] ?></h3>
+                <p>Students Paid</p>
+              </div>
+              <div class="stat">
+                <h3>$<?= number_format($stats['total_amount'], 2) ?></h3>
+                <p>Total Collected</p>
+              </div>
+              <div class="stat">
+                <h3>$<?= number_format($stats['average_amount'], 2) ?></h3>
+                <p>Average Payment</p>
+              </div>
+            </div>
+            
+            <?php if (count($payments) > 0): ?>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Student ID</th>
+                  <th>Payment Date</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Status</th>
+                  <th>Verification Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($payments as $payment): ?>
+                <tr>
+                  <td><?= esc($payment['student_name']) ?></td>
+                  <td><?= esc($payment['student_id']) ?></td>
+                  <td><?= date('M j, Y g:i A', strtotime($payment['payment_date'])) ?></td>
+                  <td class="amount">$<?= number_format((float)($payment['amount_paid'] ?? $payment['amount'] ?? 0), 2) ?></td>
+                  <td><?= ucfirst(str_replace('_', ' ', $payment['payment_method'])) ?></td>
+                  <td><?= ucfirst($payment['payment_status']) ?></td>
+                  <td><?= esc($payment['verification_code']) ?></td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+            <?php else: ?>
+            <p style="text-align: center; margin: 40px 0; font-style: italic;">No payments recorded yet.</p>
+            <?php endif; ?>
+            
+            <div class="footer">
+              <p>This report was generated automatically from the payment system.</p>
+            </div>
+          </body>
+          </html>
+        `;
+        
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        
+        // Wait for content to load then print
+        printWindow.onload = function() {
+          printWindow.print();
+          printWindow.close();
+        };
+        
+        console.log('Print report completed successfully');
+        
+      } catch (error) {
+        console.error('Error printing report:', error);
+        alert('An error occurred while printing the report: ' + error.message);
+      }
     }
   </script>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
-    <a href="<?= base_url('dashboard') ?>" class="nav-link">
-      <i class="fas fa-home"></i>
-      <span>Home</span>
-    </a>
-    <a href="<?= base_url('payments') ?>" class="nav-link">
-      <i class="fas fa-credit-card"></i>
-      <span>Payments</span>
-    </a>
-    <a href="<?= base_url('contributions') ?>" class="nav-link active">
-      <i class="fas fa-hand-holding-usd"></i>
-      <span>Contributions</span>
-    </a>
-    <a href="<?= base_url('payments/history') ?>" class="nav-link">
-      <i class="fas fa-clock"></i>
-      <span>History</span>
-    </a>
-  </nav>
+  
 
 </div>
 
