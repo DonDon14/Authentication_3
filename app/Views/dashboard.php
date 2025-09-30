@@ -174,6 +174,10 @@
               <i class="fas fa-hand-holding-usd"></i>
               Contributions
             </button>
+            <button class="btn-secondary btn-warning" onclick="window.location.href='<?= base_url('payments/partial') ?>'">
+              <i class="fas fa-clock"></i>
+              Partial Payments
+            </button>
           </div>
         </div>
       </div>

@@ -193,34 +193,35 @@ class Auth extends BaseController
         }
         $session = session();
 
-        try{
-        // Load models
-        $paymentModel = new \App\Models\PaymentModel();
-        $contributionModel = new \App\Models\ContributionModel();
+        try {
+            // Load models
+            $paymentModel = new \App\Models\PaymentModel();
+            $contributionModel = new \App\Models\ContributionModel();
 
-        // Get recent payments (last 10)
-        $recentPayments = $paymentModel->select('
-            payments.*, contributions.title as contribution_title,
-            contributions.category
+            // Get recent payments (last 10) - FIXED QUERY
+            $recentPayments = $paymentModel->select('
+                payments.*, 
+                contributions.title as contribution_title,
+                contributions.category
             ')
             ->join('contributions', 'contributions.id = payments.contribution_id', 'left')
             ->orderBy('payments.payment_date', 'DESC')
             ->limit(10)
             ->findAll();
 
-        // Get dashboard stats
-        $totalCollections = $paymentModel->selectSum('amount_paid')->first()['amount_paid'] ?? 0;
-        
+            // Get dashboard stats - FIXED
+            $totalCollectionsResult = $paymentModel->selectSum('amount_paid')->first();
+            $totalCollections = $totalCollectionsResult['amount_paid'] ?? 0;
 
-        $verifiedCount = $paymentModel->where('payment_status', 'completed')->countAllResults();
-        $pendingCount = $paymentModel->where('payment_status', 'pending')->countAllResults();
+            $verifiedCount = $paymentModel->where('payment_status', 'completed')->countAllResults();
+            $pendingCount = $paymentModel->where('payment_status', 'pending')->countAllResults();
 
-        // Get today's payments count
-        $todayCount = $paymentModel->where('DATE(payment_date)', date('Y-m-d'))->countAllResults();
+            // Get today's payments count
+            $todayCount = $paymentModel->where('DATE(payment_date)', date('Y-m-d'))->countAllResults();
 
-        // Debug logging
-        log_message('debug', 'Recent payments count: ' . count($recentPayments));
-        log_message('debug', 'Total collections: ' . $totalCollections);
+            // Debug logging
+            log_message('debug', 'Recent payments count: ' . count($recentPayments));
+            log_message('debug', 'Total collections: ' . $totalCollections);
 
         } catch (\Exception $e) {
             log_message('error', 'Dashboard data retrieval error: ' . $e->getMessage());
@@ -230,8 +231,10 @@ class Auth extends BaseController
             $pendingCount = 0;
             $todayCount = 0;
         }
+
         $data = [
             'name' => $session->get('name'),
+            'email' => $session->get('email'),
             'recentPayments' => $recentPayments,
             'stats' => [
                 'total_collections' => $totalCollections,
@@ -241,8 +244,7 @@ class Auth extends BaseController
             ]
         ];
 
-        return view('dashboard', $data); // app/Views/dashboard.php
-            
+        return view('dashboard', $data);
     }
 
     private function isLoggedIn()

@@ -71,6 +71,7 @@ class Payments extends Controller
             $studentName = $this->request->getPost('student_name');
             $amount = $this->request->getPost('amount');
             $paymentMethod = $this->request->getPost('payment_method') ?? 'cash';
+            $paymentType = $this->request->getPost('payment_type') ?? 'partial'; // New field
 
             // Validate required fields
             if (empty($contributionId) || empty($studentId) || empty($amount)) {
@@ -80,36 +81,62 @@ class Payments extends Controller
                 ]);
             }
 
-            // Check if student has already paid for this contribution
-            if ($paymentModel->hasStudentPaid($contributionId, $studentId)){
+            // Check current payment status
+            $paymentStatus = $paymentModel->getStudentPaymentStatus($contributionId, $studentId);
+            
+            if ($paymentStatus['status'] === 'fully_paid') {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Student has already paid for this contribution.'
+                    'message' => 'This student has already fully paid for this contribution.',
+                    'payment_status' => $paymentStatus
                 ]);
+            }
+
+            // Validate amount doesn't exceed remaining balance
+            if ($paymentStatus['status'] === 'partial') {
+                $remainingBalance = (float)$paymentStatus['remaining_balance'];
+                $paymentAmount = (float)$amount;
+                
+                log_message('info', "Validating partial payment: Amount: $paymentAmount, Remaining: $remainingBalance");
+                
+                if ($paymentAmount > $remainingBalance) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Payment amount ($' . number_format($paymentAmount, 2) . ') exceeds remaining balance ($' . number_format($remainingBalance, 2) . ')'
+                    ]);
+                }
             }
 
             $data = [
                 'contribution_id' => $contributionId,
                 'student_id' => $studentId,
                 'student_name' => $studentName,
-                'amount_paid' => (float)$amount,  // Fixed: use amount_paid instead of amount
+                'amount_paid' => (float)$amount,
                 'payment_method' => $paymentMethod,
-                'payment_status' => 'completed',
-                'payment_date' => date('Y-m-d H:i:s'),
-                'recorded_by' => session()->get('user_id'),
-                'created_at' => date('Y-m-d H:i:s')
+                'recorded_by' => session()->get('user_id')
             ];
 
             $paymentId = $paymentModel->recordPayment($data);
             
             if ($paymentId) {
+                // Get updated payment status after recording
+                $updatedStatus = $paymentModel->getStudentPaymentStatus($contributionId, $studentId);
+                
+                log_message('info', 'Updated payment status after recording: ' . json_encode($updatedStatus));
+                
                 // Generate QR code receipt
                 $receiptResponse = $this->generateQRReceipt($paymentId);
                 
+                $message = $updatedStatus['status'] === 'fully_paid' 
+                    ? 'Payment completed! Student has fully paid this contribution.' 
+                    : 'Partial payment recorded. Remaining balance: $' . number_format($updatedStatus['remaining_balance'], 2);
+                
                 $response = [
                     'success' => true,
-                    'message' => 'Payment recorded successfully!',
-                    'payment_id' => $paymentId
+                    'message' => $message,
+                    'payment_id' => $paymentId,
+                    'payment_status' => $updatedStatus,
+                    'is_fully_paid' => $updatedStatus['status'] === 'fully_paid'
                 ];
                 
                 // Add receipt data if generated successfully
@@ -130,7 +157,7 @@ class Payments extends Controller
             log_message('error', 'Payment save error: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'An error occurred while recording the payment.'
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -324,10 +351,11 @@ public function history()
                     'total_amount' => $totalAmount,
                     'average_amount' => count($payments) > 0 ? $totalAmount / count($payments) : 0
                 ]
-            ];
-
+                ];
+        
             log_message('info', 'Rendering contribution_details view');
             return view('payments/contribution_details', $data);
+        
         } catch (\Exception $e) {
             log_message('error', 'View contribution error: ' . $e->getMessage());
             // Don't redirect - show error page instead
@@ -1025,5 +1053,200 @@ public function history()
             echo "<p style='color: red;'>❌ Error: " . $e->getMessage() . "</p>";
             echo "<pre>" . $e->getTraceAsString() . "</pre>";
         }
+    }
+
+    /**
+     * Get student payment status for a contribution
+     */
+    public function getPaymentStatus()
+    {
+        $contributionId = $this->request->getPost('contribution_id');
+        $studentId = $this->request->getPost('student_id');
+        
+        if (!$contributionId || !$studentId) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Contribution ID and Student ID are required'
+            ]);
+        }
+        
+        $paymentModel = new PaymentModel();
+        $status = $paymentModel->getStudentPaymentStatus($contributionId, $studentId);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $status
+        ]);
+    }
+
+    /**
+     * Show partial payments view - FIXED VERSION
+     */
+    public function partialPayments()
+    {
+        log_message('info', 'partialPayments method called');
+        
+        try {
+            $paymentModel = new PaymentModel();
+            
+            // Use the new method for better results
+            $partialPayments = $paymentModel->getLatestPartialPayments();
+            
+            log_message('info', 'Found ' . count($partialPayments) . ' partial payments');
+            log_message('debug', 'Partial payments data: ' . json_encode($partialPayments));
+            
+            $data = [
+                'partialPayments' => $partialPayments
+            ];
+            
+            return view('partial_payments', $data);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error in partialPayments: ' . $e->getMessage());
+            return view('partial_payments', ['partialPayments' => []]);
+        }
+    }
+
+    /**
+     * Add payment for existing partial payment
+     */
+    public function addPartialPayment()
+    {
+        $contributionId = $this->request->getGet('contribution');
+        $studentId = $this->request->getGet('student');
+        
+        // Debug logging
+        log_message('info', 'addPartialPayment called with contribution: ' . $contributionId . ', student: ' . $studentId);
+        
+        if (!$contributionId || !$studentId) {
+            log_message('error', 'Missing required parameters in addPartialPayment');
+            return redirect()->to('/payments/partial')->with('error', 'Missing required parameters.');
+        }
+        
+        try {
+            $contributionModel = new ContributionModel();
+            $paymentModel = new PaymentModel();
+            
+            $contribution = $contributionModel->find($contributionId);
+            if (!$contribution) {
+                log_message('error', 'Contribution not found: ' . $contributionId);
+                return redirect()->to('/payments/partial')->with('error', 'Contribution not found.');
+            }
+            
+            $paymentStatus = $paymentModel->getStudentPaymentStatus($contributionId, $studentId);
+            log_message('info', 'Payment status: ' . json_encode($paymentStatus));
+            
+            if ($paymentStatus['status'] === 'fully_paid') {
+                return redirect()->to('/payments/partial')->with('info', 'This student has already fully paid for this contribution.');
+            }
+            
+            // Get student name from existing payments
+            $studentName = '';
+            if (!empty($paymentStatus['payments'])) {
+                $studentName = $paymentStatus['payments'][0]['student_name'];
+            }
+            
+            $data = [
+                'contribution' => $contribution,
+                'student_id' => $studentId,
+                'student_name' => $studentName,
+                'payment_status' => $paymentStatus,
+                'all_contributions' => $contributionModel->where('status', 'active')->findAll(),
+                'mode' => 'partial_payment'
+            ];
+            
+            // Load all users for search functionality
+            $usersModel = new UsersModel();
+            $data['all_users'] = $usersModel->findAll();
+            
+            log_message('info', 'Rendering payments view for partial payment');
+            return view('payments', $data);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error in addPartialPayment: ' . $e->getMessage());
+            return redirect()->to('/payments/partial')->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Clean up payment statuses (admin function)
+     */
+    public function cleanupPaymentStatuses()
+    {
+        // Only allow this for admin/development
+        if (!session()->get('user_id')) {
+            return redirect()->to('/login');
+        }
+        
+        $paymentModel = new PaymentModel();
+        $fixedCount = $paymentModel->cleanupPaymentStatuses();
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => "Cleanup completed. Fixed {$fixedCount} payment records.",
+            'fixed_count' => $fixedCount
+        ]);
+    }
+
+    /**
+     * Fix existing partial payments data
+     */
+    public function fixPartialPayments()
+    {
+        if (!session()->get('user_id')) {
+            return redirect()->to('/login');
+        }
+        
+        $paymentModel = new PaymentModel();
+        
+        // Get all student/contribution combinations
+        $query = "
+            SELECT DISTINCT student_id, contribution_id 
+            FROM payments 
+            WHERE payment_status IN ('partial', 'fully_paid')
+        ";
+        
+        $combinations = $paymentModel->db->query($query)->getResultArray();
+        $fixedCount = 0;
+        
+        foreach ($combinations as $combo) {
+            $studentId = $combo['student_id'];
+            $contributionId = $combo['contribution_id'];
+            
+            // Recalculate payment status
+            $payments = $paymentModel->where('contribution_id', $contributionId)
+                                    ->where('student_id', $studentId)
+                                    ->orderBy('payment_sequence', 'ASC')
+                                    ->findAll();
+            
+            if (empty($payments)) continue;
+            
+            $totalPaid = array_sum(array_column($payments, 'amount_paid'));
+            $totalDue = $payments[0]['total_amount_due'];
+            $isFullyPaid = $totalPaid >= $totalDue;
+            $remainingBalance = max(0, $totalDue - $totalPaid);
+            
+            log_message('info', "Fixing payment for student $studentId, contribution $contributionId: Total Paid: $totalPaid, Total Due: $totalDue, Fully Paid: " . ($isFullyPaid ? 'Yes' : 'No'));
+            
+            // Update all payments for this combination
+            $newStatus = $isFullyPaid ? 'fully_paid' : 'partial';
+            
+            $updateQuery = "
+                UPDATE payments 
+                SET payment_status = ?,
+                    remaining_balance = ?,
+                    updated_at = NOW()
+                WHERE contribution_id = ? AND student_id = ?
+            ";
+            
+            $paymentModel->db->query($updateQuery, [$newStatus, $remainingBalance, $contributionId, $studentId]);
+            $fixedCount += $paymentModel->db->affectedRows();
+        }
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => "Fixed $fixedCount payment records",
+            'fixed_count' => $fixedCount
+        ]);
     }
 }

@@ -59,6 +59,49 @@
     </div>
     <?php endif; ?>
 
+    <!-- Partial Payment Information -->
+    <?php if (isset($mode) && $mode === 'partial_payment'): ?>
+    <div class="partial-payment-info-card">
+      <div class="contribution-card-header">
+        <h3><i class="fas fa-clock"></i> Adding Partial Payment</h3>
+      </div>
+      <div class="contribution-card-body">
+        <div class="contribution-details">
+          <h4><?= esc($contribution['title']) ?></h4>
+          <p class="contribution-desc"><?= esc($contribution['description']) ?></p>
+          <div class="payment-status-info">
+            <div class="status-row">
+              <span class="label">Total Due:</span>
+              <span class="value">$<?= number_format($payment_status['total_amount_due'], 2) ?></span>
+            </div>
+            <div class="status-row">
+              <span class="label">Already Paid:</span>
+              <span class="value">$<?= number_format($payment_status['total_paid'], 2) ?></span>
+            </div>
+            <div class="status-row">
+              <span class="label">Remaining Balance:</span>
+              <span class="value remaining-balance">$<?= number_format($payment_status['remaining_balance'], 2) ?></span>
+            </div>
+          </div>
+          
+          <?php if (count($payment_status['payments']) > 0): ?>
+          <div class="payment-history">
+            <h5>Payment History:</h5>
+            <ul>
+              <?php foreach ($payment_status['payments'] as $payment): ?>
+                <li>
+                  Payment <?= $payment['payment_sequence'] ?>: $<?= number_format($payment['amount_paid'], 2) ?> 
+                  (<?= date('M j, Y', strtotime($payment['payment_date'])) ?>)
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <div class="qr-code-scanner">
         <h3>Scan QR Code</h3>
         <div class="qr-button-group">
@@ -188,17 +231,41 @@
         <input type="number" id="amount" name="amount" 
                value="<?= isset($contribution) ? number_format($contribution['amount'], 2, '.', '') : '' ?>" 
                placeholder="0.00" step="0.01" min="0" required
-               <?= isset($contribution) ? 'readonly' : '' ?>>
+               <?= isset($contribution) ? '' : '' ?>>
         <i class="fas fa-dollar-sign input-icon"></i>
+        
+        <!-- Payment Type Selection -->
+        <div class="payment-type-section" style="margin-top: 10px;">
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="payment_type" value="full" id="fullPayment" checked>
+              <span class="radio-custom"></span>
+              <span class="radio-text">Full Payment</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="payment_type" value="partial" id="partialPayment">
+              <span class="radio-custom"></span>
+              <span class="radio-text">Partial Payment</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Payment Status Display -->
+        <div id="paymentStatusDisplay" style="display: none; margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #17a2b8;">
+          <div class="status-info">
+            <p><strong>Payment Status:</strong> <span id="statusText"></span></p>
+            <p><strong>Total Due:</strong> $<span id="totalDue">0.00</span></p>
+            <p><strong>Already Paid:</strong> $<span id="totalPaid">0.00</span></p>
+            <p><strong>Remaining Balance:</strong> $<span id="remainingBalance">0.00</span></p>
+          </div>
+          <div id="paymentHistory" style="margin-top: 10px;">
+            <strong>Payment History:</strong>
+            <ul id="paymentHistoryList" style="margin: 8px 0; padding-left: 20px;"></ul>
+          </div>
+        </div>
+        
         <?php if (isset($contribution)): ?>
-        <small class="field-note">Amount is fixed for this contribution: $<?= number_format($contribution['amount'], 2) ?></small>
-        <!-- Debug info -->
-        <script>
-          console.log('Contribution data in view:', <?= json_encode($contribution ?? null) ?>);
-          console.log('Amount field should have value:', '<?= isset($contribution) ? number_format($contribution['amount'], 2, '.', '') : '' ?>');
-        </script>
-        <?php else: ?>
-        <small class="field-note">Amount will auto-fill when you select a contribution</small>
+        <small class="field-note">Full amount: $<?= number_format($contribution['amount'], 2) ?> | You can make partial payments</small>
         <?php endif; ?>
       </div>
 

@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize amount field for pre-selected contributions
   initializeAmountField();
   
+  // Initialize payment type functionality
+  initializePaymentType();
+  
   const paymentForm = document.getElementById('paymentForm');
   const successMessage = document.getElementById('successMessage');
   const errorMessage = document.getElementById('errorMessage');
@@ -1250,3 +1253,475 @@ function closeQRReceiptModal() {
     }, 500);
   }
 }
+
+/**
+ * Initialize payment type functionality
+ */
+function initializePaymentType() {
+  const fullPaymentRadio = document.getElementById('fullPayment');
+  const partialPaymentRadio = document.getElementById('partialPayment');
+  const amountField = document.getElementById('amount');
+  const studentIdField = document.getElementById('studentId');
+  const contributionField = document.getElementById('contributionType') || document.getElementById('contributionId');
+  
+  if (!fullPaymentRadio || !partialPaymentRadio) return;
+  
+  // Handle payment type change
+  [fullPaymentRadio, partialPaymentRadio].forEach(radio => {
+    radio.addEventListener('change', function() {
+      updatePaymentTypeUI();
+      checkExistingPayments();
+    });
+  });
+  
+  // Check payments when student or contribution changes
+  if (studentIdField) {
+    studentIdField.addEventListener('blur', checkExistingPayments);
+  }
+  
+  if (contributionField) {
+    contributionField.addEventListener('change', checkExistingPayments);
+  }
+}
+
+/**
+ * Update payment type UI
+ */
+function updatePaymentTypeUI() {
+  const fullPaymentRadio = document.getElementById('fullPayment');
+  const partialPaymentRadio = document.getElementById('partialPayment');
+  const amountField = document.getElementById('amount');
+  const contribution = getContributionData();
+  
+  if (fullPaymentRadio.checked && contribution) {
+    amountField.value = parseFloat(contribution.amount).toFixed(2);
+    amountField.readOnly = true;
+    amountField.style.background = '#f8f9fa';
+  } else {
+    amountField.readOnly = false;
+    amountField.style.background = 'white';
+    if (partialPaymentRadio.checked) {
+      amountField.value = '';
+      amountField.placeholder = 'Enter partial amount';
+    }
+  }
+}
+
+/**
+ * Check existing payments for student and contribution
+ */
+async function checkExistingPayments() {
+  const studentId = document.getElementById('studentId')?.value?.trim();
+  const contributionId = getContributionId();
+  const statusDisplay = document.getElementById('paymentStatusDisplay');
+  
+  if (!studentId || !contributionId) {
+    if (statusDisplay) statusDisplay.style.display = 'none';
+    return;
+  }
+  
+  try {
+    const baseUrl = window.location.pathname.includes('Authentication_3') ? '/Authentication_3' : '';
+    const response = await fetch(`${baseUrl}/payments/getPaymentStatus`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: `contribution_id=${contributionId}&student_id=${encodeURIComponent(studentId)}`
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      displayPaymentStatus(result.data);
+    }
+  } catch (error) {
+    console.error('Error checking payment status:', error);
+  }
+}
+
+/**
+ * Display payment status information
+ */
+function displayPaymentStatus(statusData) {
+  const statusDisplay = document.getElementById('paymentStatusDisplay');
+  const statusText = document.getElementById('statusText');
+  const totalDue = document.getElementById('totalDue');
+  const totalPaid = document.getElementById('totalPaid');
+  const remainingBalance = document.getElementById('remainingBalance');
+  const paymentHistoryList = document.getElementById('paymentHistoryList');
+  const amountField = document.getElementById('amount');
+  const partialPaymentRadio = document.getElementById('partialPayment');
+  
+  if (!statusDisplay) return;
+  
+  if (statusData.status === 'not_paid') {
+    statusDisplay.style.display = 'none';
+    return;
+  }
+  
+  // Display status
+  statusDisplay.style.display = 'block';
+  
+  let statusBadge = '';
+  if (statusData.status === 'fully_paid') {
+    statusBadge = '<span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 12px; font-size: 12px;">Fully Paid</span>';
+    
+    // Disable form if fully paid
+    showPaymentCompleteMessage();
+  } else if (statusData.status === 'partial') {
+    statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 12px; font-size: 12px;">Partially Paid</span>';
+    
+    // Switch to partial payment mode and set max amount
+    partialPaymentRadio.checked = true;
+    updatePaymentTypeUI();
+    amountField.max = statusData.remaining_balance;
+    amountField.placeholder = `Max: $${statusData.remaining_balance.toFixed(2)}`;
+  }
+  
+  statusText.innerHTML = statusBadge;
+  totalDue.textContent = statusData.total_amount_due.toFixed(2);
+  totalPaid.textContent = statusData.total_paid.toFixed(2);
+  remainingBalance.textContent = statusData.remaining_balance.toFixed(2);
+  
+  // Display payment history
+  paymentHistoryList.innerHTML = '';
+  statusData.payments.forEach((payment, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      Payment ${payment.payment_sequence}: $${parseFloat(payment.amount_paid).toFixed(2)} 
+      (${new Date(payment.payment_date).toLocaleDateString()}) 
+      - ${payment.payment_method}
+    `;
+    paymentHistoryList.appendChild(li);
+  });
+}
+
+/**
+ * Show payment complete message
+ */
+function showPaymentCompleteMessage() {
+  const form = document.getElementById('paymentForm');
+  if (form) {
+    const submitBtn = form.querySelector('.btn-primary');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Payment Complete';
+      submitBtn.style.background = '#28a745';
+    }
+  }
+  
+  showSuccess('This student has already fully paid for this contribution.');
+}
+
+/**
+ * Get contribution data
+ */
+function getContributionData() {
+  const contributionSelect = document.getElementById('contributionType');
+  if (contributionSelect && contributionSelect.selectedIndex > 0) {
+    const option = contributionSelect.options[contributionSelect.selectedIndex];
+    return {
+      id: option.value,
+      amount: option.getAttribute('data-amount'),
+      title: option.textContent
+    };
+  }
+  
+  // For pre-selected contributions
+  const contributionIdField = document.getElementById('contributionId');
+  const amountField = document.getElementById('amount');
+  if (contributionIdField && amountField) {
+    return {
+      id: contributionIdField.value,
+      amount: amountField.getAttribute('value') || amountField.getAttribute('data-forced-value')
+    };
+  }
+  
+  return null;
+}
+
+/**
+ * Get contribution ID
+ */
+function getContributionId() {
+  const contributionSelect = document.getElementById('contributionType');
+  if (contributionSelect && contributionSelect.value) {
+    return contributionSelect.value;
+  }
+  
+  const contributionIdField = document.getElementById('contributionId');
+  if (contributionIdField && contributionIdField.value) {
+    return contributionIdField.value;
+  }
+  
+  return null;
+}
+
+/**
+ * Initialize partial payment mode
+ */
+function initializePartialPaymentMode() {
+  // Check if we're in partial payment mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const contributionId = urlParams.get('contribution');
+  const studentId = urlParams.get('student');
+  
+  if (contributionId && studentId) {
+    // Pre-fill form fields
+    const studentIdField = document.getElementById('studentId');
+    const contributionSelect = document.getElementById('contributionType');
+    const partialPaymentRadio = document.getElementById('partialPayment');
+    
+    if (studentIdField) {
+      studentIdField.value = studentId;
+      studentIdField.readOnly = true;
+    }
+    
+    if (contributionSelect) {
+      contributionSelect.value = contributionId;
+      contributionSelect.disabled = true;
+    }
+    
+    if (partialPaymentRadio) {
+      partialPaymentRadio.checked = true;
+      updatePaymentTypeUI();
+    }
+    
+    // Check existing payments
+    checkExistingPayments();
+  }
+}
+
+/**
+ * Partial Payments JavaScript
+ * Handles clickable payment cards and payment modal functionality
+ */
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Move these functions OUTSIDE of the DOMContentLoaded event listener (around line 1700)
+
+    /**
+     * Open payment modal for a specific partial payment
+     */
+    window.openPaymentModal = function(contributionId, studentId, studentName, contributionTitle, totalDue, remainingBalance) {
+        console.log('Opening payment modal:', {
+            contributionId, studentId, studentName, contributionTitle, totalDue, remainingBalance
+        });
+        
+        // Populate modal data
+        document.getElementById('modalStudentName').textContent = studentName;
+        document.getElementById('modalStudentId').textContent = studentId;
+        document.getElementById('modalContributionTitle').textContent = contributionTitle;
+        document.getElementById('modalTotalDue').textContent = '$' + parseFloat(totalDue).toFixed(2);
+        document.getElementById('modalAlreadyPaid').textContent = '$' + (parseFloat(totalDue) - parseFloat(remainingBalance)).toFixed(2);
+        document.getElementById('modalRemainingBalance').textContent = '$' + parseFloat(remainingBalance).toFixed(2);
+        
+        // Set hidden form fields
+        document.getElementById('hiddenContributionId').value = contributionId;
+        document.getElementById('hiddenStudentId').value = studentId;
+        document.getElementById('hiddenStudentName').value = studentName;
+        
+        // Set max amount for payment
+        const paymentAmountField = document.getElementById('paymentAmount');
+        paymentAmountField.max = remainingBalance;
+        paymentAmountField.placeholder = `Max: $${parseFloat(remainingBalance).toFixed(2)}`;
+        
+        // Show modal
+        const modal = document.getElementById('partialPaymentModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Focus on amount field
+        setTimeout(() => {
+            paymentAmountField.focus();
+        }, 100);
+    }
+
+    /**
+     * Close payment modal
+     */
+    window.closePaymentModal = function() {
+        const modal = document.getElementById('partialPaymentModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        
+        // Reset form
+        document.getElementById('partialPaymentForm').reset();
+    }
+
+    // Initialize partial payments if we're on that page
+    if (window.location.pathname.includes('/partial')) {
+      initializePartialPayments();
+    }
+});
+
+/**
+ * Initialize partial payments functionality
+ */
+function initializePartialPayments() {
+    console.log('Initializing partial payments functionality');
+    
+    // Initialize form submission
+    initializePartialPaymentForm();
+    
+    // Add hover effects
+    initializeCardHoverEffects();
+}
+
+/**
+ * Initialize partial payment form submission
+ */
+function initializePartialPaymentForm() {
+    const form = document.getElementById('partialPaymentForm');
+    
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+            
+            try {
+                const baseUrl = window.location.pathname.includes('Authentication_3') ? '/Authentication_3' : '';
+                const response = await fetch(`${baseUrl}/payments/save`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const result = await response.json();
+                console.log('Payment result:', result);
+                
+                if (result.success) {
+                    showSuccessMessage(result.message);
+                    
+                    // Check if payment is now fully paid
+                    if (result.is_fully_paid) {
+                        // Show special message for completion
+                        setTimeout(() => {
+                            showSuccessMessage('🎉 Payment completed! This record will be removed from partial payments.');
+                        }, 1000);
+                        
+                        // Close modal and refresh after longer delay
+                        setTimeout(() => {
+                            closePaymentModal();
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        // Regular partial payment - shorter delay
+                        setTimeout(() => {
+                            closePaymentModal();
+                            window.location.reload();
+                        }, 1500);
+                    }
+                } else {
+                    showErrorMessage(result.message);
+                }
+                
+            } catch (error) {
+                console.error('Payment submission error:', error);
+                showErrorMessage('An error occurred while processing the payment.');
+            } finally {
+                // Restore button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+}
+
+/**
+ * Initialize card hover effects
+ */
+function initializeCardHoverEffects() {
+    const paymentCards = document.querySelectorAll('.clickable-payment-card');
+    
+    paymentCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        });
+    });
+}
+
+/**
+ * Show success message for partial payments
+ */
+function showSuccessMessage(message) {
+    // Create or update success message element
+    let successDiv = document.getElementById('successMessage');
+    if (!successDiv) {
+        successDiv = document.createElement('div');
+        successDiv.id = 'successMessage';
+        successDiv.className = 'success-message';
+        const container = document.querySelector('.partial-payments-content');
+        if (container) {
+            container.prepend(successDiv);
+        }
+    }
+    
+    successDiv.textContent = message;
+    successDiv.style.display = 'block';
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        successDiv.style.display = 'none';
+    }, 5000);
+}
+
+/**
+ * Show error message for partial payments
+ */
+function showErrorMessage(message) {
+    // Create or update error message element
+    let errorDiv = document.getElementById('errorMessage');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'errorMessage';
+        errorDiv.className = 'error-message';
+        const container = document.querySelector('.partial-payments-content');
+        if (container) {
+            container.prepend(errorDiv);
+        }
+    }
+    
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('partialPaymentModal');
+    if (modal && e.target === modal) {
+        closePaymentModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('partialPaymentModal');
+        if (modal && modal.style.display === 'flex') {
+            closePaymentModal();
+        }
+    }
+});

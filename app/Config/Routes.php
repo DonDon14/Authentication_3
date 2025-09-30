@@ -42,6 +42,11 @@ $routes->get('/payments/test/(:num)', 'Payments::test/$1'); // Test route
 $routes->get('/payments/testQR/(:num)', 'Payments::testQR/$1');
 $routes->get('/payments/testQRSimple', 'Payments::testQRSimple');
 $routes->get('/payments/serveUpload/(:any)', 'Payments::serveUpload/$1');
+$routes->post('/payments/getPaymentStatus', 'Payments::getPaymentStatus');
+$routes->get('/payments/partial', 'Payments::partialPayments');
+$routes->get('/payments/addPartial', 'Payments::addPartialPayment');
+$routes->get('/payments/cleanup', 'Payments::cleanupPaymentStatuses');
+$routes->get('/payments/fixPartialPayments', 'Payments::fixPartialPayments');
 
 // Alternative routes to handle routing issues
 $routes->get('payments/viewContribution/(:num)', 'Payments::viewContribution/$1');
