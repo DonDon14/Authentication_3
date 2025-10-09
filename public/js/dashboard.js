@@ -1014,6 +1014,10 @@ function openSettingsModal(settingType) {
             modalTitle.textContent = 'Payment Preferences';
             modalBody.innerHTML = getPaymentContent();
             break;
+        case 'announcements':
+            modalTitle.textContent = 'Manage Announcements';
+            modalBody.innerHTML = getAnnouncementsContent();
+            break;
         case 'theme':
             modalTitle.textContent = 'Theme Settings';
             modalBody.innerHTML = getThemeContent();
@@ -1187,38 +1191,564 @@ function getHelpContent() {
     `;
 }
 
-// Utility functions
+/**
+ * Get announcements management content
+ */
+function getAnnouncementsContent() {
+    return `
+        <div class="announcements-manager">
+            <!-- Add New Announcement Button -->
+            <div class="announcement-header" style="
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #e9ecef;
+            ">
+                <h4 style="margin: 0; color: #333; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-bullhorn" style="color: #667eea;"></i>
+                    Announcements Management
+                </h4>
+                <button onclick="showAddAnnouncementForm()" class="btn btn-primary" style="
+                    background: linear-gradient(45deg, #10b981, #059669);
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    cursor: pointer;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s ease;
+                ">
+                    <i class="fas fa-plus"></i>
+                    Add New
+                </button>
+            </div>
+
+            <!-- Add/Edit Form (Initially Hidden) -->
+            <div id="announcementForm" style="display: none; margin-bottom: 25px;">
+                <div style="
+                    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+                    padding: 25px;
+                    border-radius: 12px;
+                    border: 1px solid #e2e8f0;
+                ">
+                    <h5 id="formTitle" style="
+                        margin: 0 0 20px 0; 
+                        color: #334155;
+                        font-size: 18px;
+                        font-weight: 600;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    ">
+                        <i class="fas fa-edit" style="color: #667eea;"></i>
+                        Add New Announcement
+                    </h5>
+                    
+                    <form id="announcementFormElement" onsubmit="saveAnnouncement(event)">
+                        <input type="hidden" id="announcementId" name="id">
+                        
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="announcementTitle" style="
+                                display: block; 
+                                margin-bottom: 8px; 
+                                font-weight: 600; 
+                                color: #374151;
+                            ">Title</label>
+                            <input type="text" id="announcementTitle" name="title" required style="
+                                width: 100%;
+                                padding: 12px 15px;
+                                border: 2px solid #e5e7eb;
+                                border-radius: 8px;
+                                font-size: 15px;
+                                transition: border-color 0.2s ease;
+                                box-sizing: border-box;
+                            ">
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="announcementContent" style="
+                                display: block; 
+                                margin-bottom: 8px; 
+                                font-weight: 600; 
+                                color: #374151;
+                            ">Content</label>
+                            <textarea id="announcementContent" name="content" rows="4" required style="
+                                width: 100%;
+                                padding: 12px 15px;
+                                border: 2px solid #e7e9eb;
+                                border-radius: 8px;
+                                font-size: 15px;
+                                font-family: inherit;
+                                transition: border-color 0.2s ease;
+                                resize: vertical;
+                                box-sizing: border-box;
+                            "></textarea>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="announcementType" style="
+                                display: block; 
+                                margin-bottom: 8px; 
+                                font-weight: 600; 
+                                color: #374151;
+                            ">Type</label>
+                            <select id="announcementType" name="type" required style="
+                                width: 100%;
+                                padding: 12px 15px;
+                                border: 2px solid #e7e9eb;
+                                border-radius: 8px;
+                                font-size: 15px;
+                                transition: border-color 0.2s ease;
+                                box-sizing: border-box;
+                            ">
+                                <option value="">Select Type</option>
+                                <option value="general">General</option>
+                                <option value="payment">Payment</option>
+                                <option value="urgent">Urgent</option>
+                                <option value="maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 25px;">
+                            <label style="
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                                font-weight: 600;
+                                color: #374151;
+                                cursor: pointer;
+                            ">
+                                <input type="checkbox" id="announcementActive" name="active" checked style="
+                                    width: 18px;
+                                    height: 18px;
+                                    accent-color: #667eea;
+                                ">
+                                Active (Visible to users)
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button type="button" onclick="cancelAnnouncementForm()" style="
+                                background: #6b7280;
+                                color: white;
+                                border: none;
+                                padding: 12px 20px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 500;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                transition: background-color 0.2s ease;
+                            ">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                            <button type="submit" style="
+                                background: linear-gradient(45deg, #667eea, #764ba2);
+                                color: white;
+                                border: none;
+                                padding: 12px 20px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 600;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                transition: all 0.2s ease;
+                            ">
+                                <i class="fas fa-save"></i>
+                                Save Announcement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Announcements List -->
+            <div id="announcementsList">
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 15px;
+                ">
+                    <h5 style="margin: 0; color: #334155; font-weight: 600;">
+                        Current Announcements
+                    </h5>
+                    <button onclick="loadAnnouncements()" style="
+                        background: none;
+                        border: 1px solid #d1d5db;
+                        padding: 6px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        color: #6b7280;
+                        font-size: 14px;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        transition: all 0.2s ease;
+                    ">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+                
+                <div id="announcementsContainer" style="
+                    max-height: 400px;
+                    overflow-y: auto;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 8px;
+                    background: white;
+                ">
+                    <div style="
+                        padding: 40px 20px;
+                        text-align: center;
+                        color: #6b7280;
+                    ">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+                        <p>Loading announcements...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Initialize modal content - ADD ANNOUNCEMENTS CASE
+ */
 function initializeModalContent(settingType) {
     console.log('Initializing modal content for:', settingType);
+    
+    if (settingType === 'announcements') {
+        loadAnnouncements();
+    }
 }
 
-function updateProfile(event) {
+/**
+ * ANNOUNCEMENTS MANAGEMENT FUNCTIONS
+ */
+
+// Global variable to store announcements
+let announcements = [];
+let editingAnnouncementId = null;
+
+/**
+ * Load announcements from server
+ */
+async function loadAnnouncements() {
+    try {
+        const container = document.getElementById('announcementsContainer');
+        if (!container) return;
+        
+        // Show loading
+        container.innerHTML = `
+            <div style="padding: 40px 20px; text-align: center; color: #6b7280;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 10px;"></i>
+                <p>Loading announcements...</p>
+            </div>
+        `;
+        
+        // For now, we'll use mock data. In a real app, you'd fetch from your server:
+        // const response = await fetch('/api/announcements');
+        // const data = await response.json();
+        
+        // Mock data - replace this with actual API call
+        setTimeout(() => {
+            const mockAnnouncements = [
+                {
+                    id: 1,
+                    title: "System Maintenance Notice",
+                    content: "The payment system will be under maintenance on Friday, 10 PM to 2 AM. Please complete your payments before this time.",
+                    type: "maintenance",
+                    active: true,
+                    created_at: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    title: "New Payment Method Available",
+                    content: "You can now pay using PayMaya in addition to GCash and bank transfers.",
+                    type: "payment",
+                    active: true,
+                    created_at: new Date(Date.now() - 86400000).toISOString()
+                }
+            ];
+            
+            announcements = mockAnnouncements;
+            displayAnnouncements(announcements);
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error loading announcements:', error);
+        const container = document.getElementById('announcementsContainer');
+        if (container) {
+            container.innerHTML = `
+                <div style="padding: 40px 20px; text-align: center; color: #ef4444;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                    <p>Error loading announcements</p>
+                </div>
+            `;
+        }
+    }
+}
+
+/**
+ * Display announcements in the list
+ */
+function displayAnnouncements(announcementsList) {
+    const container = document.getElementById('announcementsContainer');
+    if (!container) return;
+    
+    if (announcementsList.length === 0) {
+        container.innerHTML = `
+            <div style="padding: 40px 20px; text-align: center; color: #6b7280;">
+                <i class="fas fa-bullhorn" style="font-size: 24px; margin-bottom: 10px; opacity: 0.5;"></i>
+                <p>No announcements found</p>
+                <small>Click "Add New" to create your first announcement</small>
+            </div>
+        `;
+        return;
+    }
+    
+    const typeColors = {
+        general: '#3b82f6',
+        payment: '#10b981',
+        urgent: '#ef4444',
+        maintenance: '#f59e0b'
+    };
+    
+    container.innerHTML = announcementsList.map(announcement => `
+        <div class="announcement-item" style="
+            border-bottom: 1px solid #f3f4f6;
+            padding: 20px;
+            transition: background-color 0.2s ease;
+        " onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='white'">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <h6 style="margin: 0; color: #111827; font-weight: 600; font-size: 16px;">
+                            ${announcement.title}
+                        </h6>
+                        <span style="
+                            background: ${typeColors[announcement.type] || '#6b7280'};
+                            color: white;
+                            padding: 2px 8px;
+                            border-radius: 12px;
+                            font-size: 11px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        ">
+                            ${announcement.type}
+                        </span>
+                        ${announcement.active ? 
+                            '<span style="color: #10b981; font-size: 12px;"><i class="fas fa-eye"></i> Active</span>' : 
+                            '<span style="color: #6b7280; font-size: 12px;"><i class="fas fa-eye-slash"></i> Inactive</span>'
+                        }
+                    </div>
+                    <p style="
+                        margin: 0 0 8px 0; 
+                        color: #4b5563; 
+                        line-height: 1.4;
+                        font-size: 14px;
+                    ">
+                        ${announcement.content}
+                    </p>
+                    <small style="color: #9ca3af; font-size: 12px;">
+                        <i class="fas fa-clock"></i>
+                        Created: ${new Date(announcement.created_at).toLocaleString()}
+                    </small>
+                </div>
+                <div style="display: flex; gap: 8px; margin-left: 15px;">
+                    <button onclick="editAnnouncement(${announcement.id})" style="
+                        background: #f59e0b;
+                        color: white;
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        font-weight: 500;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        transition: background-color 0.2s ease;
+                    " title="Edit Announcement">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </button>
+                    <button onclick="deleteAnnouncement(${announcement.id})" style="
+                        background: #ef4444;
+                        color: white;
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        font-weight: 500;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        transition: background-color 0.2s ease;
+                    " title="Delete Announcement">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Show add announcement form
+ */
+function showAddAnnouncementForm() {
+    editingAnnouncementId = null;
+    const form = document.getElementById('announcementForm');
+    const formTitle = document.getElementById('formTitle');
+    const formElement = document.getElementById('announcementFormElement');
+    
+    if (form && formTitle && formElement) {
+        formTitle.innerHTML = '<i class="fas fa-plus" style="color: #10b981;"></i> Add New Announcement';
+        formElement.reset();
+        document.getElementById('announcementId').value = '';
+        form.style.display = 'block';
+        
+        // Scroll to form
+        form.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+/**
+ * Edit announcement
+ */
+function editAnnouncement(id) {
+    const announcement = announcements.find(a => a.id === id);
+    if (!announcement) return;
+    
+    editingAnnouncementId = id;
+    const form = document.getElementById('announcementForm');
+    const formTitle = document.getElementById('formTitle');
+    
+    if (form && formTitle) {
+        formTitle.innerHTML = '<i class="fas fa-edit" style="color: #f59e0b;"></i> Edit Announcement';
+        
+        // Populate form
+        document.getElementById('announcementId').value = announcement.id;
+        document.getElementById('announcementTitle').value = announcement.title;
+        document.getElementById('announcementContent').value = announcement.content;
+        document.getElementById('announcementType').value = announcement.type;
+        document.getElementById('announcementActive').checked = announcement.active;
+        
+        form.style.display = 'block';
+        form.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+/**
+ * Cancel announcement form
+ */
+function cancelAnnouncementForm() {
+    const form = document.getElementById('announcementForm');
+    if (form) {
+        form.style.display = 'none';
+        editingAnnouncementId = null;
+    }
+}
+
+/**
+ * Save announcement
+ */
+async function saveAnnouncement(event) {
     event.preventDefault();
-    showNotification('Profile updated successfully!', 'success');
-    closeSettingsModal();
+    
+    const formData = new FormData(event.target);
+    const announcementData = {
+        id: formData.get('id') || null,
+        title: formData.get('title'),
+        content: formData.get('content'),
+        type: formData.get('type'),
+        active: formData.get('active') === 'on'
+    };
+    
+    try {
+        // Show loading
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        submitBtn.disabled = true;
+        
+        // Simulate API call - replace with actual API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (editingAnnouncementId) {
+            // Update existing
+            const index = announcements.findIndex(a => a.id === editingAnnouncementId);
+            if (index !== -1) {
+                announcements[index] = {
+                    ...announcements[index],
+                    ...announcementData,
+                    id: editingAnnouncementId
+                };
+            }
+            showNotification('Announcement updated successfully!', 'success');
+        } else {
+            // Add new
+            const newAnnouncement = {
+                ...announcementData,
+                id: Date.now(), // In real app, this would come from server
+                created_at: new Date().toISOString()
+            };
+            announcements.unshift(newAnnouncement);
+            showNotification('Announcement created successfully!', 'success');
+        }
+        
+        // Reset form and refresh list
+        cancelAnnouncementForm();
+        displayAnnouncements(announcements);
+        
+        // Restore button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        
+    } catch (error) {
+        console.error('Error saving announcement:', error);
+        showNotification('Error saving announcement. Please try again.', 'error');
+        
+        // Restore button
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Announcement';
+        submitBtn.disabled = false;
+    }
 }
 
-function changePassword(event) {
-    event.preventDefault();
-    showNotification('Password changed successfully!', 'success');
-    closeSettingsModal();
-}
-
-function updateNotifications(event) {
-    event.preventDefault();
-    showNotification('Notification settings updated!', 'success');
-    closeSettingsModal();
-}
-
-function updatePaymentPreferences(event) {
-    event.preventDefault();
-    showNotification('Payment preferences updated!', 'success');
-    closeSettingsModal();
-}
-
-function saveThemeSettings() {
-    showNotification('Theme settings saved!', 'success');
-    closeSettingsModal();
+/**
+ * Delete announcement
+ */
+async function deleteAnnouncement(id) {
+    if (!confirm('Are you sure you want to delete this announcement?')) {
+        return;
+    }
+    
+    try {
+        // Simulate API call - replace with actual API call
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        announcements = announcements.filter(a => a.id !== id);
+        displayAnnouncements(announcements);
+        showNotification('Announcement deleted successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error deleting announcement:', error);
+        showNotification('Error deleting announcement. Please try again.', 'error');
+    }
 }
 
 // Make functions globally available
@@ -1229,6 +1759,12 @@ window.changePassword = changePassword;
 window.updateNotifications = updateNotifications;
 window.updatePaymentPreferences = updatePaymentPreferences;
 window.saveThemeSettings = saveThemeSettings;
+window.showAddAnnouncementForm = showAddAnnouncementForm;
+window.editAnnouncement = editAnnouncement;
+window.cancelAnnouncementForm = cancelAnnouncementForm;
+window.saveAnnouncement = saveAnnouncement;
+window.deleteAnnouncement = deleteAnnouncement;
+window.loadAnnouncements = loadAnnouncements;
 
 /**
  * Legacy function for logout confirmation

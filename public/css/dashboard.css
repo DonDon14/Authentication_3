@@ -996,3 +996,78 @@ body.dark-theme .form-group textarea {
     color: white;
 }
 
+/* Announcements Management Styles */
+.announcements-manager {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.announcement-item:last-child {
+    border-bottom: none !important;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Scrollbar styles for announcements container */
+#announcementsContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+#announcementsContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#announcementsContainer::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#announcementsContainer::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Animation for form show/hide */
+#announcementForm {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .announcement-item > div:first-child {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .announcement-item > div:first-child > div:last-child {
+        margin-left: 0 !important;
+        align-self: flex-start;
+    }
+    
+    .announcements-manager .announcement-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start !important;
+    }
+    
+    .announcements-manager .announcement-header button {
+        align-self: flex-end;
+    }
+}
+

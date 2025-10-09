@@ -113,6 +113,11 @@
                 <i class="fas fa-credit-card"></i>
                 <span>Payment Preferences</span>
               </a>
+              <!-- ADD ANNOUNCEMENTS BUTTON HERE -->
+              <a href="#" class="dropdown-item" data-setting="announcements">
+                <i class="fas fa-bullhorn"></i>
+                <span>Manage Announcements</span>
+              </a>
               <a href="#" class="dropdown-item" data-setting="theme">
                 <i class="fas fa-palette"></i>
                 <span>Theme Settings</span>
