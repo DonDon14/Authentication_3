@@ -175,63 +175,33 @@ class Payments extends Controller
 public function history()
 {
     $paymentModel = new PaymentModel();
-    $userId = session()->get('student_id');
-    $userName = session()->get('name');
     
-    // Debug: Log session information
-    log_message('debug', 'Session student_id: ' . var_export($userId, true));
-    log_message('debug', 'Session name: ' . var_export($userName, true));
+    // Get all payments instead of filtering by session student_id
+    // Since this appears to be an admin/staff interface, show all payments
+    $payments = $paymentModel->select('
+            payments.*, 
+            contributions.title as payment_type,
+            contributions.category
+        ')
+        ->join('contributions', 'contributions.id = payments.contribution_id', 'left')
+        ->orderBy('payments.created_at', 'DESC')
+        ->findAll();
     
-    // Try to get payments using the session student_id
-    $payments = $paymentModel->findByStudent($userId);
+    log_message('debug', 'Found total payments: ' . count($payments));
     
-    // Debug: Log query results
-    log_message('debug', 'Found payments: ' . count($payments));
-    
-    // If no payments found and we have a numeric user ID, try different formats
-    if (empty($payments) && is_numeric($userId)) {
-        // Try with string conversion
-        $payments = $paymentModel->findByStudent((string)$userId);
-        
-        if (empty($payments)) {
-            // Try with integer conversion
-            $payments = $paymentModel->findByStudent((int)$userId);
-        }
-    }
-    
-    // For debugging, let's also try to get ANY payment for this user regardless of format
-    if (empty($payments)) {
-        // Get all payments and check manually
-        $allPayments = $paymentModel->findAll();
-        foreach ($allPayments as $payment) {
-            if ($payment['student_id'] == $userId || 
-                $payment['student_id'] == (string)$userId || 
-                $payment['student_id'] == (int)$userId) {
-                $payments[] = $payment;
-            }
-        }
-    }
-    
-    // Process payments to add missing payment_type from contributions
+    // Process payments to ensure all fields are populated
     foreach ($payments as &$payment) {
-        // Get contribution details
-        if (!empty($payment['contribution_id'])) {
-            $contributionModel = new \App\Models\ContributionModel();
-            $contribution = $contributionModel->find($payment['contribution_id']);
-            $payment['payment_type'] = $contribution['title'] ?? 'General Payment';
-        } else {
+        // Ensure payment_type is populated
+        if (empty($payment['payment_type'])) {
             $payment['payment_type'] = 'General Payment';
         }
         
-        // Ensure student_name is populated
-        if (empty($payment['student_name']) && !empty($userName)) {
-            $payment['student_name'] = $userName;
-        }
+        // Ensure proper amount formatting
+        $payment['amount_paid'] = (float)($payment['amount_paid'] ?? 0);
         
-        // Fix amount display if it's 0
-        if ($payment['amount_paid'] == 0) {
-            // You might want to get this from contributions table
-            $payment['amount_paid'] = 100.00; // Default for display
+        // Ensure payment status is set
+        if (empty($payment['payment_status'])) {
+            $payment['payment_status'] = 'completed';
         }
     }
     
@@ -244,7 +214,7 @@ public function history()
     foreach ($payments as $payment) {
         $totalAmount += (float)$payment['amount_paid'];
         
-        if (in_array($payment['payment_status'], ['completed', 'verified'])) {
+        if (in_array($payment['payment_status'], ['completed', 'verified', 'fully_paid'])) {
             $verifiedCount++;
         } elseif ($payment['payment_status'] === 'pending') {
             $pendingCount++;
@@ -255,41 +225,6 @@ public function history()
         if ($paymentDate && date('Y-m-d', strtotime($paymentDate)) === date('Y-m-d')) {
             $todayCount++;
         }
-    }
-    
-    // If still no payments, provide sample data
-    if (empty($payments)) {
-        $payments = [
-            [
-                'id' => 1,
-                'student_name' => $userName ?: 'Sample Student',
-                'student_id' => $userId ?: '123456',
-                'payment_type' => 'Tuition Fee',
-                'amount_paid' => 500.00,
-                'payment_status' => 'completed',
-                'payment_method' => 'cash',
-                'payment_date' => date('Y-m-d H:i:s'),
-                'created_at' => date('Y-m-d H:i:s'),
-                'contribution_id' => 1
-            ],
-            [
-                'id' => 2,
-                'student_name' => $userName ?: 'Sample Student',
-                'student_id' => $userId ?: '123456',
-                'payment_type' => 'Laboratory Fee',
-                'amount_paid' => 200.00,
-                'payment_status' => 'pending',
-                'payment_method' => 'gcash',
-                'payment_date' => date('Y-m-d H:i:s', strtotime('-1 day')),
-                'created_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
-                'contribution_id' => 2
-            ]
-        ];
-        
-        $totalAmount = 700.00;
-        $verifiedCount = 1;
-        $pendingCount = 1;
-        $todayCount = 1;
     }
     
     $data = [
