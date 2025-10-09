@@ -188,17 +188,8 @@
                   <?php endif; ?>
                 </div>
                 
-                <div class="view-details-indicator">
-                  <i class="fas fa-history"></i>
-                  <span><?= $payment['payment_count'] > 1 ? 'View History' : 'View Details' ?></span>
-                </div>
               </div>
               
-              <div class="payment-actions">
-                <button onclick="showPaymentDetails('<?= $payment['id'] ?>')" class="btn btn-sm btn-primary">
-                    <i class="fas fa-eye"></i> View Details
-                </button>
-              </div>
             </div>
           <?php endforeach; ?>
         </div>
@@ -269,10 +260,43 @@
         <h3>Payment Details</h3>
         <span onclick="closePaymentModal()" style="cursor: pointer; font-size: 24px; font-weight: bold; color: #999;">&times;</span>
       </div>
-      <div id="paymentDetailsContent">
-        <div style="text-align: center; padding: 20px;">
-          <div style="font-size: 20px; color: #007bff;">⏳</div>
-          <p>Loading payment details...</p>
+      <div id="paymentDetailsContent" class="payment-history-modal">
+        <div class="payment-history-header">
+          <h3><i class="fas fa-receipt"></i> Payment History</h3>
+          <button onclick="closePaymentModal()" class="close-btn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="payment-history-content">
+          <div class="payment-summary-card">
+            <div class="payment-info-grid">
+              <div class="payment-info-item">
+                <span class="payment-info-label">Total Paid</span>
+                <span class="payment-info-value">₱<?= number_format($payment['total_paid'], 2) ?></span>
+              </div>
+              <div class="payment-info-item">
+                <span class="payment-info-label">Remaining Balance</span>
+                <span class="payment-info-value">₱<?= number_format($payment['remaining_balance'], 2) ?></span>
+              </div>
+              <div class="payment-info-item">
+                <span class="payment-info-label">Payment Status</span>
+                <span class="payment-status-tag status-<?= strtolower($payment['payment_status']) ?>">
+                  <i class="fas fa-check-circle"></i> Fully Paid
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="qr-section">
+            <div class="qr-code-img">
+              <!-- QR Code image here -->
+            </div>
+            <button class="download-qr-btn">
+              <i class="fas fa-download"></i>
+              Download QR Code
+            </button>
+          </div>
         </div>
       </div>
     </div>

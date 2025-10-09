@@ -77,19 +77,19 @@
                   <p class="student-id">ID: <?= esc($payment['student_id']) ?></p>
                 </div>
                 <div class="payment-amount">
-                  <span class="amount">$<?= number_format($payment['amount_paid'], 2) ?></span>
+                  <span class="amount">₱<?= number_format($payment['amount_paid'], 2) ?></span>
                   <span class="status-badge status-<?= esc($payment['payment_status']) ?>"><?= ucfirst(esc($payment['payment_status'])) ?></span>
                 </div>
               </div>
               <div class="record-details">
-              <div class="payment-info">
-                  <p class="payment-type"><?= esc($payment['payment_type']) ?></p>
+                <div class="payment-info">
+                  <p class="payment-type"><?= esc($payment['payment_type'] ?? 'General Payment') ?></p>
                   <p class="payment-date"><?= date('M j, Y', strtotime($payment['created_at'])) ?></p>
                   
                   <?php if (!empty($payment['qr_receipt_path'])): ?>
                       <div class="qr-code-container">
                           <p class="qr-reference">QR Receipt:</p>
-                          <img src="<?= base_url('uploads/' . esc($payment['qr_receipt_path'])) ?>" 
+                          <img src="<?= base_url('writable/uploads/' . esc($payment['qr_receipt_path'])) ?>" 
                               alt="QR Receipt" 
                               class="qr-code-image"
                               style="width: 100px; height: 100px; border: 1px solid #ddd;">
@@ -97,20 +97,14 @@
                   <?php else: ?>
                       <p class="qr-reference">QR: Not available</p>
                   <?php endif; ?>
-              </div>
-          </div>
-                <div class="record-actions">
-                  <?php if ($payment['payment_status'] === 'verified'): ?>
-                    <button class="action-btn view-receipt" 
-                            data-payment='<?= json_encode($payment) ?>'>
-                      View Receipt
-                    </button>
-                  <?php else: ?>
-                    <button class="action-btn verify-payment" data-id="<?= esc($payment['id']) ?>">
-                      Verify Payment
-                    </button>
-                  <?php endif; ?>
                 </div>
+              </div>
+
+              <div class="record-actions">
+                <button class="action-btn view-receipt" 
+                        data-payment='<?= htmlspecialchars(json_encode($payment)) ?>'>
+                  View Receipt
+                </button>
               </div>
             </div>
           <?php endforeach; ?>
@@ -144,60 +138,51 @@
     </nav>
   </div>
 
-  <!-- Payment Receipt Modal -->
-  <div class="modal-overlay" id="receiptModal" style="display: none;">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h3>Payment Receipt</h3>
-            <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="receipt-content">
-                <div class="receipt-info">
-                    <div class="info-row">
-                        <span class="label">Student Name:</span>
-                        <span class="value" id="receiptStudentName">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Student ID:</span>
-                        <span class="value" id="receiptStudentId">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Payment Type:</span>
-                        <span class="value" id="receiptPaymentType">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Amount:</span>
-                        <span class="value" id="receiptAmount">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Date:</span>
-                        <span class="value" id="receiptDate">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Status:</span>
-                        <span class="value" id="receiptStatus">-</span>
-                    </div>
-                </div>
-                
-                <!-- QR Code Section -->
-                <div class="qr-section">
-                    <h4>Payment QR Code</h4>
-                    <div id="receiptQrCode"></div>
-                </div>
-                
-                <div class="receipt-actions">
-                    <button class="btn-print" onclick="printReceipt()">
-                        <i class="fas fa-print"></i> Print Receipt
-                    </button>
-                    <button class="btn-download" onclick="downloadReceipt()">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                </div>
+  <!-- FIXED MODAL STRUCTURE -->
+  <div id="paymentDetailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div style="background: white; margin: 5% auto; padding: 0; width: 90%; max-width: 600px; border-radius: 12px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+      
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #eee; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 12px 12px 0 0;">
+        <h3 style="margin: 0;"><i class="fas fa-receipt"></i> Payment Receipt</h3>
+        <button onclick="closePaymentModal()" class="close-btn" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; border-radius: 5px;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div id="paymentDetailsContent" style="padding: 20px;">
+        <div class="payment-summary-card">
+          <div class="payment-info-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="payment-info-item" style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+              <span class="payment-info-label" style="display: block; font-size: 0.9em; color: #666; margin-bottom: 5px;">Total Paid</span>
+              <span class="payment-info-value" id="modalTotalPaid" style="font-size: 1.2em; font-weight: bold; color: #28a745;">-</span>
             </div>
+            <div class="payment-info-item" style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+              <span class="payment-info-label" style="display: block; font-size: 0.9em; color: #666; margin-bottom: 5px;">Remaining Balance</span>
+              <span class="payment-info-value" id="modalRemainingBalance" style="font-size: 1.2em; font-weight: bold; color: #dc3545;">-</span>
+            </div>
+            <div class="payment-info-item" style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+              <span class="payment-info-label" style="display: block; font-size: 0.9em; color: #666; margin-bottom: 5px;">Status</span>
+              <span class="payment-status-tag" id="modalPaymentStatus" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.9em; font-weight: bold; color: #28a745;">
+                <i class="fas fa-check-circle"></i> <span id="statusText">-</span>
+              </span>
+            </div>
+          </div>
         </div>
+
+        <div class="qr-section" style="text-align: center; margin-top: 20px;">
+          <div class="qr-code-img" id="modalQrCode" style="margin-bottom: 15px;">
+            <!-- QR Code image will be inserted here -->
+          </div>
+          <button class="download-qr-btn" onclick="downloadQR()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            <i class="fas fa-download"></i>
+            Download QR Code
+          </button>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
   <!-- External JS -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>

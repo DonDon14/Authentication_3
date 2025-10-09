@@ -691,3 +691,18 @@ body {
     color: #666;
     margin-top: 10px;
 }
+
+/* Add the same modal styling CSS from contribution_details.css */
+/* Override inline styles for Payment History Modal */
+#paymentDetailsModal {
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    z-index: 9999 !important;
+}
+
+/* ... (rest of the CSS from previous response) ... */
