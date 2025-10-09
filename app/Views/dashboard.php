@@ -97,9 +97,30 @@
                 <i class="fas fa-user-edit"></i>
                 <span>Profile</span>
               </a>
-              <a href="<?= base_url('settings') ?>" class="dropdown-item">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
+              <a href="#" class="dropdown-item" data-setting="profile">
+                <i class="fas fa-user"></i>
+                <span>Profile Information</span>
+              </a>
+              <a href="#" class="dropdown-item" data-setting="password">
+                <i class="fas fa-lock"></i>
+                <span>Change Password</span>
+              </a>
+              <a href="#" class="dropdown-item" data-setting="notifications">
+                <i class="fas fa-bell"></i>
+                <span>Notification Settings</span>
+              </a>
+              <a href="#" class="dropdown-item" data-setting="payment">
+                <i class="fas fa-credit-card"></i>
+                <span>Payment Preferences</span>
+              </a>
+              <a href="#" class="dropdown-item" data-setting="theme">
+                <i class="fas fa-palette"></i>
+                <span>Theme Settings</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item" data-setting="help">
+                <i class="fas fa-question-circle"></i>
+                <span>Help & Support</span>
               </a>
               <div class="dropdown-divider"></div>
               <a href="<?= base_url('logout') ?>" class="dropdown-item logout-item">
@@ -251,6 +272,21 @@
         <span>History</span>
       </a>
     </nav>
+  </div>
+
+  <!-- Settings Modal - ADD THIS BEFORE CLOSING BODY TAG -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Settings</h3>
+        <button class="close-btn" onclick="closeSettingsModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Dynamic content will be loaded here -->
+      </div>
+    </div>
   </div>
 
   <!-- External JS -->

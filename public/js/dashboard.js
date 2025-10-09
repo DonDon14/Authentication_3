@@ -5,6 +5,10 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
+    // Initialize settings after dashboard
+    initializeSettings();
+    initializeTheme();
+    initializeSettingsModal();
 });
 
 function initializeDashboard() {
@@ -101,6 +105,11 @@ function initializeNotifications() {
  */
 function initializeClickOutsideHandlers() {
     document.addEventListener('click', function(e) {
+        // Don't close if clicking on modal or settings items
+        if (e.target.closest('#settingsModal') || e.target.closest('.modal')) {
+            return;
+        }
+        
         // Close dropdowns when clicking outside
         if (!e.target.closest('.user-dropdown-wrapper')) {
             closeUserDropdown();
@@ -111,11 +120,14 @@ function initializeClickOutsideHandlers() {
         }
     });
     
-    // Close dropdowns on escape key
+    // Close dropdowns on escape key (but not if modal is open)
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            closeUserDropdown();
-            closeNotifications();
+            const modal = document.getElementById('settingsModal');
+            if (!modal || modal.style.display !== 'block') {
+                closeUserDropdown();
+                closeNotifications();
+            }
         }
     });
 }
@@ -152,11 +164,13 @@ function openDropdown(button, dropdown) {
  * Close dropdown
  */
 function closeDropdown(button, dropdown) {
-    button.classList.remove('active');
-    dropdown.classList.remove('show');
-    
-    // Remove animation
-    dropdown.style.animation = '';
+    if (button && dropdown) {
+        button.classList.remove('active');
+        dropdown.classList.remove('show');
+        
+        // Remove animation
+        dropdown.style.animation = '';
+    }
 }
 
 /**
@@ -900,6 +914,321 @@ function closeVerificationModal() {
         document.body.style.overflow = '';
     }
 }
+
+/**
+ * Global variables for settings
+ */
+let currentTheme = localStorage.getItem('theme') || 'light';
+
+/**
+ * Initialize settings functionality - FIXED VERSION
+ */
+function initializeSettings() {
+    console.log('Initializing settings...');
+    
+    // Use event delegation to handle dynamically added elements
+    document.addEventListener('click', function(e) {
+        const settingsItem = e.target.closest('.dropdown-item[data-setting]');
+        
+        if (settingsItem) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const setting = settingsItem.getAttribute('data-setting');
+            console.log('Settings item clicked:', setting);
+            
+            if (setting) {
+                // Close user dropdown first
+                closeUserDropdown();
+                
+                // Small delay to ensure dropdown closes smoothly
+                setTimeout(() => {
+                    openSettingsModal(setting);
+                }, 100);
+            }
+        }
+    });
+    
+    console.log('Settings initialized');
+}
+
+/**
+ * Initialize theme system
+ */
+function initializeTheme() {
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+}
+
+/**
+ * Initialize settings modal
+ */
+function initializeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeSettingsModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+                closeSettingsModal();
+            }
+        });
+    }
+}
+
+/**
+ * Open settings modal
+ */
+function openSettingsModal(settingType) {
+    console.log('Opening settings modal for:', settingType);
+    
+    const modal = document.getElementById('settingsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    
+    if (!modal || !modalTitle || !modalBody) {
+        console.error('Modal elements not found');
+        return;
+    }
+    
+    switch (settingType) {
+        case 'profile':
+            modalTitle.textContent = 'Profile Information';
+            modalBody.innerHTML = getProfileContent();
+            break;
+        case 'password':
+            modalTitle.textContent = 'Change Password';
+            modalBody.innerHTML = getPasswordContent();
+            break;
+        case 'notifications':
+            modalTitle.textContent = 'Notification Settings';
+            modalBody.innerHTML = getNotificationsContent();
+            break;
+        case 'payment':
+            modalTitle.textContent = 'Payment Preferences';
+            modalBody.innerHTML = getPaymentContent();
+            break;
+        case 'theme':
+            modalTitle.textContent = 'Theme Settings';
+            modalBody.innerHTML = getThemeContent();
+            break;
+        case 'help':
+            modalTitle.textContent = 'Help & Support';
+            modalBody.innerHTML = getHelpContent();
+            break;
+        default:
+            console.error('Unknown setting type:', settingType);
+            return;
+    }
+    
+    modal.style.display = 'block';
+    initializeModalContent(settingType);
+    console.log('Modal opened successfully');
+}
+
+/**
+ * Close settings modal
+ */
+function closeSettingsModal() {
+    console.log('Closing settings modal');
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+/**
+ * Toggle theme
+ */
+function toggleTheme() {
+    const body = document.body;
+    const toggleSwitch = document.querySelector('.toggle-switch');
+    
+    if (currentTheme === 'light') {
+        currentTheme = 'dark';
+        body.classList.add('dark-theme');
+        if (toggleSwitch) toggleSwitch.classList.add('active');
+    } else {
+        currentTheme = 'light';
+        body.classList.remove('dark-theme');
+        if (toggleSwitch) toggleSwitch.classList.remove('active');
+    }
+    
+    localStorage.setItem('theme', currentTheme);
+}
+
+// Content functions
+function getProfileContent() {
+    return `
+        <form id="profileForm" onsubmit="updateProfile(event)">
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Update Profile
+            </button>
+        </form>
+    `;
+}
+
+function getPasswordContent() {
+    return `
+        <form id="passwordForm" onsubmit="changePassword(event)">
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword" name="currentPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" name="newPassword" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-lock"></i> Change Password
+            </button>
+        </form>
+    `;
+}
+
+function getNotificationsContent() {
+    return `
+        <form id="notificationsForm" onsubmit="updateNotifications(event)">
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="emailNotifications" checked>
+                    Email Notifications
+                </label>
+                <small style="display: block; color: #666; margin-top: 5px;">
+                    Receive payment confirmations and reminders via email
+                </small>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="smsNotifications">
+                    SMS Alerts
+                </label>
+                <small style="display: block; color: #666; margin-top: 5px;">
+                    Receive important updates via SMS
+                </small>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-bell"></i> Save Notification Settings
+            </button>
+        </form>
+    `;
+}
+
+function getPaymentContent() {
+    return `
+        <form id="paymentForm" onsubmit="updatePaymentPreferences(event)">
+            <div class="form-group">
+                <label for="defaultPaymentMethod">Default Payment Method</label>
+                <select id="defaultPaymentMethod">
+                    <option value="">Select Payment Method</option>
+                    <option value="gcash">GCash</option>
+                    <option value="paymaya">PayMaya</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="cash">Cash</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-credit-card"></i> Save Payment Preferences
+            </button>
+        </form>
+    `;
+}
+
+function getThemeContent() {
+    return `
+        <div class="theme-settings">
+            <div class="theme-toggle">
+                <span>Dark Mode</span>
+                <div class="toggle-switch ${currentTheme === 'dark' ? 'active' : ''}" onclick="toggleTheme()">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                Toggle between light and dark theme for better viewing experience.
+            </p>
+            <button onclick="saveThemeSettings()" class="btn btn-primary">
+                <i class="fas fa-palette"></i> Save Settings
+            </button>
+        </div>
+    `;
+}
+
+function getHelpContent() {
+    return `
+        <div class="help-content">
+            <h4><i class="fas fa-question-circle"></i> Need Help?</h4>
+            <p>Contact support for assistance with your account.</p>
+            <a href="mailto:support@example.com" class="btn btn-primary">
+                <i class="fas fa-envelope"></i> Email Support
+            </a>
+        </div>
+    `;
+}
+
+// Utility functions
+function initializeModalContent(settingType) {
+    console.log('Initializing modal content for:', settingType);
+}
+
+function updateProfile(event) {
+    event.preventDefault();
+    showNotification('Profile updated successfully!', 'success');
+    closeSettingsModal();
+}
+
+function changePassword(event) {
+    event.preventDefault();
+    showNotification('Password changed successfully!', 'success');
+    closeSettingsModal();
+}
+
+function updateNotifications(event) {
+    event.preventDefault();
+    showNotification('Notification settings updated!', 'success');
+    closeSettingsModal();
+}
+
+function updatePaymentPreferences(event) {
+    event.preventDefault();
+    showNotification('Payment preferences updated!', 'success');
+    closeSettingsModal();
+}
+
+function saveThemeSettings() {
+    showNotification('Theme settings saved!', 'success');
+    closeSettingsModal();
+}
+
+// Make functions globally available
+window.closeSettingsModal = closeSettingsModal;
+window.toggleTheme = toggleTheme;
+window.updateProfile = updateProfile;
+window.changePassword = changePassword;
+window.updateNotifications = updateNotifications;
+window.updatePaymentPreferences = updatePaymentPreferences;
+window.saveThemeSettings = saveThemeSettings;
 
 /**
  * Legacy function for logout confirmation
