@@ -87,13 +87,7 @@
                   <p class="payment-date"><?= date('M j, Y', strtotime($payment['created_at'])) ?></p>
                   
                   <?php if (!empty($payment['qr_receipt_path'])): ?>
-                      <div class="qr-code-container">
-                          <p class="qr-reference">QR Receipt:</p>
-                          <img src="<?= base_url('writable/uploads/' . esc($payment['qr_receipt_path'])) ?>" 
-                              alt="QR Receipt" 
-                              class="qr-code-image"
-                              style="width: 100px; height: 100px; border: 1px solid #ddd;">
-                      </div>
+                     
                   <?php else: ?>
                       <p class="qr-reference">QR: Not available</p>
                   <?php endif; ?>

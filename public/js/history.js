@@ -111,7 +111,7 @@ function showStudentPaymentHistory(contributionId, studentId) {
 }
 
 /**
- * Create payment history modal - SAME AS contribution_details.js
+ * Create payment history modal - FIXED SCROLLABLE VERSION
  */
 function createPaymentHistoryModal() {
     const modal = document.createElement('div');
@@ -134,7 +134,7 @@ function createPaymentHistoryModal() {
         </div>
     `;
     
-    // Add CSS if not already present
+    // Add CSS with proper scrolling
     if (!document.getElementById('payment-modal-styles')) {
         const styles = document.createElement('style');
         styles.id = 'payment-modal-styles';
@@ -147,131 +147,241 @@ function createPaymentHistoryModal() {
                 top: 0;
                 width: 100%;
                 height: 100%;
-                background-color: rgba(0,0,0,0.4);
+                background-color: rgba(0,0,0,0.5);
+                overflow: auto; /* Allow background scrolling */
             }
             .modal-content {
                 background-color: #fefefe;
-                margin: 15% auto;
-                padding: 20px;
+                margin: 2% auto;
+                padding: 0;
                 border: 1px solid #888;
-                width: 80%;
-                max-width: 600px;
-                border-radius: 8px;
+                width: 90%;
+                max-width: 700px;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                max-height: 95vh; /* Limit height to viewport */
+                display: flex;
+                flex-direction: column;
+                overflow: hidden; /* Hide overflow on container */
             }
-            .loading {
-                text-align: center;
-                padding: 20px;
-            }
-            .close {
-                float: right;
-                font-size: 28px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-            .close:hover {
-                color: #000;
+            .payment-history-container {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                max-height: 95vh;
             }
             .modal-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                border-bottom: 2px solid #eee;
-                padding-bottom: 15px;
-                margin-bottom: 20px;
-            }
-            .modal-title {
-                font-size: 1.5em;
-                margin: 0;
-                color: #333;
-            }
-            .payment-history-container {
                 padding: 20px;
-                max-width: 600px;
-                margin: 0 auto;
+                border-bottom: 2px solid #eee;
+                background: linear-gradient(45deg, #667eea, #764ba2);
+                color: white;
+                border-radius: 12px 12px 0 0;
+                flex-shrink: 0; /* Don't shrink header */
             }
-            .summary-box {
-                display: grid;
-                gap: 15px;
+            .modal-header h4 {
+                margin: 0;
+                font-size: 1.3em;
             }
-            .summary-item {
+            #paymentHistoryContent {
+                flex: 1;
+                overflow-y: auto; /* Enable vertical scrolling */
+                overflow-x: hidden;
+                padding: 20px;
+                max-height: calc(95vh - 80px); /* Account for header */
+            }
+            .loading {
+                text-align: center;
+                padding: 40px 20px;
+            }
+            .close {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
+                justify-content: center;
+                transition: background-color 0.2s;
             }
-            .payment-item {
-                border-bottom: 1px solid #eee;
-                padding: 10px 0;
-            }
-            .payment-info {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 5px;
+            .close:hover {
+                background-color: rgba(255,255,255,0.1);
             }
             .payment-summary {
                 background: #f8f9fa;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 20px;
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 25px;
+                border: 1px solid #e9ecef;
+            }
+            .summary-details {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 20px;
             }
             .total-section {
-                margin-bottom: 15px;
+                text-align: center;
+                padding: 15px;
+                background: white;
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
             }
             .total-section h5 {
-                margin: 0 0 5px 0;
+                margin: 0 0 8px 0;
                 color: #666;
+                font-size: 0.9em;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
             .total-section .amount {
-                font-size: 1.2em;
+                font-size: 1.4em;
                 font-weight: bold;
                 color: #28a745;
                 margin: 0;
             }
+            .payment-history-list {
+                margin-top: 10px;
+            }
+            .payment-history-list h5 {
+                color: #333;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #e9ecef;
+                font-size: 1.1em;
+            }
             .payment-record {
                 border: 1px solid #e9ecef;
-                border-radius: 8px;
-                padding: 15px;
-                margin-bottom: 10px;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 15px;
                 background: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: box-shadow 0.2s;
+            }
+            .payment-record:hover {
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             }
             .payment-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 10px;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #f0f0f0;
             }
             .payment-date {
                 color: #666;
-                font-size: 0.9em;
+                font-size: 0.95em;
+                display: flex;
+                align-items: center;
+                gap: 8px;
             }
             .payment-amount {
                 font-weight: bold;
                 color: #28a745;
+                font-size: 1.2em;
+            }
+            .payment-details {
+                display: grid;
+                gap: 10px;
             }
             .payment-details p {
-                margin: 5px 0;
-                font-size: 0.9em;
+                margin: 0;
+                font-size: 0.95em;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+            }
+            .payment-details strong {
+                color: #495057;
+                min-width: 100px;
             }
             .verification-code {
-                font-family: monospace;
+                font-family: 'Courier New', monospace;
                 background: #f8f9fa;
-                padding: 2px 6px;
-                border-radius: 4px;
+                padding: 4px 8px;
+                border-radius: 6px;
+                font-size: 0.9em;
+                border: 1px solid #e9ecef;
             }
             .status-badge {
                 display: inline-block;
-                padding: 4px 8px;
-                border-radius: 4px;
+                padding: 6px 12px;
+                border-radius: 20px;
                 font-size: 0.8em;
                 font-weight: bold;
                 text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
             .fully-paid {
                 background: #d4edda;
                 color: #155724;
+                border: 1px solid #c3e6cb;
             }
             .partial {
                 background: #fff3cd;
                 color: #856404;
+                border: 1px solid #ffeaa7;
+            }
+            .qr-section {
+                text-align: center;
+                margin-top: 15px;
+                padding: 15px;
+                background: #f8f9fa;
+                border-radius: 8px;
+            }
+            .qr-section img {
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .qr-section button {
+                margin-top: 12px;
+                padding: 8px 16px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.9em;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: background-color 0.2s;
+            }
+            .qr-section button:hover {
+                background: #0056b3;
+            }
+            
+            /* Mobile responsiveness */
+            @media (max-width: 768px) {
+                .modal-content {
+                    width: 95%;
+                    margin: 1% auto;
+                    max-height: 98vh;
+                }
+                .summary-details {
+                    grid-template-columns: 1fr;
+                }
+                .payment-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+                .payment-details p {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 5px;
+                }
             }
         `;
         document.head.appendChild(styles);
@@ -303,15 +413,15 @@ function displayPaymentHistoryModal(data) {
         <div class="payment-summary">
             <div class="summary-details">
                 <div class="total-section">
-                    <h5>Total Paid:</h5>
+                    <h5>Total Paid</h5>
                     <p class="amount">₱${parseFloat(summary.total_paid || 0).toFixed(2)}</p>
                 </div>
                 <div class="total-section">
-                    <h5>Remaining Balance:</h5>
-                    <p class="amount">₱${parseFloat(summary.remaining_balance || 0).toFixed(2)}</p>
+                    <h5>Remaining Balance</h5>
+                    <p class="amount" style="color: ${summary.remaining_balance <= 0 ? '#28a745' : '#dc3545'}">₱${parseFloat(summary.remaining_balance || 0).toFixed(2)}</p>
                 </div>
                 <div class="total-section">
-                    <h5>Payment Status:</h5>
+                    <h5>Payment Status</h5>
                     <p class="status-badge ${summary.remaining_balance <= 0 ? 'fully-paid' : 'partial'}">
                         ${summary.remaining_balance <= 0 ? 'FULLY PAID' : 'PARTIAL PAYMENT'}
                     </p>
@@ -320,28 +430,27 @@ function displayPaymentHistoryModal(data) {
         </div>
 
         <div class="payment-history-list">
-            <h5>Payment Transactions (${payments.length})</h5>
+            <h5><i class="fas fa-history"></i> Payment Transactions (${payments.length})</h5>
             ${payments.map(payment => `
                 <div class="payment-record">
                     <div class="payment-header">
                         <div class="payment-date">
-                            <i class="fas fa-calendar"></i>
-                            ${new Date(payment.payment_date).toLocaleString()}
+                            <i class="fas fa-calendar-alt"></i>
+                            ${new Date(payment.payment_date || payment.created_at).toLocaleString()}
                         </div>
                         <div class="payment-amount">₱${parseFloat(payment.amount_paid || 0).toFixed(2)}</div>
                     </div>
                     <div class="payment-details">
-                        <p><strong>Method:</strong> ${(payment.payment_method || '').toUpperCase()}</p>
-                        <p><strong>Status:</strong> ${(payment.payment_status || '').toUpperCase()}</p>
+                        <p><strong>Method:</strong> <span>${(payment.payment_method || 'N/A').toUpperCase()}</span></p>
+                        <p><strong>Status:</strong> <span>${(payment.payment_status || 'N/A').toUpperCase()}</span></p>
                         <p><strong>Verification:</strong> <span class="verification-code">${payment.verification_code || 'N/A'}</span></p>
                         ${payment.qr_receipt_path ? `
-                            <div class="qr-section" style="text-align: center; margin-top: 10px;">
+                            <div class="qr-section">
                                 <img src="/writable/uploads/${payment.qr_receipt_path}" 
                                      alt="Payment QR" 
-                                     style="width: 150px; height: 150px; border: 1px solid #ddd; border-radius: 4px;">
+                                     style="width: 150px; height: 150px;">
                                 <br>
-                                <button onclick="downloadQR('${payment.qr_receipt_path}')" 
-                                        style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <button onclick="downloadQR('${payment.qr_receipt_path}')">
                                     <i class="fas fa-download"></i> Download QR
                                 </button>
                             </div>
@@ -354,6 +463,9 @@ function displayPaymentHistoryModal(data) {
 
     content.innerHTML = html;
     modal.style.display = 'block';
+    
+    // Scroll to top of modal content
+    content.scrollTop = 0;
 }
 
 /**
