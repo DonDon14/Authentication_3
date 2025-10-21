@@ -328,7 +328,7 @@
                               </div>
                             </div>
                             <div class="contribution-amount" style="text-align: right; flex-shrink: 0;">
-                              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); line-height: 1;">$<?= number_format($contribution['amount'], 2) ?></div>
+                              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); line-height: 1;">₱<?= number_format($contribution['amount'], 2) ?></div>
                               <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Per payment</div>
                               <?php if (isset($contribution['profit_margin']) && $contribution['profit_margin'] > 0): ?>
                                 <div style="font-size: 0.7rem; color: var(--success-color); margin-top: 0.25rem; font-weight: 500;">

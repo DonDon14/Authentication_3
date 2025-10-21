@@ -406,8 +406,9 @@
               <span>Students</span>
             </a>
           </li>
-          <li class="nav-item active">
-            <a href="<?= base_url('profile') ?>" class="nav-link">
+      
+          <li class="nav-item">
+            <a href="<?= base_url('settings') ?>" class="nav-link">
               <i class="fas fa-cog"></i>
               <span>Settings</span>
             </a>
@@ -522,7 +523,7 @@
                   <i class="fas fa-user"></i>
                   <span>Profile</span>
                 </a>
-                <a href="#" class="dropdown-item">
+                <a href="<?= base_url('settings') ?>" class="dropdown-item">
                   <i class="fas fa-cog"></i>
                   <span>Settings</span>
                 </a>

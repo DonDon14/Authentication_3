@@ -175,7 +175,7 @@
                     <div class="stat-header">
                       <h3>Amount</h3>
                       <div class="stat-icon">
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="fas fa-peso-sign"></i>
                       </div>
                     </div>
                     <div class="stat-value">₱<?= number_format($contribution['amount'], 2) ?></div>
@@ -411,9 +411,9 @@
                 <?php endif; ?>
 
                 <div class="form-group">
-                  <label for="amount">Amount ($)</label>
+                  <label for="amount">Amount (₱)</label>
                   <div style="position: relative;">
-                    <i class="fas fa-dollar-sign" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);"></i>
+                    <i class="fas fa-peso-sign" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);"></i>
                     <input type="number" id="amount" name="amount" 
                            value="<?= isset($contribution) ? number_format($contribution['amount'], 2, '.', '') : '' ?>" 
                            class="search-input" placeholder="0.00" step="0.01" min="0" required
