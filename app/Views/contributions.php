@@ -73,7 +73,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('profile') ?>" class="nav-link">
               <i class="fas fa-cog"></i>
               <span>Settings</span>
             </a>
