@@ -169,7 +169,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('students') ?>" class="nav-link">
               <i class="fas fa-users"></i>
               <span>Students</span>
             </a>

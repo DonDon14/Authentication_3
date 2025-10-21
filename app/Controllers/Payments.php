@@ -9,6 +9,7 @@ use CodeIgniter\Controller;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\Result\ResultInterface;
+use Endroid\QrCode\Color\Color;
 
 class Payments extends Controller
 {
@@ -832,6 +833,14 @@ public function history()
         $contributionModel = new ContributionModel();
 
         try {
+            // Check if user is logged in
+            if (!session()->get('logged_in')) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ]);
+            }
+
             $payment = $paymentModel->find($paymentId);
             if (!$payment) {
                 return $this->response->setJSON([
@@ -841,6 +850,12 @@ public function history()
             }
 
             $contribution = $contributionModel->find($payment['contribution_id']);
+            
+            // Add contribution title to payment data for easier access
+            if ($contribution) {
+                $payment['contribution_title'] = $contribution['title'];
+                $payment['contribution_category'] = $contribution['category'];
+            }
 
             return $this->response->setJSON([
                 'success' => true,
@@ -1225,6 +1240,168 @@ public function history()
         }
     }
 
+    /**
+     * Get student payment history for a specific contribution
+     */
+    public function getStudentHistory($contributionId, $studentId)
+    {
+        try {
+            // Check if user is logged in
+            if (!session()->get('logged_in')) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ]);
+            }
+
+            log_message('info', "Getting student history for contribution: {$contributionId}, student: {$studentId}");
+
+            $paymentModel = new PaymentModel();
+            $contributionModel = new ContributionModel();
+            
+            // Get contribution details
+            $contribution = $contributionModel->find($contributionId);
+            if (!$contribution) {
+                log_message('error', "Contribution not found: {$contributionId}");
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Contribution not found'
+                ]);
+            }
+
+            // Get student payments for this contribution
+            $db = \Config\Database::connect();
+            $query = "
+                SELECT 
+                    p.*,
+                    c.title as contribution_title,
+                    c.category
+                FROM payments p
+                LEFT JOIN contributions c ON p.contribution_id = c.id
+                WHERE p.contribution_id = ? AND p.student_id = ?
+                ORDER BY p.created_at DESC
+            ";
+            
+            $payments = $db->query($query, [$contributionId, $studentId])->getResultArray();
+            log_message('info', "Found " . count($payments) . " payments for student");
+
+            // Get student basic info from the first payment
+            $studentInfo = [
+                'id' => $studentId,
+                'name' => !empty($payments) ? $payments[0]['student_name'] : 'Unknown Student'
+            ];
+
+            return $this->response->setJSON([
+                'success' => true,
+                'payments' => $payments,
+                'student' => $studentInfo,
+                'contribution' => $contribution
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Student history error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error retrieving student payment history: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Generate QR code for payment
+     */
+    public function generateQR($paymentId, $studentId, $contributionId)
+    {
+        try {
+            // Check if user is logged in
+            if (!session()->get('logged_in')) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Unauthorized access'
+                ]);
+            }
+
+            // Get payment details for QR data
+            $paymentModel = new PaymentModel();
+            $payment = $paymentModel->find($paymentId);
+            
+            if (!$payment) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Payment not found'
+                ]);
+            }
+
+            // Create QR code data
+            $qrData = [
+                'type' => 'payment_receipt',
+                'payment_id' => $paymentId,
+                'student_id' => $studentId,
+                'contribution_id' => $contributionId,
+                'amount' => $payment['amount_paid'],
+                'status' => $payment['payment_status'],
+                'timestamp' => time(),
+                'verification_url' => base_url("payments/verifyQR/{$paymentId}")
+            ];
+
+            // Generate QR code using correct API
+            $writer = new PngWriter();
+            $qrCode = new QrCode(json_encode($qrData));
+            $qrCode->setSize(300);
+            $qrCode->setMargin(10);
+            $qrCode->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0]);
+            $qrCode->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255]);
+            
+            $result = $writer->write($qrCode);
+            
+            // Convert to base64 for easy display
+            $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($result->getString());
+
+            return $this->response->setJSON([
+                'success' => true,
+                'qrCode' => $qrCodeBase64,
+                'qrData' => $qrData
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'QR generation error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error generating QR code'
+            ]);
+        }
+    }
+
+    /**
+     * Verify payment via QR code scan
+     */
+    public function verifyQR($paymentId)
+    {
+        try {
+            $paymentModel = new PaymentModel();
+            $payment = $paymentModel->find($paymentId);
+            
+            if (!$payment) {
+                return view('payments/verify_error', ['message' => 'Payment not found']);
+            }
+
+            $contributionModel = new ContributionModel();
+            $contribution = $contributionModel->find($payment['contribution_id']);
+
+            $data = [
+                'payment' => $payment,
+                'contribution' => $contribution,
+                'verified' => true
+            ];
+
+            return view('payments/verify_success', $data);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Payment verification error: ' . $e->getMessage());
+            return view('payments/verify_error', ['message' => 'Verification failed']);
+        }
+    }
+
     public function getQRCode($studentId, $contributionId) 
     {
         $qrData = json_encode([
@@ -1234,11 +1411,11 @@ public function history()
         ]);
         
         $writer = new PngWriter();
-        $qrCode = QrCode::create($qrData)
-            ->setSize(300)
-            ->setMargin(10)
-            ->setForegroundColor(new Color(0, 0, 0))
-            ->setBackgroundColor(new Color(255, 255, 255));
+        $qrCode = new QrCode($qrData);
+        $qrCode->setSize(300);
+        $qrCode->setMargin(10);
+        $qrCode->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0]);
+        $qrCode->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255]);
         
         $result = $writer->write($qrCode);
         

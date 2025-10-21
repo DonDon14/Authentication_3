@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><?= esc($contribution['title']) ?> - Payment Details | ClearPay</title>
+  <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Additional styles for contribution details -->
+  <style>
+    .contribution-info {
+      margin-bottom: 1.5rem;
+    }
+    
+    .contribution-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    
+    .contribution-header h4 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .contribution-description {
+      margin: 0.5rem 0 1rem 0;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    
+    .contribution-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .meta-item i {
+      color: var(--primary-color);
+    }
+    
+    .students-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .student-item {
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    
+    .student-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .student-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    
+    .student-details {
+      flex: 1;
+    }
+    
+    .student-details h4 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .student-details p {
+      margin: 0 0 0.25rem 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .payment-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+    
+    .payment-meta i {
+      color: var(--info-color);
+    }
+    
+    .student-amount {
+      text-align: right;
+      margin-right: 1rem;
+    }
+    
+    .amount-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--success-color);
+      margin-bottom: 0.25rem;
+    }
+    
+    .amount-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .student-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+    
+    .empty-state .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .empty-state h4 {
+      margin: 0 0 0.5rem 0;
+      color: var(--text-primary);
+    }
+    
+    .empty-state p {
+      margin: 0 0 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Main App Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="app-logo">
+          <div class="logo-icon">
+            <i class="fas fa-credit-card"></i>
+          </div>
+          <h2 class="app-name">ClearPay</h2>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="<?= base_url('dashboard') ?>" class="nav-link">
+              <i class="fas fa-home"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('payments') ?>" class="nav-link">
+              <i class="fas fa-credit-card"></i>
+              <span>Payments</span>
+              <span class="nav-badge">New</span>
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a href="<?= base_url('contributions') ?>" class="nav-link">
+              <i class="fas fa-hand-holding-usd"></i>
+              <span>Contributions</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('payments/partial') ?>" class="nav-link">
+              <i class="fas fa-clock"></i>
+              <span>Partial Payments</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('payments/history') ?>" class="nav-link">
+              <i class="fas fa-history"></i>
+              <span>Payment History</span>
+            </a>
+          </li>
+          <li class="nav-divider"></li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-chart-bar"></i>
+              <span>Analytics</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-users"></i>
+              <span>Students</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('profile') ?>" class="nav-link">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="profile-info">
+            <h4><?= session()->get('username') ?? 'Admin User' ?></h4>
+            <p>Administrator</p>
+          </div>
+          <button class="profile-menu-btn" id="profileMenuBtn">
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button class="back-btn" onclick="window.location.href='<?= base_url('contributions') ?>'" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.5rem; margin-right: 1rem; color: var(--text-primary); cursor: pointer; transition: var(--transition-fast);">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <div>
+            <h1><?= esc($contribution['title']) ?></h1>
+            <p class="page-subtitle">Payment details and student tracking</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="studentSearchInput" class="search-input" placeholder="Search students...">
+          </div>
+          
+          <!-- Notification Center -->
+          <div class="notification-center">
+            <button class="notification-btn" id="notificationBtn">
+              <i class="fas fa-bell"></i>
+              <span class="notification-count">3</span>
+            </button>
+          </div>
+          
+          <!-- User Menu -->
+          <div class="user-menu">
+            <button class="user-menu-btn" id="userMenuBtn">
+              <div class="user-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <span class="user-name"><?= session()->get('username') ?? 'Admin' ?></span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <div class="dashboard-content">
+
+        <!-- Success/Error Messages -->
+        <div id="successMessage" class="notification-message success" style="display: none;">
+          <i class="fas fa-check-circle"></i>
+          <span class="message-text"></span>
+        </div>
+        <div id="errorMessage" class="notification-message error" style="display: none;">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span class="message-text"></span>
+        </div>
+        <!-- Contribution Details Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-info-circle"></i>
+              Contribution Details
+            </h3>
+            <div class="card-actions">
+              <button class="btn btn-primary" onclick="window.location.href='<?= base_url('payments?contribution=' . $contribution['id']) ?>'">
+                <i class="fas fa-plus"></i>
+                Add Payment
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="contribution-info">
+              <div class="contribution-header">
+                <h4><?= esc($contribution['title']) ?></h4>
+                <div class="status-badge status-<?= $contribution['status'] ?>">
+                  <i class="fas fa-<?= $contribution['status'] === 'active' ? 'check-circle' : 'pause-circle' ?>"></i>
+                  <?= ucfirst($contribution['status']) ?>
+                </div>
+              </div>
+              <p class="contribution-description"><?= esc($contribution['description']) ?></p>
+              
+              <div class="contribution-meta">
+                <div class="meta-item">
+                  <i class="fas fa-clock"></i>
+                  <span>Created: <?= date('M d, Y', strtotime($contribution['created_at'])) ?></span>
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-tag"></i>
+                  <span>Category: <?= esc($contribution['category']) ?></span>
+                </div>
+                <?php if (isset($contribution['updated_at']) && !empty($contribution['updated_at'])): ?>
+                <div class="meta-item">
+                  <i class="fas fa-edit"></i>
+                  <span>Updated: <?= date('M d, Y', strtotime($contribution['updated_at'])) ?></span>
+                </div>
+                <?php endif; ?>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Cards - Using exact dashboard structure -->
+        <div class="stats-grid">
+          <div class="stat-card primary">
+            <div class="stat-content">
+              <div class="stat-header">
+                <h3>Target Amount</h3>
+                <div class="stat-icon">
+                  <i class="fas fa-bullseye"></i>
+                </div>
+              </div>
+              <div class="stat-value">₱<?= number_format($contribution['amount'], 2) ?></div>
+              <div class="stat-footer">
+                <span class="stat-change neutral">
+                  <i class="fas fa-circle"></i>
+                  Per student
+                </span>
+                <span class="stat-period">contribution</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card success">
+            <div class="stat-content">
+              <div class="stat-header">
+                <h3>Total Collected</h3>
+                <div class="stat-icon">
+                  <i class="fas fa-dollar-sign"></i>
+                </div>
+              </div>
+              <div class="stat-value">₱<?= number_format($stats['total_amount'], 2) ?></div>
+              <div class="stat-footer">
+                <span class="stat-change positive">
+                  <i class="fas fa-arrow-up"></i>
+                  Revenue generated
+                </span>
+                <span class="stat-period">from payments</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card warning">
+            <div class="stat-content">
+              <div class="stat-header">
+                <h3>Remaining</h3>
+                <div class="stat-icon">
+                  <i class="fas fa-hourglass-half"></i>
+                </div>
+              </div>
+              <div class="stat-value">₱<?= number_format($contribution['amount'] - $stats['total_amount'], 2) ?></div>
+              <div class="stat-footer">
+                <span class="stat-change neutral">
+                  <i class="fas fa-minus"></i>
+                  Still needed
+                </span>
+                <span class="stat-period">to collect</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card info">
+            <div class="stat-content">
+              <div class="stat-header">
+                <h3>Students Paid</h3>
+                <div class="stat-icon">
+                  <i class="fas fa-users"></i>
+                </div>
+              </div>
+              <div class="stat-value"><?= $stats['total_payments'] ?></div>
+              <div class="stat-footer">
+                <span class="stat-change positive">
+                  <i class="fas fa-check"></i>
+                  Active payments
+                </span>
+                <span class="stat-period">completed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Students Payment History -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-users"></i>
+              Students Who Paid
+            </h3>
+            <div class="card-actions">
+              <?php if (count($payments) > 0): ?>
+                <div class="search-container">
+                  <i class="fas fa-search"></i>
+                  <input type="text" 
+                         id="studentSearchInput" 
+                         placeholder="Search students..." 
+                         class="search-input">
+                </div>
+                <button class="btn btn-secondary" onclick="exportStudentData()">
+                  <i class="fas fa-download"></i>
+                  Export
+                </button>
+              <?php endif; ?>
+            </div>
+          </div>
+          
+          <div class="card-content">
+            <?php if (count($payments) > 0): ?>
+              <div class="card-subtitle">
+                <span id="searchResults">Showing <?= count($payments) ?> of <?= count($payments) ?> students</span>
+              </div>
+              
+              <!-- Test button for debugging -->
+              <button onclick="testFunction()" style="background: #e74c3c; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; margin: 1rem 0; font-size: 0.875rem;">
+                🧪 Test JavaScript (Click Me First)
+              </button>
+              
+              <div class="students-list" id="studentsList">
+                <?php foreach ($payments as $payment): ?>
+                  <div class="student-item card" 
+                       data-payment-id="<?= $payment['id'] ?? '' ?>" 
+                       data-student-name="<?= esc($payment['student_name'] ?? '') ?>" 
+                       data-student-id="<?= esc($payment['student_id'] ?? '') ?>"
+                       data-contribution-id="<?= $payment['contribution_id'] ?? '' ?>"
+                       onclick="showStudentPaymentHistory('<?= $payment['contribution_id'] ?? '' ?>', '<?= esc($payment['student_id'] ?? '') ?>')" 
+                       style="cursor: pointer;">
+                    
+                    <div class="card-content" style="pointer-events: none;">
+                      <div class="student-info">
+                        <div class="student-avatar">
+                          <i class="fas fa-user-graduate"></i>
+                        </div>
+                        
+                        <div class="student-details">
+                          <h4 class="student-name"><?= esc($payment['student_name'] ?? 'Unknown Student') ?></h4>
+                          <p class="student-id">ID: <?= esc($payment['student_id'] ?? 'N/A') ?></p>
+                          <div class="payment-meta">
+                            <?php if (isset($payment['payment_count']) && $payment['payment_count'] > 1): ?>
+                              <span class="payment-count">
+                                <i class="fas fa-repeat"></i>
+                                <?= $payment['payment_count'] ?> payments
+                              </span>
+                            <?php else: ?>
+                              <span class="payment-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                <?= isset($payment['payment_date']) ? date('M j, Y', strtotime($payment['payment_date'])) : 'Date unknown' ?>
+                              </span>
+                            <?php endif; ?>
+                          </div>
+                        </div>
+                        
+                        <div class="student-amount">
+                          <div class="amount-value">₱<?= number_format($payment['amount_paid'] ?? 0, 2) ?></div>
+                          <div class="amount-label">
+                            <?php if (isset($payment['payment_count']) && $payment['payment_count'] > 1): ?>
+                              Total paid
+                            <?php else: ?>
+                              Amount
+                            <?php endif; ?>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php else: ?>
+              <div class="empty-state" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                <div class="empty-icon" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">
+                  <i class="fas fa-users-slash"></i>
+                </div>
+                <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">No Payments Yet</h4>
+                <p style="margin: 0 0 1.5rem 0;">No students have made payments for this contribution yet. Payments will appear here once students start paying.</p>
+                <button class="btn btn-primary" onclick="window.location.href='<?= base_url('payments?contribution=' . $contribution['id']) ?>'">
+                  <i class="fas fa-plus"></i>
+                  Add First Payment
+                </button>
+              </div>
+            <?php endif; ?>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Payment Details Modal -->
+  <div id="paymentDetailsModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-container" style="background: var(--bg-primary); border-radius: var(--radius-lg); padding: 0; max-width: 600px; width: 90%; max-height: 80vh; overflow: hidden; box-shadow: var(--shadow-lg);">
+      <div class="modal-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-receipt"></i> Payment History</h3>
+        <button onclick="closePaymentModal()" class="btn btn-ghost btn-sm" style="padding: 0.375rem; min-width: auto;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-content" id="paymentDetailsContent" style="padding: 1.5rem; max-height: 60vh; overflow-y: auto;">
+        <!-- Payment details will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Include Dashboard JavaScript -->
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  
+  <script>
+    // Global functions that need to be accessible from onclick attributes
+    function showStudentPaymentHistory(contributionId, studentId) {
+      alert('Function called! ContributionId: ' + contributionId + ', StudentId: ' + studentId);
+      
+      // Show loading state
+      document.getElementById('paymentDetailsContent').innerHTML = `
+        <div class="loading-state" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+          <p>Loading payment history...</p>
+        </div>
+      `;
+      
+      document.getElementById('paymentDetailsModal').style.display = 'flex';
+      
+      // Fetch payment history via AJAX
+      fetch(`<?= base_url('payments/getStudentHistory') ?>/${contributionId}/${studentId}`)
+        .then(response => {
+          console.log('Response status:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Response data:', data);
+          if (data.success) {
+            renderPaymentTimeline(data.payments, data.student);
+          } else {
+            showErrorInModal(data.message || 'Failed to load payment history');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showErrorInModal('Failed to load payment history');
+        });
+    }
+
+    function renderPaymentTimeline(payments, student) {
+      const timelineHTML = `
+        <div class="student-header" style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="student-avatar" style="width: 60px; height: 60px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <div>
+              <h4 style="margin: 0; font-size: 1.2rem; color: var(--text-primary);">${student.name}</h4>
+              <p style="margin: 0.25rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">ID: ${student.id}</p>
+            </div>
+          </div>
+        </div>
+        <div class="timeline-content">
+          <h4>Payment History for ${student.name}</h4>
+          <p>Found ${payments.length} payments</p>
+        </div>
+      `;
+      
+      document.getElementById('paymentDetailsContent').innerHTML = timelineHTML;
+    }
+
+    function showErrorInModal(message) {
+      document.getElementById('paymentDetailsContent').innerHTML = `
+        <div class="error-state" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+          <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem; color: var(--error-color);"></i>
+          <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">Error Loading Data</h4>
+          <p style="margin: 0;">${message}</p>
+        </div>
+      `;
+    }
+
+    function testFunction() {
+      alert('Test function works! JavaScript is working.');
+      console.log('Test function called');
+    }
+
+    function exportStudentData() {
+      alert('Export functionality will be implemented soon!');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentDetailsModal').style.display = 'none';
+    }
+
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('studentSearchInput');
+      const studentsList = document.getElementById('studentsList');
+      const searchResults = document.getElementById('searchResults');
+      
+      if (searchInput && studentsList) {
+        const allStudents = studentsList.querySelectorAll('.student-item');
+        const totalStudents = allStudents.length;
+        
+        searchInput.addEventListener('input', function() {
+          const searchTerm = this.value.toLowerCase().trim();
+          let visibleCount = 0;
+          
+          allStudents.forEach(student => {
+            const studentName = student.getAttribute('data-student-name');
+            const studentId = student.getAttribute('data-student-id');
+            
+            if (studentName.includes(searchTerm) || studentId.includes(searchTerm)) {
+              student.style.display = 'block';
+              visibleCount++;
+            } else {
+              student.style.display = 'none';
+            }
+          });
+          
+          if (searchResults) {
+            searchResults.textContent = `Showing ${visibleCount} of ${totalStudents} students`;
+          }
+        });
+      }
+    });
+
+    function showStudentPaymentHistory(contributionId, studentId) {
+      alert('Function called! ContributionId: ' + contributionId + ', StudentId: ' + studentId);
+      
+      // Show loading state
+      document.getElementById('paymentDetailsContent').innerHTML = `
+        <div class="loading-state" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+          <p>Loading payment history...</p>
+        </div>
+      `;
+      
+      document.getElementById('paymentDetailsModal').style.display = 'flex';
+      
+      // Fetch payment history via AJAX
+      fetch(`<?= base_url('payments/getStudentHistory') ?>/${contributionId}/${studentId}`)
+        .then(response => {
+          console.log('Response status:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Response data:', data);
+          if (data.success) {
+            renderPaymentTimeline(data.payments, data.student);
+          } else {
+            showErrorInModal(data.message || 'Failed to load payment history');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showErrorInModal('Failed to load payment history');
+        });
+    }
+
+    function renderPaymentTimeline(payments, student) {
+      const timelineHTML = `
+        <div class="student-header" style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="student-avatar" style="width: 60px; height: 60px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <div>
+              <h4 style="margin: 0; font-size: 1.2rem; color: var(--text-primary);">${student.name}</h4>
+              <p style="margin: 0.25rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">ID: ${student.id}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h4 style="margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary);">
+            <i class="fas fa-clock"></i>
+            Payment Timeline
+          </h4>
+          <div class="timeline-period" style="font-size: 0.875rem; color: var(--text-secondary);">
+            ${payments.length > 0 ? `From ${formatDate(payments[payments.length - 1].created_at)} to ${formatDate(payments[0].created_at)}` : 'No payments'}
+          </div>
+        </div>
+
+        <div class="payment-timeline" style="position: relative;">
+          ${payments.length > 0 ? payments.map((payment, index) => `
+            <div class="timeline-item" style="display: flex; gap: 1rem; margin-bottom: ${index < payments.length - 1 ? '1.5rem' : '0'}; position: relative;">
+              <div class="timeline-marker" style="display: flex; flex-direction: column; align-items: center; position: relative;">
+                <div class="timeline-dot" style="width: 40px; height: 40px; border-radius: 50%; background: ${getStatusColor(payment.payment_status)}; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem; z-index: 2;">
+                  <i class="fas fa-${getStatusIcon(payment.payment_status)}"></i>
+                </div>
+                ${index < payments.length - 1 ? '<div class="timeline-line" style="width: 2px; height: 30px; background: var(--border-color); margin-top: 0.5rem;"></div>' : ''}
+              </div>
+              
+              <div class="timeline-content" style="flex: 1; background: var(--bg-white); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1rem;">
+                <div class="transaction-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                  <div>
+                    <h5 style="margin: 0 0 0.25rem 0; font-size: 1rem; color: var(--text-primary);">${payment.contribution_title || 'Payment'}</h5>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-secondary);">
+                      <span style="background: var(--bg-secondary); padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); font-family: monospace;">TXN-${String(payment.id).padStart(6, '0')}</span>
+                      <span style="margin-left: 1rem;">${formatDateTime(payment.created_at)}</span>
+                    </p>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--success-color); margin-bottom: 0.25rem;">₱${formatCurrency(payment.amount_paid)}</div>
+                    <span style="padding: 0.25rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; background: ${getStatusBgColor(payment.payment_status)}; color: ${getStatusColor(payment.payment_status)};">
+                      ${payment.payment_status.replace('_', ' ')}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="transaction-details" style="margin-bottom: 0.75rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-secondary);">Payment Method:</span>
+                    <span style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary);">
+                      <i class="fas fa-${payment.payment_method === 'cash' ? 'money-bill-wave' : 'credit-card'}"></i>
+                      ${payment.payment_method.charAt(0).toUpperCase() + payment.payment_method.slice(1)}
+                    </span>
+                  </div>
+                  ${payment.reference_number ? `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                      <span style="color: var(--text-secondary);">Reference:</span>
+                      <span style="color: var(--text-primary);">${payment.reference_number}</span>
+                    </div>
+                  ` : ''}
+                  ${payment.notes ? `
+                    <div style="display: flex; justify-content: space-between;">
+                      <span style="color: var(--text-secondary);">Notes:</span>
+                      <span style="color: var(--text-primary);">${payment.notes}</span>
+                    </div>
+                  ` : ''}
+                </div>
+                
+                <div class="transaction-actions" style="display: flex; gap: 1rem; align-items: center; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+                  <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
+                    <button onclick="viewTransactionDetails(${payment.id})" style="background: none; border: none; color: var(--primary-color); cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                      <i class="fas fa-eye"></i>
+                      View Details
+                    </button>
+                    <button onclick="toggleQRCode(${payment.id}, '${payment.student_id}', '${payment.contribution_id}')" style="background: none; border: none; color: var(--success-color); cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                      <i class="fas fa-qrcode"></i>
+                      <span id="qr-btn-text-${payment.id}">Show QR Receipt</span>
+                    </button>
+                    <button onclick="printReceipt(${payment.id})" style="background: none; border: none; color: var(--info-color); cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                      <i class="fas fa-print"></i>
+                      Print Receipt
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Collapsible QR Code Section -->
+                <div id="qr-section-${payment.id}" style="display: none; padding: 1rem; background: var(--bg-secondary); border-top: 1px solid var(--border-color); margin-top: 0.75rem; border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
+                  <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <div id="qr-display-${payment.id}" style="background: white; padding: 1rem; border-radius: var(--radius-md); border: 2px solid var(--border-color); text-align: center; min-width: 200px;">
+                      <div class="qr-loading" style="padding: 2rem;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--text-secondary);"></i>
+                        <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary); font-size: 0.875rem;">Loading QR code...</p>
+                      </div>
+                    </div>
+                    <div style="flex: 1;">
+                      <h5 style="margin: 0 0 1rem 0; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-receipt"></i>
+                        Payment Receipt Details
+                      </h5>
+                      <div id="qr-receipt-details-${payment.id}" style="background: white; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div style="display: grid; gap: 0.5rem; font-size: 0.875rem;">
+                          <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Transaction ID:</span>
+                            <span style="font-family: monospace; font-weight: 600;">TXN-${String(payment.id).padStart(6, '0')}</span>
+                          </div>
+                          <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Amount Paid:</span>
+                            <span style="font-weight: 600; color: var(--success-color);">₱${formatCurrency(payment.amount_paid)}</span>
+                          </div>
+                          <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Payment Date:</span>
+                            <span>${formatDateTime(payment.created_at)}</span>
+                          </div>
+                          <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Status:</span>
+                            <span style="color: ${getStatusColor(payment.payment_status)}; font-weight: 600;">${payment.payment_status.replace('_', ' ').toUpperCase()}</span>
+                          </div>
+                        </div>
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; gap: 0.5rem;">
+                          <button onclick="downloadQRReceipt(${payment.id})" style="background: var(--primary-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-download"></i>
+                            Download Receipt
+                          </button>
+                          <button onclick="shareQRReceipt(${payment.id})" style="background: var(--success-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-share"></i>
+                            Share Receipt
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('') : `
+            <div class="empty-timeline" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+              <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+              <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">No Payment Records</h4>
+              <p style="margin: 0;">This student hasn't made any payments for this contribution yet.</p>
+            </div>
+          `}
+        </div>
+      `;
+      
+      document.getElementById('paymentDetailsContent').innerHTML = timelineHTML;
+    }
+
+    function showErrorInModal(message) {
+      document.getElementById('paymentDetailsContent').innerHTML = `
+        <div class="error-state" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+          <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem; color: var(--error-color);"></i>
+          <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">Error Loading Data</h4>
+          <p style="margin: 0;">${message}</p>
+        </div>
+      `;
+    }
+
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatDateTime(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
+    }
+
+    function getStatusColor(status) {
+      switch(status) {
+        case 'completed':
+        case 'fully_paid': return '#10b981';
+        case 'partial': return '#f59e0b';
+        case 'pending': return '#3b82f6';
+        default: return '#6b7280';
+      }
+    }
+
+    function getStatusBgColor(status) {
+      switch(status) {
+        case 'completed':
+        case 'fully_paid': return 'rgba(16, 185, 129, 0.1)';
+        case 'partial': return 'rgba(245, 158, 11, 0.1)';
+        case 'pending': return 'rgba(59, 130, 246, 0.1)';
+        default: return 'rgba(107, 114, 128, 0.1)';
+      }
+    }
+
+    function getStatusIcon(status) {
+      switch(status) {
+        case 'completed':
+        case 'fully_paid': return 'check';
+        case 'partial': return 'clock';
+        case 'pending': return 'hourglass-half';
+        default: return 'credit-card';
+      }
+    }
+
+    function viewTransactionDetails(transactionId) {
+      console.log('View transaction details:', transactionId);
+      // Implement transaction details view
+    }
+
+    function printReceipt(transactionId) {
+      window.open(`<?= base_url('payments/receipt') ?>/${transactionId}`, '_blank');
+    }
+
+    // Toggle QR code display inline
+    function toggleQRCode(paymentId, studentId, contributionId) {
+      const qrSection = document.getElementById(`qr-section-${paymentId}`);
+      const btnText = document.getElementById(`qr-btn-text-${paymentId}`);
+      
+      if (qrSection.style.display === 'none') {
+        // Show QR section and load data
+        qrSection.style.display = 'block';
+        btnText.textContent = 'Hide QR Receipt';
+        loadQRCode(paymentId, studentId, contributionId);
+      } else {
+        // Hide QR section
+        qrSection.style.display = 'none';
+        btnText.textContent = 'Show QR Receipt';
+      }
+    }
+
+    function loadQRCode(paymentId, studentId, contributionId) {
+      const qrDisplay = document.getElementById(`qr-display-${paymentId}`);
+      
+      // Show loading state
+      qrDisplay.innerHTML = `
+        <div class="qr-loading" style="padding: 2rem; text-align: center;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Generating QR code...</p>
+        </div>
+      `;
+      
+      // Fetch and generate QR code
+      fetch(`<?= base_url('payments/generateQR') ?>/${paymentId}/${studentId}/${contributionId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            qrDisplay.innerHTML = `
+              <img src="${data.qrCode}" alt="Payment QR Code" style="max-width: 180px; width: 100%; height: auto; border-radius: 8px; margin-bottom: 0.5rem;">
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.75rem;">Scan to verify payment</p>
+            `;
+          } else {
+            qrDisplay.innerHTML = `
+              <div style="padding: 2rem; text-align: center; color: var(--error-color);">
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Failed to generate QR code</p>
+              </div>
+            `;
+          }
+        })
+        .catch(error => {
+          console.error('QR Generation Error:', error);
+          qrDisplay.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: var(--error-color);">
+              <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">Error loading QR code</p>
+            </div>
+          `;
+        });
+    }
+
+    function downloadQRReceipt(paymentId) {
+      const qrImage = document.querySelector(`#qr-display-${paymentId} img`);
+      if (qrImage) {
+        const link = document.createElement('a');
+        link.download = `payment-receipt-${paymentId}.png`;
+        link.href = qrImage.src;
+        link.click();
+      } else {
+        alert('QR code not available for download');
+      }
+    }
+
+    function shareQRReceipt(paymentId) {
+      const qrImage = document.querySelector(`#qr-display-${paymentId} img`);
+      if (qrImage && navigator.share) {
+        // Convert image to blob and share
+        fetch(qrImage.src)
+          .then(response => response.blob())
+          .then(blob => {
+            const file = new File([blob], `payment-receipt-${paymentId}.png`, { type: 'image/png' });
+            navigator.share({
+              title: 'Payment Receipt',
+              text: `Payment receipt for transaction TXN-${String(paymentId).padStart(6, '0')}`,
+              files: [file]
+            });
+          })
+          .catch(err => {
+            console.error('Error sharing:', err);
+            // Fallback to copy link
+            navigator.clipboard.writeText(window.location.href).then(() => {
+              alert('Payment link copied to clipboard');
+            });
+          });
+      } else {
+        // Fallback for browsers without Web Share API
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Payment link copied to clipboard');
+          });
+        } else {
+          alert('Sharing not supported in this browser');
+        }
+      }
+    }
+              <div class="qr-section">
+                <img src="${qrImage.src}" alt="Payment QR Code" style="max-width: 200px;">
+                <p>Scan QR code to verify payment</p>
+              </div>
+              <div class="receipt-details">
+                ${receiptDetails}
+              </div>
+              <div class="footer">
+                <p>Generated on ${new Date().toLocaleString()}</p>
+                <p>ClearPay Payment System - Official Receipt</p>
+              </div>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    }
+
+    function shareQR() {
+      const qrImage = document.querySelector('#qrCodeDisplay img');
+      if (qrImage && navigator.share) {
+        // Convert image to blob for sharing
+        fetch(qrImage.src)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], 'payment-receipt-qr.png', { type: 'image/png' });
+            navigator.share({
+              title: 'Payment Receipt QR Code',
+              text: 'Payment verification QR code from ClearPay',
+              files: [file]
+            });
+          })
+          .catch(err => {
+            // Fallback: copy QR code URL to clipboard
+            navigator.clipboard.writeText(qrImage.src).then(() => {
+              alert('QR code image URL copied to clipboard!');
+            }).catch(() => {
+              alert('Sharing not supported on this device');
+            });
+          });
+      } else {
+        // Fallback for browsers without native sharing
+        alert('Sharing not supported on this device');
+      }
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentDetailsModal').style.display = 'none';
+    }
+
+    function exportStudentData() {
+      alert('Export functionality will be implemented soon!');
+    }
+
+    function testFunction() {
+      alert('Test function works! JavaScript is working.');
+      console.log('Test function called');
+    }
+
+    // Event delegation for student clicks (backup approach)
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, setting up student click handlers');
+      const studentsList = document.getElementById('studentsList');
+      if (studentsList) {
+        console.log('Students list found, adding event listener');
+        studentsList.addEventListener('click', function(e) {
+          console.log('Click detected on students list', e.target);
+          const studentItem = e.target.closest('.student-item');
+          if (studentItem) {
+            console.log('Student item found:', studentItem);
+            const contributionId = studentItem.getAttribute('data-contribution-id');
+            const studentId = studentItem.getAttribute('data-student-id');
+            console.log('Student clicked via delegation:', contributionId, studentId);
+            if (contributionId && studentId) {
+              showStudentPaymentHistory(contributionId, studentId);
+            } else {
+              console.log('Missing data attributes:', contributionId, studentId);
+            }
+          } else {
+            console.log('No student item found for clicked element');
+          }
+        });
+      } else {
+        console.log('Students list not found');
+      }
+    });
+
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('modal-overlay')) {
+        e.target.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>

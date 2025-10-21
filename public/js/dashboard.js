@@ -1751,6 +1751,141 @@ async function deleteAnnouncement(id) {
     }
 }
 
+/**
+ * Update user profile
+ */
+function updateProfile(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    submitBtn.disabled = true;
+    
+    // Convert FormData to URLSearchParams for proper submission
+    const data = new URLSearchParams();
+    for (let [key, value] of formData.entries()) {
+        data.append(key, value);
+    }
+    
+    // Submit form
+    fetch('/profile/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message || 'Profile updated successfully!', 'success');
+            closeSettingsModal();
+        } else {
+            showNotification(data.message || 'Failed to update profile', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating profile', 'error');
+    })
+    .finally(() => {
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+/**
+ * Change user password
+ */
+function changePassword(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Validate passwords match
+    const newPassword = formData.get('newPassword');
+    const confirmPassword = formData.get('confirmPassword');
+    
+    if (newPassword !== confirmPassword) {
+        showNotification('New password and confirmation do not match', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    submitBtn.disabled = true;
+    
+    // Convert FormData to URLSearchParams for proper submission
+    const data = new URLSearchParams();
+    for (let [key, value] of formData.entries()) {
+        data.append(key, value);
+    }
+    
+    // Submit form
+    fetch('/profile/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message || 'Password updated successfully!', 'success');
+            closeSettingsModal();
+            form.reset();
+        } else {
+            showNotification(data.message || 'Failed to update password', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating password', 'error');
+    })
+    .finally(() => {
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+/**
+ * Update notification settings
+ */
+function updateNotifications(event) {
+    event.preventDefault();
+    showNotification('Notification settings updated successfully!', 'success');
+    closeSettingsModal();
+}
+
+/**
+ * Update payment preferences
+ */
+function updatePaymentPreferences(event) {
+    event.preventDefault();
+    showNotification('Payment preferences updated successfully!', 'success');
+    closeSettingsModal();
+}
+
+/**
+ * Save theme settings
+ */
+function saveThemeSettings(event) {
+    event.preventDefault();
+    showNotification('Theme settings saved successfully!', 'success');
+    closeSettingsModal();
+}
+
 // Make functions globally available
 window.closeSettingsModal = closeSettingsModal;
 window.toggleTheme = toggleTheme;

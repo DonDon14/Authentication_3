@@ -50,6 +50,10 @@ $routes->get('/payments/cleanup', 'Payments::cleanupPaymentStatuses');
 $routes->get('/payments/fixPartialPayments', 'Payments::fixPartialPayments');
 $routes->get('/contributions/getStudentPaymentHistory/(:num)/(:any)', 'Contributions::getStudentPaymentHistory/$1/$2');
 $routes->get('/payments/studentPaymentHistory/(:num)/(:any)', 'Contributions::getStudentPaymentHistory/$1/$2');
+$routes->get('/payments/getStudentHistory/(:num)/(:any)', 'Payments::getStudentHistory/$1/$2');
+$routes->get('/payments/getPaymentDetails/(:num)', 'Payments::getPaymentDetails/$1');
+$routes->get('/payments/generateQR/(:num)/(:any)/(:num)', 'Payments::generateQR/$1/$2/$3');
+$routes->get('/payments/verifyQR/(:num)', 'Payments::verifyQR/$1');
 
 // Profile routes
 $routes->get('/profile', 'Auth::profile');

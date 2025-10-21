@@ -45,7 +45,7 @@ class Students extends BaseController
                 student_name,
                 COUNT(*) as total_payments,
                 SUM(amount_paid) as total_paid,
-                MAX(payment_date) as last_payment,
+                MAX(created_at) as last_payment,
                 COUNT(DISTINCT contribution_id) as contributions_count
             FROM payments 
             WHERE payment_status IN ('completed', 'fully_paid', 'partial')
@@ -72,10 +72,12 @@ class Students extends BaseController
             return redirect()->back()->with('error', 'Student not found');
         }
 
+        $payments = $this->getStudentPayments($studentId);
+
         $data = [
-            'title' => 'Student Details',
+            'title' => 'Student Details - ' . $student['student_name'],
             'student' => $student,
-            'payments' => $this->paymentModel->findByStudent($studentId)
+            'payments' => $payments
         ];
 
         return view('students/details', $data);
@@ -91,8 +93,8 @@ class Students extends BaseController
                 student_name,
                 COUNT(*) as total_payments,
                 SUM(amount_paid) as total_paid,
-                MAX(payment_date) as last_payment,
-                MIN(payment_date) as first_payment,
+                MAX(created_at) as last_payment,
+                MIN(created_at) as first_payment,
                 COUNT(DISTINCT contribution_id) as contributions_count
             FROM payments 
             WHERE student_id = ? AND payment_status IN ('completed', 'fully_paid', 'partial')
@@ -100,5 +102,23 @@ class Students extends BaseController
         ";
         
         return $db->query($query, [$studentId])->getRowArray();
+    }
+
+    private function getStudentPayments($studentId)
+    {
+        $db = \Config\Database::connect();
+        
+        $query = "
+            SELECT 
+                p.*,
+                c.title as contribution_title,
+                c.category
+            FROM payments p
+            LEFT JOIN contributions c ON p.contribution_id = c.id
+            WHERE p.student_id = ?
+            ORDER BY p.created_at DESC
+        ";
+        
+        return $db->query($query, [$studentId])->getResultArray();
     }
 }

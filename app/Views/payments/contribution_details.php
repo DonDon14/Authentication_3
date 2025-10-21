@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -461,11 +461,13 @@
                 <?php foreach ($payments as $payment): ?>
                   <div class="student-item card" 
                        data-payment-id="<?= $payment['id'] ?? '' ?>" 
-                       data-student-name="<?= strtolower(esc($payment['student_name'] ?? '')) ?>" 
-                       data-student-id="<?= strtolower(esc($payment['student_id'] ?? '')) ?>"
-                       onclick="showStudentPaymentHistory('<?= $payment['contribution_id'] ?? '' ?>', '<?= esc($payment['student_id'] ?? '') ?>')">
+                       data-student-name="<?= esc($payment['student_name'] ?? '') ?>" 
+                       data-student-id="<?= esc($payment['student_id'] ?? '') ?>"
+                       data-contribution-id="<?= $payment['contribution_id'] ?? '' ?>"
+                       onclick="showStudentPaymentHistory('<?= $payment['contribution_id'] ?? '' ?>', '<?= esc($payment['student_id'] ?? '') ?>')" 
+                       style="cursor: pointer;">
                     
-                    <div class="card-content">
+                    <div class="card-content" style="pointer-events: none;">
                       <div class="student-info">
                         <div class="student-avatar">
                           <i class="fas fa-user-graduate"></i>
@@ -498,17 +500,6 @@
                               Amount
                             <?php endif; ?>
                           </div>
-                        </div>
-                        
-                        <div class="student-actions">
-                          <button class="btn btn-ghost btn-sm" title="View payment history">
-                            <i class="fas fa-eye"></i>
-                          </button>
-                          <?php if (isset($payment['qr_code']) && !empty($payment['qr_code'])): ?>
-                          <button class="btn btn-ghost btn-sm" title="View QR receipt" onclick="event.stopPropagation(); showQRCode('<?= $payment['qr_code'] ?? '' ?>')">
-                            <i class="fas fa-qrcode"></i>
-                          </button>
-                          <?php endif; ?>
                         </div>
                       </div>
                     </div>
@@ -551,29 +542,188 @@
     </div>
   </div>
 
-  <!-- QR Code Modal -->
-  <div id="qrModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="modal-container" style="background: var(--bg-primary); border-radius: var(--radius-lg); padding: 0; max-width: 400px; width: 90%; box-shadow: var(--shadow-lg);">
-      <div class="modal-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-qrcode"></i> Payment Receipt</h3>
-        <button onclick="closeQRModal()" class="btn btn-ghost btn-sm" style="padding: 0.375rem; min-width: auto;">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="modal-content" style="padding: 1.5rem; text-align: center;">
-        <div class="qr-display">
-          <div id="qrCodeDisplay" style="margin-bottom: 1rem;"></div>
-          <p style="margin: 0; color: var(--text-secondary);">Scan this QR code to verify the payment</p>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Include Dashboard JavaScript -->
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
   
   <script>
+    // Global functions that need to be accessible from onclick attributes
+    function showStudentPaymentHistory(contributionId, studentId) {
+      console.log('Function called! ContributionId: ' + contributionId + ', StudentId: ' + studentId);
+      
+      // Show loading state
+      document.getElementById('paymentDetailsContent').innerHTML = `
+        <div class="loading-state" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+          <p>Loading payment history...</p>
+        </div>
+      `;
+      
+      document.getElementById('paymentDetailsModal').style.display = 'flex';
+      
+      // Fetch payment history via AJAX
+      fetch(`<?= base_url('payments/getStudentHistory') ?>/${contributionId}/${studentId}`)
+        .then(response => {
+          console.log('Response status:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Response data:', data);
+          if (data.success) {
+            renderPaymentTimeline(data.payments, data.student);
+          } else {
+            showErrorInModal(data.message || 'Failed to load payment history');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showErrorInModal('Failed to load payment history');
+        });
+    }
+
+    function renderPaymentTimeline(payments, student) {
+      console.log('Rendering payment timeline for:', student, 'Payments:', payments);
+      
+      // Calculate summary data
+      const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount_paid || 0), 0);
+      const contributionAmount = parseFloat('<?= $contribution['amount'] ?? 0 ?>');
+      const remainingBalance = contributionAmount - totalPaid;
+      
+      const timelineHTML = `
+        <div class="payment-history-container">
+          <div class="student-header" style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="student-avatar" style="width: 60px; height: 60px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-user-graduate"></i>
+              </div>
+              <div>
+                <h4 style="margin: 0; font-size: 1.2rem; color: var(--text-primary);">${student.name}</h4>
+                <p style="margin: 0.25rem 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">ID: ${student.id}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="payment-summary" style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div class="summary-details" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+              <div class="total-section">
+                <h5 style="margin: 0 0 5px 0; color: #666;">Total Paid:</h5>
+                <p class="amount" style="margin: 0; font-size: 1.2em; font-weight: bold; color: #28a745;">₱${totalPaid.toFixed(2)}</p>
+              </div>
+              <div class="total-section">
+                <h5 style="margin: 0 0 5px 0; color: #666;">Remaining Balance:</h5>
+                <p class="amount" style="margin: 0; font-size: 1.2em; font-weight: bold; color: ${remainingBalance <= 0 ? '#28a745' : '#dc3545'};">₱${remainingBalance.toFixed(2)}</p>
+              </div>
+              <div class="total-section">
+                <h5 style="margin: 0 0 5px 0; color: #666;">Payment Status:</h5>
+                <p class="status-badge ${remainingBalance <= 0 ? 'fully-paid' : 'partial'}" style="margin: 0; padding: 5px 10px; border-radius: 4px; font-size: 0.9em; font-weight: 600; color: white; background: ${remainingBalance <= 0 ? '#28a745' : '#ffc107'};">
+                  ${remainingBalance <= 0 ? 'FULLY PAID' : 'PARTIAL PAYMENT'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="payment-history-list">
+            <h5 style="margin: 0 0 15px 0; color: #444;">Payment Transactions (${payments.length})</h5>
+            ${payments.map(payment => `
+              <div class="payment-record" style="background: white; border: 1px solid #eee; border-radius: 6px; padding: 15px; margin-bottom: 10px;">
+                <div class="payment-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <div class="payment-date" style="color: #666; font-size: 0.9em;">
+                    <i class="fas fa-calendar" style="margin-right: 5px;"></i>
+                    ${new Date(payment.payment_date || payment.created_at).toLocaleString()}
+                  </div>
+                  <div class="payment-amount" style="font-size: 1.2em; font-weight: bold; color: #28a745;">₱${parseFloat(payment.amount_paid || 0).toFixed(2)}</div>
+                </div>
+                <div class="payment-details" style="display: grid; gap: 8px; font-size: 0.9em;">
+                  <div class="detail-item" style="display: flex; gap: 10px;">
+                    <label style="color: #666; min-width: 120px;"><strong>Method:</strong></label>
+                    <span>${(payment.payment_method || 'Cash').toUpperCase()}</span>
+                  </div>
+                  <div class="detail-item" style="display: flex; gap: 10px;">
+                    <label style="color: #666; min-width: 120px;"><strong>Verification:</strong></label>
+                    <span class="verification-code" style="font-family: monospace; background: #f8f9fa; padding: 2px 6px; border-radius: 3px;">${payment.verification_code || 'N/A'}</span>
+                  </div>
+                  ${payment.reference_number ? `
+                    <div class="detail-item" style="display: flex; gap: 10px;">
+                      <label style="color: #666; min-width: 120px;"><strong>Reference:</strong></label>
+                      <span>${payment.reference_number}</span>
+                    </div>
+                  ` : ''}
+                  ${payment.notes ? `
+                    <div class="detail-item" style="display: flex; gap: 10px;">
+                      <label style="color: #666; min-width: 120px;"><strong>Notes:</strong></label>
+                      <span>${payment.notes}</span>
+                    </div>
+                  ` : ''}
+                  ${payment.qr_receipt_path ? `
+                    <div class="qr-section" style="text-align: center; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px;">
+                      <img src="<?= base_url() ?>writable/uploads/${payment.qr_receipt_path}" 
+                           alt="Payment QR Code" 
+                           style="max-width: 150px; height: auto; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 4px;">
+                      <br>
+                      <button onclick="downloadQR('${payment.qr_receipt_path}')" 
+                              style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.875rem;">
+                        <i class="fas fa-download"></i> Download QR Receipt
+                      </button>
+                    </div>
+                  ` : `
+                    <div class="no-qr-section" style="text-align: center; margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 4px; color: #856404;">
+                      <i class="fas fa-info-circle"></i> No QR receipt available for this payment
+                    </div>
+                  `}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('paymentDetailsContent').innerHTML = timelineHTML;
+    }
+
+    function showErrorInModal(message) {
+      document.getElementById('paymentDetailsContent').innerHTML = `
+        <div class="error-state" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+          <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem; color: var(--error-color);"></i>
+          <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">Error Loading Data</h4>
+          <p style="margin: 0;">${message}</p>
+        </div>
+      `;
+    }
+
+    function testFunction() {
+      alert('Test function works! JavaScript is working.');
+      console.log('Test function called');
+    }
+
+    function exportStudentData() {
+      alert('Export functionality will be implemented soon!');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentDetailsModal').style.display = 'none';
+    }
+
+    // Helper function to download QR code
+    function downloadQR(qrPath) {
+      if (!qrPath) {
+        console.error('No QR path provided');
+        return;
+      }
+
+      const filename = `payment_qr_${Date.now()}.png`;
+      const downloadUrl = `<?= base_url() ?>writable/uploads/${qrPath}`;
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     // Search functionality
     document.addEventListener('DOMContentLoaded', function() {
       const searchInput = document.getElementById('studentSearchInput');
@@ -606,51 +756,6 @@
         });
       }
     });
-
-    function showStudentPaymentHistory(contributionId, studentId) {
-      // Show loading state
-      document.getElementById('paymentDetailsContent').innerHTML = `
-        <div class="loading-state" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-          <p>Loading payment history...</p>
-        </div>
-      `;
-      
-      document.getElementById('paymentDetailsModal').style.display = 'flex';
-      
-      // Simulate API call - replace with actual implementation
-      setTimeout(() => {
-        document.getElementById('paymentDetailsContent').innerHTML = `
-          <div class="payment-summary-card" style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem;">
-            <h4 style="margin: 0 0 0.5rem 0;">Student Payment Summary</h4>
-            <p style="margin: 0 0 1rem 0; color: var(--text-secondary);">Payment history for Student ID: ${studentId}</p>
-            <div class="payment-list">
-              <div class="payment-item" style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
-                <span>Latest Payment</span>
-                <span style="font-weight: 600;">₱<?= number_format($contribution['amount'], 2) ?></span>
-              </div>
-            </div>
-          </div>
-        `;
-      }, 1000);
-    }
-
-    function closePaymentModal() {
-      document.getElementById('paymentDetailsModal').style.display = 'none';
-    }
-
-    function showQRCode(qrCode) {
-      document.getElementById('qrCodeDisplay').innerHTML = `<img src="${qrCode}" alt="QR Code" style="max-width: 100%; border-radius: 8px;">`;
-      document.getElementById('qrModal').style.display = 'flex';
-    }
-
-    function closeQRModal() {
-      document.getElementById('qrModal').style.display = 'none';
-    }
-
-    function exportStudentData() {
-      alert('Export functionality will be implemented soon!');
-    }
 
     // Close modals when clicking outside
     document.addEventListener('click', function(e) {
