@@ -59,21 +59,23 @@
               <span>Payment History</span>
             </a>
           </li>
-        </ul>
-        
-        <div class="nav-divider"></div>
-        
-        <ul class="nav-list">
+          <li class="nav-divider"></li>
           <li class="nav-item">
-            <a href="<?= base_url('profile') ?>" class="nav-link">
-              <i class="fas fa-user-cog"></i>
-              <span>Settings</span>
+            <a href="#" class="nav-link">
+              <i class="fas fa-chart-bar"></i>
+              <span>Analytics</span>
             </a>
           </li>
           <li class="nav-item">
-            <a href="<?= base_url('auth/logout') ?>" class="nav-link">
-              <i class="fas fa-sign-out-alt"></i>
-              <span>Logout</span>
+            <a href="#" class="nav-link">
+              <i class="fas fa-users"></i>
+              <span>Students</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
             </a>
           </li>
         </ul>
