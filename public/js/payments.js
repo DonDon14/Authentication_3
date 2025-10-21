@@ -110,9 +110,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (result.success) {
           showSuccess(result.message || 'Payment recorded successfully!');
           
+          // Debug QR receipt data
+          console.log('Checking QR receipt conditions:');
+          console.log('- show_receipt:', result.show_receipt);
+          console.log('- receipt present:', !!result.receipt);
+          console.log('- download URL:', result.qr_download_url);
+          
           // Show QR receipt if available
           if (result.show_receipt && result.receipt) {
-            showQRReceipt(result.receipt, result.qr_download_url);
+            console.log('Showing QR receipt with data:', result.receipt);
+            try {
+              showQRReceipt(result.receipt, result.qr_download_url);
+            } catch (error) {
+              console.error('Error showing QR receipt:', error);
+              alert('QR receipt generated successfully, but there was an error displaying it. Check the console for details.');
+            }
+          } else {
+            console.log('QR receipt conditions not met - modal will not show');
           }
           
           // Clear form but keep contribution info if present
@@ -1131,6 +1145,14 @@ function initializeAmountField() {
 
 // Show QR Receipt Modal
 function showQRReceipt(receiptData, downloadUrl) {
+  console.log('showQRReceipt called with:', receiptData, downloadUrl);
+  
+  // Remove any existing modal first
+  const existingModal = document.getElementById('qrReceiptModal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
   // Create modal HTML
   const modalHTML = `
     <div id="qrReceiptModal" class="qr-receipt-modal" style="
@@ -1238,6 +1260,16 @@ function showQRReceipt(receiptData, downloadUrl) {
   
   // Prevent body scroll
   document.body.style.overflow = 'hidden';
+  
+  console.log('QR Receipt modal added to DOM');
+  
+  // Verify modal was added
+  const addedModal = document.getElementById('qrReceiptModal');
+  if (addedModal) {
+    console.log('✓ Modal successfully added and found in DOM');
+  } else {
+    console.error('✗ Modal not found in DOM after insertion');
+  }
 }
 
 // Close QR Receipt Modal

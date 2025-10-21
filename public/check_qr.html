@@ -1,0 +1,214 @@
+<?php
+// Direct QR generation test - bypass CodeIgniter routing
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Generation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .success { color: green; } .error { color: red; } .warning { color: orange; } .info { color: blue; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        pre { background: #f8f8f8; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔍 QR Generation Diagnostic Test</h1>
+    
+    <?php
+    try {
+        echo "<h2>📋 System Requirements Check</h2>";
+        
+        // Check GD extension
+        if (extension_loaded('gd')) {
+            echo "<p class='success'>✅ GD extension is loaded</p>";
+            $gdInfo = gd_info();
+            echo "<p class='info'>GD Version: " . $gdInfo['GD Version'] . "</p>";
+        } else {
+            echo "<p class='error'>❌ GD extension is NOT loaded - Required for QR generation!</p>";
+            echo "<p class='info'>💡 Enable GD extension in php.ini file</p>";
+        }
+        
+        // Check if we can access the vendor directory
+        $vendorPath = dirname(__DIR__) . '/vendor/autoload.php';
+        echo "<h2>📦 Composer Dependencies</h2>";
+        echo "<p class='info'>Looking for: $vendorPath</p>";
+        
+        if (file_exists($vendorPath)) {
+            echo "<p class='success'>✅ Composer autoload file found</p>";
+            require_once $vendorPath;
+            
+            if (class_exists('Endroid\QrCode\QrCode')) {
+                echo "<p class='success'>✅ QR Code library is available</p>";
+            } else {
+                echo "<p class='error'>❌ QR Code library not found after autoload</p>";
+            }
+        } else {
+            echo "<p class='error'>❌ Composer autoload file not found</p>";
+            echo "<p class='info'>💡 Run 'composer install' in project root</p>";
+        }
+        
+        // Check uploads directory
+        echo "<h2>📁 File System Check</h2>";
+        $uploadsDir = dirname(__DIR__) . '/writable/uploads/';
+        echo "<p class='info'>Uploads directory: $uploadsDir</p>";
+        
+        if (!is_dir($uploadsDir)) {
+            echo "<p class='warning'>⚠️ Uploads directory doesn't exist, creating...</p>";
+            if (mkdir($uploadsDir, 0755, true)) {
+                echo "<p class='success'>✅ Uploads directory created</p>";
+            } else {
+                echo "<p class='error'>❌ Failed to create uploads directory</p>";
+            }
+        } else {
+            echo "<p class='success'>✅ Uploads directory exists</p>";
+        }
+        
+        if (is_writable($uploadsDir)) {
+            echo "<p class='success'>✅ Uploads directory is writable</p>";
+        } else {
+            echo "<p class='error'>❌ Uploads directory is NOT writable</p>";
+            echo "<p class='info'>💡 Set directory permissions to 755 or 777</p>";
+        }
+        
+        // List existing files
+        $files = is_dir($uploadsDir) ? scandir($uploadsDir) : [];
+        $files = array_filter($files, function($file) {
+            return !in_array($file, ['.', '..']);
+        });
+        
+        if (!empty($files)) {
+            echo "<p class='info'>Files in uploads directory:</p><ul>";
+            foreach ($files as $file) {
+                $size = filesize($uploadsDir . $file);
+                echo "<li>$file (" . number_format($size) . " bytes)</li>";
+            }
+            echo "</ul>";
+        } else {
+            echo "<p class='warning'>⚠️ No files in uploads directory</p>";
+        }
+        
+        // Test QR generation if possible
+        if (extension_loaded('gd') && class_exists('Endroid\QrCode\QrCode')) {
+            echo "<h2>🧪 QR Generation Test</h2>";
+            
+            try {
+                $testData = [
+                    'payment_id' => 999,
+                    'student_id' => 'TEST999',
+                    'student_name' => 'QR Test Student',
+                    'amount' => '100.00',
+                    'verification_code' => 'TEST123'
+                ];
+                
+                $qrContent = json_encode($testData);
+                echo "<p class='info'>QR Content: " . htmlspecialchars($qrContent) . "</p>";
+                
+                // Generate QR Code
+                $qrCode = new \Endroid\QrCode\QrCode($qrContent);
+                $writer = new \Endroid\QrCode\Writer\PngWriter();
+                $result = $writer->write($qrCode);
+                
+                // Save test QR code
+                $filename = 'test_qr_' . date('Ymd_His') . '.png';
+                $filepath = $uploadsDir . $filename;
+                
+                $bytesWritten = file_put_contents($filepath, $result->getString());
+                
+                if ($bytesWritten !== false && file_exists($filepath)) {
+                    echo "<p class='success'>✅ Test QR code generated successfully!</p>";
+                    echo "<p class='info'>File: $filename ($bytesWritten bytes)</p>";
+                    
+                    // Create a link to view the QR code
+                    $webPath = '/Authentication_3/writable/uploads/' . $filename;
+                    echo "<p><a href='$webPath' target='_blank'>🔗 View Generated QR Code</a></p>";
+                    
+                    // Also display as base64 image
+                    $base64 = base64_encode($result->getString());
+                    echo "<div style='text-align: center; margin: 20px 0;'>";
+                    echo "<img src='data:image/png;base64,$base64' alt='Generated QR Code' style='border: 1px solid #ddd; padding: 10px;' />";
+                    echo "<br><small>Generated QR Code (embedded)</small>";
+                    echo "</div>";
+                    
+                } else {
+                    echo "<p class='error'>❌ Failed to save QR code file</p>";
+                }
+                
+            } catch (Exception $e) {
+                echo "<p class='error'>❌ QR Generation Error: " . $e->getMessage() . "</p>";
+                echo "<details><summary>Stack Trace</summary><pre>" . $e->getTraceAsString() . "</pre></details>";
+            }
+        } else {
+            echo "<h2>🚫 Cannot Test QR Generation</h2>";
+            echo "<p class='error'>Missing requirements:</p><ul>";
+            if (!extension_loaded('gd')) echo "<li>GD extension not loaded</li>";
+            if (!class_exists('Endroid\QrCode\QrCode')) echo "<li>QR Code library not available</li>";
+            echo "</ul>";
+        }
+        
+        // Check database
+        echo "<h2>🗄️ Database Check</h2>";
+        
+        try {
+            $mysqli = new mysqli('localhost', 'root', '', 'codeigniter_auth_new');
+            
+            if (!$mysqli->connect_error) {
+                echo "<p class='success'>✅ Database connection successful</p>";
+                
+                $result = $mysqli->query("SELECT id, student_id, student_name, amount_paid, qr_receipt_path, verification_code FROM payments ORDER BY id DESC LIMIT 3");
+                
+                if ($result && $result->num_rows > 0) {
+                    echo "<p class='info'>Recent payments:</p>";
+                    echo "<table>";
+                    echo "<tr><th>ID</th><th>Student</th><th>Amount</th><th>QR Path</th><th>Verification</th></tr>";
+                    
+                    while ($row = $result->fetch_assoc()) {
+                        $qrStatus = $row['qr_receipt_path'] ? 'success' : 'error';
+                        $verifyStatus = $row['verification_code'] ? 'success' : 'error';
+                        
+                        echo "<tr>";
+                        echo "<td>" . $row['id'] . "</td>";
+                        echo "<td>" . htmlspecialchars($row['student_id'] . ' - ' . $row['student_name']) . "</td>";
+                        echo "<td>$" . $row['amount_paid'] . "</td>";
+                        echo "<td class='$qrStatus'>" . ($row['qr_receipt_path'] ?: 'NULL') . "</td>";
+                        echo "<td class='$verifyStatus'>" . ($row['verification_code'] ?: 'NULL') . "</td>";
+                        echo "</tr>";
+                    }
+                    echo "</table>";
+                } else {
+                    echo "<p class='warning'>⚠️ No payments found in database</p>";
+                }
+                
+                $mysqli->close();
+            } else {
+                echo "<p class='error'>❌ Database connection failed: " . $mysqli->connect_error . "</p>";
+            }
+        } catch (Exception $e) {
+            echo "<p class='error'>❌ Database error: " . $e->getMessage() . "</p>";
+        }
+        
+        // Provide solutions
+        echo "<h2>🔧 Solutions</h2>";
+        echo "<div style='background: #e8f4f8; padding: 15px; border-radius: 5px;'>";
+        echo "<h3>To Fix QR Generation:</h3>";
+        echo "<ol>";
+        echo "<li><strong>Enable GD Extension:</strong> In XAMPP Control Panel, click 'Config' for Apache → php.ini → find and uncomment <code>extension=gd</code></li>";
+        echo "<li><strong>Install QR Library:</strong> Run <code>composer install</code> in project root directory</li>";
+        echo "<li><strong>Set Permissions:</strong> Ensure writable/uploads directory has proper write permissions</li>";
+        echo "<li><strong>Restart Apache:</strong> After enabling GD extension</li>";
+        echo "</ol>";
+        echo "</div>";
+        
+        echo "<p style='margin-top: 20px;'><a href='/Authentication_3/payments'>← Back to Payments</a></p>";
+        
+    } catch (Exception $e) {
+        echo "<p class='error'>❌ Fatal Error: " . $e->getMessage() . "</p>";
+    }
+    ?>
+</div>
+</body>
+</html>

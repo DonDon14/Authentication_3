@@ -20,13 +20,13 @@ class CreateUsersTable extends Migration
             'username'    => ['type' => 'VARCHAR', 'constraint' => 255],
             'email'       => ['type' => 'VARCHAR', 'constraint' => 255],
             'email_verified' => ['type' => 'TINYINT', 'constraint' => 1, 'default' => 0],
-            'vefirication_token' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
+            'verification_token' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
             'verification_expires' => ['type' => 'DATETIME', 'null' => true],
             'reset_token' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
             'reset_expires' => ['type' => 'DATETIME', 'null' => true],
             'password'    => ['type' => 'VARCHAR', 'constraint' => 255],
-            'created_at'  => ['type' => 'TIMESTAMP', 'default' => 'CURRENT_TIMESTAMP'],
-            'updated_at'  => ['type' => 'TIMESTAMP', 'default' => 'CURRENT_TIMESTAMP', 'onUpdate' => 'CURRENT_TIMESTAMP'],
+            'created_at'  => ['type' => 'DATETIME', 'null' => true],
+            'updated_at'  => ['type' => 'DATETIME', 'null' => true],
         ]);
         
         $this->forge->addKey('id', true);

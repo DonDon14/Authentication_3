@@ -60,3 +60,14 @@ $routes->post('/profile/update', 'Auth::updateProfile');
 $routes->get('/settings', 'Auth::settings');
 $routes->get('payments/getQRCode/(:any)/(:num)', 'Payments::getQRCode/$1/$2');
 //$routes->get('/public/js/contribution_details.js', 'Home::serveJs');
+
+// Student/User Authentication Routes
+$routes->get('/user/login', 'UserAuth::login');
+$routes->post('/user/login', 'UserAuth::processLogin');
+$routes->get('/user/dashboard', 'UserAuth::dashboard');
+$routes->get('/user/payment-history', 'UserAuth::paymentHistory');
+$routes->get('/user/payment-details/(:num)', 'UserAuth::getPaymentDetails/$1');
+$routes->get('/user/logout', 'UserAuth::logout');
+$routes->post('/user/check-payment-status/(:num)', 'UserAuth::checkPaymentStatus/$1');
+$routes->get('/user/profile', 'UserAuth::profile');
+$routes->get('/user/help', 'UserAuth::help');
