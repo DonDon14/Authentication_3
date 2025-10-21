@@ -34,9 +34,10 @@ class Contributions extends Controller
         // Validate input
         $title = $this->request->getPost('title');
         $amount = $this->request->getPost('amount');
+        $costPrice = $this->request->getPost('cost_price') ?? 0;
         $category = $this->request->getPost('category');
 
-        log_message('info', "Title: $title, Amount: $amount, Category: $category");
+        log_message('info', "Title: $title, Amount: $amount, Cost Price: $costPrice, Category: $category");
 
         if (!$title || !$amount || !$category) {
             log_message('warning', 'Validation failed: missing required fields');
@@ -54,10 +55,25 @@ class Contributions extends Controller
             ]);
         }
 
+        if (!is_numeric($costPrice) || $costPrice < 0) {
+            log_message('warning', 'Validation failed: invalid cost price');
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Cost price must be a valid positive number'
+            ]);
+        }
+
+        // Calculate profit
+        $profit = $contributionModel->calculateProfit(floatval($amount), floatval($costPrice));
+
         $data = [
             'title' => trim($title),
             'description' => trim($this->request->getPost('description') ?? ''),
             'amount' => floatval($amount),
+            'cost_price' => floatval($costPrice),
+            'profit_amount' => $profit['profit_amount'],
+            'profit_margin' => $profit['profit_margin'],
+            'profit_calculated_at' => date('Y-m-d H:i:s'),
             'category' => trim($category),
             'status' => 'active',
             'created_by' => session()->get('user_id') ?? null,
@@ -403,5 +419,21 @@ class Contributions extends Controller
                 'message' => 'Error retrieving payment history'
             ]);
         }
+    }
+
+    // Show profit analytics
+    public function analytics()
+    {
+        $contributionModel = new ContributionModel();
+        
+        $data = [
+            'profit_analytics' => $contributionModel->getProfitAnalytics(),
+            'top_profitable' => $contributionModel->getTopProfitable(10),
+            'contributions' => $contributionModel->select('id, title, amount, cost_price, profit_amount, profit_margin, category, status')
+                                                 ->orderBy('profit_margin', 'DESC')
+                                                 ->findAll()
+        ];
+        
+        return view('contribution_analytics', $data);
     }
 }

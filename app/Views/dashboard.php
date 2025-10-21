@@ -61,13 +61,13 @@
           </li>
           <li class="nav-divider"></li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('analytics') ?>" class="nav-link">
               <i class="fas fa-chart-bar"></i>
               <span>Analytics</span>
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('students') ?>" class="nav-link">
               <i class="fas fa-users"></i>
               <span>Students</span>
             </a>
@@ -327,6 +327,16 @@
                   <div class="action-text">
                     <h4>Manage Contributions</h4>
                     <p>Add or edit fee types</p>
+                  </div>
+                </button>
+                
+                <button class="action-btn secondary" onclick="window.location.href='<?= base_url('analytics') ?>'">
+                  <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                  </div>
+                  <div class="action-text">
+                    <h4>View Analytics</h4>
+                    <p>System performance insights</p>
                   </div>
                 </button>
                 

@@ -20,6 +20,7 @@ $routes->get('/payments', 'Payments::index');
 
 // Contributions routes
 $routes->get('/contributions', 'Contributions::index');
+$routes->get('/contributions/analytics', 'Contributions::analytics');
 $routes->post('/contributions/add', 'Contributions::add');
 $routes->post('/contributions/update/(:num)', 'Contributions::update/$1');
 $routes->post('/contributions/toggle/(:num)', 'Contributions::toggle/$1');
@@ -50,9 +51,20 @@ $routes->get('/payments/fixPartialPayments', 'Payments::fixPartialPayments');
 $routes->get('/contributions/getStudentPaymentHistory/(:num)/(:any)', 'Contributions::getStudentPaymentHistory/$1/$2');
 $routes->get('/payments/studentPaymentHistory/(:num)/(:any)', 'Contributions::getStudentPaymentHistory/$1/$2');
 
+// Profile routes
+$routes->get('/profile', 'Auth::profile');
+
 // Alternative routes to handle routing issues
 $routes->get('payments/viewContribution/(:num)', 'Payments::viewContribution/$1');
 $routes->get('Authentication_3/payments/viewContribution/(:num)', 'Payments::viewContribution/$1');
+
+// Analytics routes
+$routes->get('/analytics', 'Analytics::index');
+$routes->get('/analytics/export/(:any)', 'Analytics::export/$1');
+
+// Students routes
+$routes->get('/students', 'Students::index');
+$routes->get('/students/details/(:any)', 'Students::details/$1');
 
 // Profile and Settings routes
 $routes->get('/profile', 'Auth::profile');

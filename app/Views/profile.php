@@ -395,13 +395,13 @@
           </li>
           <li class="nav-divider"></li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('analytics') ?>" class="nav-link">
               <i class="fas fa-chart-bar"></i>
               <span>Analytics</span>
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('students') ?>" class="nav-link">
               <i class="fas fa-users"></i>
               <span>Students</span>
             </a>

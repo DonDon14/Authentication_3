@@ -12,6 +12,10 @@ class ContributionModel extends Model
         'title', 
         'description', 
         'amount', 
+        'cost_price',
+        'profit_amount',
+        'profit_margin',
+        'profit_calculated_at',
         'category', 
         'status', 
         'created_at', 
@@ -47,6 +51,65 @@ class ContributionModel extends Model
             'total' => $this->countAllResults(),
             'inactive' => $this->where('status', 'inactive')->countAllResults()
         ];
+    }
+
+    /**
+     * Calculate profit for a contribution
+     */
+    public function calculateProfit($amount, $costPrice)
+    {
+        $profitAmount = $amount - $costPrice;
+        $profitMargin = $amount > 0 ? ($profitAmount / $amount) * 100 : 0;
+        
+        return [
+            'profit_amount' => round($profitAmount, 2),
+            'profit_margin' => round($profitMargin, 2)
+        ];
+    }
+
+    /**
+     * Update contribution with profit calculation
+     */
+    public function updateWithProfit($id, $data)
+    {
+        if (isset($data['amount']) && isset($data['cost_price'])) {
+            $profit = $this->calculateProfit($data['amount'], $data['cost_price']);
+            $data['profit_amount'] = $profit['profit_amount'];
+            $data['profit_margin'] = $profit['profit_margin'];
+            $data['profit_calculated_at'] = date('Y-m-d H:i:s');
+        }
+        
+        return $this->update($id, $data);
+    }
+
+    /**
+     * Get profit analytics
+     */
+    public function getProfitAnalytics()
+    {
+        $query = $this->select('
+            COUNT(*) as total_contributions,
+            SUM(amount) as total_revenue,
+            SUM(cost_price) as total_costs,
+            SUM(profit_amount) as total_profit,
+            AVG(profit_margin) as avg_profit_margin,
+            MAX(profit_margin) as max_profit_margin,
+            MIN(profit_margin) as min_profit_margin
+        ')->where('status', 'active');
+        
+        return $query->first();
+    }
+
+    /**
+     * Get top profitable contributions
+     */
+    public function getTopProfitable($limit = 5)
+    {
+        return $this->select('id, title, amount, cost_price, profit_amount, profit_margin, category')
+                    ->where('status', 'active')
+                    ->orderBy('profit_amount', 'DESC')
+                    ->limit($limit)
+                    ->findAll();
     }
 
     /**

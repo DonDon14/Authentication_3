@@ -61,13 +61,13 @@
           </li>
           <li class="nav-divider"></li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('analytics') ?>" class="nav-link">
               <i class="fas fa-chart-bar"></i>
               <span>Analytics</span>
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('students') ?>" class="nav-link">
               <i class="fas fa-users"></i>
               <span>Students</span>
             </a>
@@ -266,6 +266,15 @@
                   <p>Download reports</p>
                 </div>
               </button>
+              <button class="action-btn success" onclick="window.location.href='<?= base_url('contributions/analytics') ?>'">
+                <div class="action-icon">
+                  <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="action-text">
+                  <h4>Profit Analytics</h4>
+                  <p>View profitability</p>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -321,6 +330,11 @@
                             <div class="contribution-amount" style="text-align: right; flex-shrink: 0;">
                               <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); line-height: 1;">$<?= number_format($contribution['amount'], 2) ?></div>
                               <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Per payment</div>
+                              <?php if (isset($contribution['profit_margin']) && $contribution['profit_margin'] > 0): ?>
+                                <div style="font-size: 0.7rem; color: var(--success-color); margin-top: 0.25rem; font-weight: 500;">
+                                  <?= number_format($contribution['profit_margin'], 1) ?>% profit
+                                </div>
+                              <?php endif; ?>
                             </div>
                           </div>
                           
@@ -430,7 +444,32 @@
             <label for="contributionAmount">Default Amount ($)</label>
             <div style="position: relative;">
               <i class="fas fa-dollar-sign" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);"></i>
-              <input type="number" id="contributionAmount" name="amount" class="search-input" placeholder="0.00" step="0.01" min="0" required style="padding-left: 2.5rem;">
+              <input type="number" id="contributionAmount" name="amount" class="search-input" placeholder="0.00" step="0.01" min="0" required style="padding-left: 2.5rem;" onchange="calculateProfit()">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="contributionCostPrice">Cost Price ($)</label>
+            <div style="position: relative;">
+              <i class="fas fa-receipt" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);"></i>
+              <input type="number" id="contributionCostPrice" name="cost_price" class="search-input" placeholder="0.00" step="0.01" min="0" value="0.00" style="padding-left: 2.5rem;" onchange="calculateProfit()">
+            </div>
+            <small style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+              Enter the cost/expense for this contribution (leave 0 if no costs)
+            </small>
+          </div>
+
+          <div class="form-group" id="profitDisplay" style="display: none;">
+            <label>Profit Analysis</label>
+            <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span>Profit Amount:</span>
+                <span id="profitAmount" style="font-weight: 600; color: var(--success-color);">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Profit Margin:</span>
+                <span id="profitMargin" style="font-weight: 600; color: var(--primary-color);">0%</span>
+              </div>
             </div>
           </div>
 
@@ -872,6 +911,39 @@
         });
       });
       
+      // Profit calculation function
+      function calculateProfit() {
+        const amount = parseFloat(document.getElementById('contributionAmount').value) || 0;
+        const costPrice = parseFloat(document.getElementById('contributionCostPrice').value) || 0;
+        
+        const profitAmount = amount - costPrice;
+        const profitMargin = amount > 0 ? (profitAmount / amount) * 100 : 0;
+        
+        // Update display
+        document.getElementById('profitAmount').textContent = '$' + profitAmount.toFixed(2);
+        document.getElementById('profitMargin').textContent = profitMargin.toFixed(1) + '%';
+        
+        // Show/hide profit display
+        const profitDisplay = document.getElementById('profitDisplay');
+        if (amount > 0 || costPrice > 0) {
+          profitDisplay.style.display = 'block';
+        } else {
+          profitDisplay.style.display = 'none';
+        }
+        
+        // Color coding for profit/loss
+        const profitAmountEl = document.getElementById('profitAmount');
+        const profitMarginEl = document.getElementById('profitMargin');
+        
+        if (profitAmount >= 0) {
+          profitAmountEl.style.color = 'var(--success-color)';
+          profitMarginEl.style.color = 'var(--success-color)';
+        } else {
+          profitAmountEl.style.color = 'var(--error-color)';
+          profitMarginEl.style.color = 'var(--error-color)';
+        }
+      }
+
       // Modal functionality
       const modal = document.getElementById('contributionModal');
       const addBtn = document.getElementById('addContributionBtn');
