@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Toggle Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .status { font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Simple Toggle Test</h1>
+    <p>This tests the toggle without any conflicting JavaScript</p>
+    
+    <div>
+        <strong>Current Status:</strong> <span id="currentStatus" class="status">Loading...</span>
+    </div>
+    
+    <button onclick="checkStatus()">Check Status</button>
+    <button onclick="toggleStatus()">Toggle Status</button>
+    <button onclick="testSequence()">Test Toggle Sequence</button>
+    
+    <div id="result" class="result">Ready...</div>
+
+    <script>
+        let isToggling = false;
+        
+        async function checkStatus() {
+            const resultDiv = document.getElementById('result');
+            const statusSpan = document.getElementById('currentStatus');
+            
+            try {
+                const response = await fetch('/Authentication_3/contributions/get/1');
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusSpan.textContent = result.data.status.toUpperCase();
+                    statusSpan.style.color = result.data.status === 'active' ? '#28a745' : '#dc3545';
+                    
+                    resultDiv.innerHTML = `<div class="success">
+                        Status Retrieved: <strong>${result.data.status}</strong>
+                    </div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Failed to get status: ${result.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function toggleStatus() {
+            if (isToggling) {
+                console.log('Toggle already in progress, ignoring...');
+                return;
+            }
+            
+            isToggling = true;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Toggling status... Please wait...';
+            
+            try {
+                console.log('Making toggle request...');
+                const response = await fetch('/Authentication_3/contributions/toggle/1', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                console.log('Toggle response:', result);
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="success">
+                        <strong>SUCCESS!</strong><br>
+                        New Status: <strong>${result.status}</strong><br>
+                        Message: ${result.message}
+                    </div>`;
+                    
+                    // Update the displayed status
+                    document.getElementById('currentStatus').textContent = result.status.toUpperCase();
+                    document.getElementById('currentStatus').style.color = result.status === 'active' ? '#28a745' : '#dc3545';
+                } else {
+                    resultDiv.innerHTML = `<div class="error">
+                        <strong>ERROR:</strong> ${result.message}
+                    </div>`;
+                }
+            } catch (error) {
+                console.error('Toggle error:', error);
+                resultDiv.innerHTML = `<div class="error">
+                    <strong>NETWORK ERROR:</strong> ${error.message}
+                </div>`;
+            } finally {
+                isToggling = false;
+            }
+        }
+        
+        async function testSequence() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Running toggle sequence test...';
+            
+            // Check initial status
+            await checkStatus();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Toggle once
+            resultDiv.innerHTML += '<br>Step 1: Toggling status...';
+            await toggleStatus();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Check status after toggle
+            resultDiv.innerHTML += '<br>Step 2: Checking status after toggle...';
+            await checkStatus();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            resultDiv.innerHTML += '<br><strong>Test sequence completed!</strong>';
+        }
+        
+        // Load initial status
+        window.addEventListener('load', checkStatus);
+    </script>
+</body>
+</html>

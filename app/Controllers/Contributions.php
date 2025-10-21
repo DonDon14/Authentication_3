@@ -80,7 +80,9 @@ class Contributions extends Controller
                     session()->get('user_id'),
                     ActivityModel::ACTIVITY_CONTRIBUTION_CREATED,
                     "Created contribution: {$title}",
-                    ['contribution_id' => $insertId, 'amount' => $amount, 'category' => $category]
+                    'contribution',
+                    $insertId,
+                    ['amount' => $amount, 'category' => $category]
                 );
                 
                 return $this->response->setJSON([
@@ -157,7 +159,9 @@ class Contributions extends Controller
                 session()->get('user_id'),
                 ActivityModel::ACTIVITY_CONTRIBUTION_UPDATED,
                 "Updated contribution: {$title}",
-                ['contribution_id' => $id, 'amount' => $amount, 'category' => $category]
+                'contribution',
+                $id,
+                ['amount' => $amount, 'category' => $category]
             );
             
             return $this->response->setJSON([
@@ -190,7 +194,9 @@ class Contributions extends Controller
                 session()->get('user_id'),
                 ActivityModel::ACTIVITY_CONTRIBUTION_UPDATED,
                 "Changed contribution '{$contribution['title']}' status to {$newStatus}",
-                ['contribution_id' => $id, 'old_status' => $contribution['status'], 'new_status' => $newStatus]
+                'contribution',
+                $id,
+                ['old_status' => $contribution['status'], 'new_status' => $newStatus]
             );
             
             return $this->response->setJSON([
@@ -223,7 +229,9 @@ class Contributions extends Controller
             session()->get('user_id'),
             ActivityModel::ACTIVITY_CONTRIBUTION_DELETED,
             "Deleted contribution: {$contributionTitle}",
-            ['contribution_id' => $id]
+            'contribution',
+            $id,
+            null
         );
         
         return $this->response->setJSON([

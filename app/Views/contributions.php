@@ -290,7 +290,6 @@
                     <div class="contribution-card" 
                          data-id="<?= $contribution['id'] ?>" 
                          data-title="<?= esc($contribution['title']) ?>"
-                         onclick="viewContributionPayments(<?= $contribution['id'] ?>)"
                          style="background: var(--bg-secondary); 
                                 border: 1px solid var(--border-color); 
                                 border-radius: var(--radius-lg); 
@@ -342,7 +341,7 @@
                                 <label class="toggle-switch" style="position: relative; display: inline-block; width: 48px; height: 26px;">
                                   <input type="checkbox" <?= $contribution['status'] === 'active' ? 'checked' : '' ?> 
                                          data-contribution-id="<?= $contribution['id'] ?>" 
-                                         onclick="event.stopPropagation();"
+                                         class="contribution-toggle"
                                          style="opacity: 0; width: 0; height: 0;">
                                   <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: <?= $contribution['status'] === 'active' ? 'var(--success-color)' : 'var(--border-color)' ?>; transition: var(--transition-fast); border-radius: 26px;">
                                     <span class="slider-button" style="position: absolute; content: ''; height: 20px; width: 20px; left: <?= $contribution['status'] === 'active' ? '25px' : '3px' ?>; bottom: 3px; background-color: white; transition: var(--transition-fast); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
@@ -353,7 +352,6 @@
                               <button class="btn-icon edit-btn" 
                                       data-contribution-id="<?= $contribution['id'] ?>" 
                                       title="Edit contribution"
-                                      onclick="event.stopPropagation(); editContribution(<?= $contribution['id'] ?>)"
                                       style="width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--warning-light); color: var(--warning-color); border: none; display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast);">
                                 <i class="fas fa-edit" style="font-size: 0.8rem;"></i>
                               </button>
@@ -361,7 +359,6 @@
                               <button class="btn-icon delete-btn" 
                                       data-contribution-id="<?= $contribution['id'] ?>" 
                                       title="Delete contribution"
-                                      onclick="event.stopPropagation(); deleteContribution(<?= $contribution['id'] ?>)"
                                       style="width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--error-light); color: var(--error-color); border: none; display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast);">
                                 <i class="fas fa-trash" style="font-size: 0.8rem;"></i>
                               </button>
@@ -691,6 +688,129 @@
     
     // Dashboard functionality
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== CONTRIBUTIONS PAGE LOADED ===');
+      
+      // Check if elements exist
+      const toggles = document.querySelectorAll('.contribution-toggle');
+      const altToggles = document.querySelectorAll('input[data-contribution-id]');
+      const cards = document.querySelectorAll('.contribution-card');
+      
+      console.log('Found toggles (.contribution-toggle):', toggles.length);
+      console.log('Found alt toggles (input[data-contribution-id]):', altToggles.length);
+      console.log('Found cards (.contribution-card):', cards.length);
+      
+      // Add manual event listeners as backup
+      altToggles.forEach((toggle, index) => {
+        console.log(`Setting up manual toggle ${index} for contribution ID:`, toggle.getAttribute('data-contribution-id'));
+        
+        // Mark this toggle as having a manual handler to prevent conflicts
+        toggle.setAttribute('data-manual-handler', 'true');
+        
+        // Remove any existing event listeners to prevent duplicates
+        const newToggle = toggle.cloneNode(true);
+        toggle.parentNode.replaceChild(newToggle, toggle);
+        
+        newToggle.addEventListener('change', function(e) {
+          console.log('=== MANUAL TOGGLE CHANGE ===');
+          console.log('Contribution ID:', this.getAttribute('data-contribution-id'));
+          console.log('Checked:', this.checked);
+          
+          const contributionId = this.getAttribute('data-contribution-id');
+          
+          // Prevent any other handlers from executing
+          e.stopImmediatePropagation();
+          
+          // Make the toggle request
+          fetch(`<?= base_url() ?>contributions/toggle/${contributionId}`, {
+            method: 'POST'
+          })
+          .then(response => response.json())
+          .then(result => {
+            console.log('Toggle result:', result);
+            if (result.success) {
+              // Update UI based on server response (not current toggle state)
+              const slider = this.nextElementSibling;
+              const sliderButton = slider ? slider.querySelector('.slider-button') : null;
+              
+              if (result.status === 'active') {
+                if (slider) slider.style.backgroundColor = 'var(--success-color)';
+                if (sliderButton) sliderButton.style.left = '25px';
+                this.checked = true;
+              } else {
+                if (slider) slider.style.backgroundColor = 'var(--border-color)';
+                if (sliderButton) sliderButton.style.left = '3px';
+                this.checked = false;
+              }
+              
+              // Update stats
+              updateStatsManual();
+              
+              console.log(`Status successfully changed to: ${result.status}`);
+            } else {
+              console.error('Toggle failed:', result.message);
+              // Reset to opposite of current state since the change failed
+              this.checked = !this.checked;
+            }
+          })
+          .catch(error => {
+            console.error('Toggle error:', error);
+            // Reset to opposite of current state since the change failed  
+            this.checked = !this.checked;
+          });
+        });
+        
+        // Also handle clicks on the slider itself to prevent conflicts
+        const slider = newToggle.nextElementSibling;
+        if (slider && slider.classList.contains('slider')) {
+          slider.addEventListener('click', function(e) {
+            console.log('=== SLIDER CLICK (Manual) ===');
+            e.stopPropagation();
+            e.preventDefault();
+            
+            // Toggle the checkbox and trigger its change event
+            newToggle.checked = !newToggle.checked;
+            newToggle.dispatchEvent(new Event('change', { bubbles: false }));
+          });
+        }
+      });
+      
+      // Function to manually update stats
+      window.updateStatsManual = function() {
+        const toggles = document.querySelectorAll('input[data-contribution-id]');
+        let activeCount = 0;
+        let inactiveCount = 0;
+        
+        toggles.forEach(toggle => {
+          if (toggle.checked) {
+            activeCount++;
+          } else {
+            inactiveCount++;
+          }
+        });
+        
+        console.log(`Manual stats update: Active: ${activeCount}, Inactive: ${inactiveCount}`);
+        
+        const activeStatCard = document.querySelector('.stat-card.primary .stat-value');
+        const inactiveStatCard = document.querySelector('.stat-card.warning .stat-value');
+        
+        if (activeStatCard) activeStatCard.textContent = activeCount;
+        if (inactiveStatCard) inactiveStatCard.textContent = inactiveCount;
+      };
+      
+      // Add click handlers for contribution cards
+      cards.forEach(card => {
+        card.addEventListener('click', function(e) {
+          // Don't navigate if clicking on toggle switch or action buttons
+          if (e.target.closest('.contribution-actions')) {
+            return;
+          }
+          
+          const contributionId = this.getAttribute('data-id');
+          console.log('Contribution card clicked, ID:', contributionId);
+          window.location.href = `<?= base_url('payments/viewContribution/') ?>${contributionId}`;
+        });
+      });
+      
       // Sidebar toggle
       const sidebarToggle = document.getElementById('sidebarToggle');
       const sidebar = document.querySelector('.sidebar');
@@ -793,20 +913,12 @@
       window.location.href = `<?= base_url('payments/viewContribution/') ?>${contributionId}`;
     }
     
-    function editContribution(contributionId) {
-      // Implementation for editing contribution
-      console.log('Edit contribution:', contributionId);
-      // You can add modal or redirect to edit page here
-      alert('Edit functionality coming soon!');
+    function refreshContributions() {
+      window.location.reload();
     }
     
-    function deleteContribution(contributionId) {
-      // Implementation for deleting contribution
-      if (confirm('Are you sure you want to delete this contribution?')) {
-        console.log('Delete contribution:', contributionId);
-        // Add AJAX call to delete contribution here
-        alert('Delete functionality coming soon!');
-      }
+    function exportContributions() {
+      alert('Export functionality coming soon!');
     }
   </script>
   

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Toggle Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        button { padding: 10px 15px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Quick Toggle Test</h1>
+    
+    <button onclick="testToggle()">Test Toggle Function</button>
+    <button onclick="testControllersToggle()">Test Controllers Toggle Directly</button>
+    
+    <div id="result" class="test-result">Ready to test...</div>
+
+    <script>
+        async function testToggle() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing toggle functionality...';
+            
+            try {
+                const response = await fetch('/Authentication_3/contributions/toggle/1', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="success">SUCCESS: ${result.message}<br>New Status: ${result.status}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">ERROR: ${result.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">NETWORK ERROR: ${error.message}</div>`;
+            }
+        }
+        
+        async function testControllersToggle() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing direct controller access...';
+            
+            try {
+                const response = await fetch('/Authentication_3/contributions', {
+                    method: 'GET'
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<div class="success">Controller accessible, opening contributions page...</div>';
+                    setTimeout(() => {
+                        window.open('/Authentication_3/contributions', '_blank');
+                    }, 1000);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Controller not accessible: ${response.status}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">NETWORK ERROR: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

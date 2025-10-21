@@ -4,10 +4,58 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - initializing contributions');
     initializeContributions();
 });
 
+// Debug function for testing in browser console
+window.debugContributions = function() {
+    console.log('=== CONTRIBUTION DEBUG INFO ===');
+    
+    const toggles = document.querySelectorAll('.contribution-toggle');
+    console.log('Found .contribution-toggle elements:', toggles.length);
+    
+    const altToggles = document.querySelectorAll('input[data-contribution-id]');
+    console.log('Found input[data-contribution-id] elements:', altToggles.length);
+    
+    const contributionCards = document.querySelectorAll('.contribution-card');
+    console.log('Found .contribution-card elements:', contributionCards.length);
+    
+    altToggles.forEach((toggle, index) => {
+        console.log(`Toggle ${index}:`, {
+            element: toggle,
+            contributionId: toggle.getAttribute('data-contribution-id'),
+            checked: toggle.checked,
+            hasChangeListener: toggle._hasChangeListener || false
+        });
+    });
+    
+    // Try to manually initialize if needed
+    if (toggles.length === 0 && altToggles.length > 0) {
+        console.log('Trying to manually initialize toggles...');
+        initializeToggleSwitches();
+    }
+};
+
+// Force initialization for testing
+window.forceInit = function() {
+    console.log('=== FORCE INITIALIZATION ===');
+    initializeContributions();
+};
+
+// Fallback initialization in case DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+    // Still loading, wait for DOMContentLoaded
+    console.log('Document still loading, waiting for DOMContentLoaded');
+} else {
+    // DOM already loaded
+    console.log('DOM already loaded, initializing immediately');
+    initializeContributions();
+}
+
 function initializeContributions() {
+    console.log('=== INITIALIZING CONTRIBUTIONS ===');
+    
     // Initialize contribution click handlers
     initializeContributionClicks();
     
@@ -52,35 +100,68 @@ function initializeContributionClicks() {
  * Initialize toggle switches functionality
  */
 function initializeToggleSwitches() {
-    const toggleSwitches = document.querySelectorAll('.toggle-switch input');
+    console.log('=== INITIALIZING TOGGLE SWITCHES ===');
     
-    toggleSwitches.forEach(toggle => {
+    const toggleSwitches = document.querySelectorAll('.contribution-toggle');
+    
+    console.log(`Found ${toggleSwitches.length} toggle switches`);
+    console.log('Toggle switches:', toggleSwitches);
+    
+    if (toggleSwitches.length === 0) {
+        console.warn('No toggle switches found! Checking for alternative selectors...');
+        
+        // Try alternative selectors
+        const altToggles1 = document.querySelectorAll('input[data-contribution-id]');
+        const altToggles2 = document.querySelectorAll('.toggle-switch input');
+        
+        console.log('Alternative selector 1 (input[data-contribution-id]):', altToggles1.length);
+        console.log('Alternative selector 2 (.toggle-switch input):', altToggles2.length);
+    }
+    
+    toggleSwitches.forEach((toggle, index) => {
+        console.log(`Checking toggle ${index}:`, toggle);
+        
+        // Check if manual handlers are already set up (to avoid conflicts)
+        if (toggle.hasAttribute('data-manual-handler')) {
+            console.log(`Toggle ${index} already has manual handler, skipping`);
+            return;
+        }
+        
+        console.log(`Setting up toggle ${index}:`, toggle);
+        
         toggle.addEventListener('change', function(event) {
+            console.log('=== TOGGLE CHANGE EVENT (External JS) ===');
             event.stopPropagation();
             
             const contributionId = this.getAttribute('data-contribution-id');
-            const contributionItem = this.closest('.contribution-item');
-            const contributionTitle = contributionItem.querySelector('h4').textContent;
+            const contributionItem = this.closest('.contribution-card');
+            const contributionTitle = contributionItem ? contributionItem.getAttribute('data-title') : 'Unknown';
             
-            console.log('Toggle contribution:', contributionId, this.checked);
+            console.log('Toggle contribution:', contributionId, 'checked:', this.checked, 'title:', contributionTitle);
             
             // Call the toggle function
             toggleContribution(contributionId);
             
-            if (this.checked) {
-                showNotification(`${contributionTitle} activated`, 'success');
-                contributionItem.style.opacity = '1';
-            } else {
-                showNotification(`${contributionTitle} deactivated`, 'info');
-                contributionItem.style.opacity = '0.7';
+            // Visual feedback
+            if (contributionItem) {
+                contributionItem.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    contributionItem.style.transform = 'scale(1)';
+                }, 150);
             }
-            
-            // Add visual feedback
-            contributionItem.style.transform = 'scale(0.98)';
-            setTimeout(() => {
-                contributionItem.style.transform = 'scale(1)';
-            }, 150);
         });
+        
+        // Also handle click on the slider span to ensure it works
+        const slider = toggle.nextElementSibling;
+        if (slider && slider.classList.contains('slider')) {
+            console.log(`Setting up slider click for toggle ${index}`);
+            slider.addEventListener('click', function(event) {
+                console.log('=== SLIDER CLICK EVENT (External JS) ===');
+                event.stopPropagation();
+                toggle.checked = !toggle.checked;
+                toggle.dispatchEvent(new Event('change'));
+            });
+        }
     });
 }
 
@@ -90,14 +171,13 @@ function initializeToggleSwitches() {
 function initializeActionButtons() {
     // Edit buttons
     const editButtons = document.querySelectorAll('.edit-btn');
+    console.log(`Found ${editButtons.length} edit buttons`);
+    
     editButtons.forEach(btn => {
         btn.addEventListener('click', function(event) {
             event.stopPropagation();
             
             const contributionId = this.getAttribute('data-contribution-id');
-            const contributionItem = this.closest('.contribution-item');
-            const contributionTitle = contributionItem.querySelector('h4').textContent;
-            
             console.log('Edit contribution:', contributionId);
             editContribution(contributionId);
         });
@@ -105,14 +185,13 @@ function initializeActionButtons() {
     
     // Delete buttons
     const deleteButtons = document.querySelectorAll('.delete-btn');
+    console.log(`Found ${deleteButtons.length} delete buttons`);
+    
     deleteButtons.forEach(btn => {
         btn.addEventListener('click', function(event) {
             event.stopPropagation();
             
             const contributionId = this.getAttribute('data-contribution-id');
-            const contributionItem = this.closest('.contribution-item');
-            const contributionTitle = contributionItem.querySelector('h4').textContent;
-            
             console.log('Delete contribution:', contributionId);
             deleteContribution(contributionId);
         });
@@ -891,24 +970,117 @@ function showMessage(message, type = 'info') {
 
 // Database interaction functions
 async function toggleContribution(id) {
+    console.log('=== TOGGLE CONTRIBUTION FUNCTION ===');
+    console.log('toggleContribution called with ID:', id);
+    
     try {
+        // Determine the base URL
         const baseUrl = window.location.pathname.includes('Authentication_3') ? '/Authentication_3' : '';
-        const response = await fetch(`${baseUrl}/contributions/toggle/${id}`, {
-            method: 'POST'
+        const url = `${baseUrl}/contributions/toggle/${id}`;
+        
+        console.log('Making request to:', url);
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
         
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
+        console.log('Toggle result:', result);
         
         if (result.success) {
             showMessage(result.message, 'success');
+            
+            // Update the toggle switch UI
+            const toggle = document.querySelector(`[data-contribution-id="${id}"]`);
+            if (toggle) {
+                const slider = toggle.nextElementSibling;
+                const sliderButton = slider ? slider.querySelector('.slider-button') : null;
+                
+                if (result.status === 'active') {
+                    slider.style.backgroundColor = 'var(--success-color)';
+                    if (sliderButton) sliderButton.style.left = '25px';
+                    toggle.checked = true;
+                } else {
+                    slider.style.backgroundColor = 'var(--border-color)';
+                    if (sliderButton) sliderButton.style.left = '3px';
+                    toggle.checked = false;
+                }
+            }
+            
+            // Update the stats cards at the top
+            updateStatsCards();
+            
         } else {
             showMessage(result.message || 'Failed to toggle contribution', 'error');
-            // Reload to reset toggle state
-            setTimeout(() => window.location.reload(), 1000);
+            
+            // Reset toggle state on error
+            const toggle = document.querySelector(`[data-contribution-id="${id}"]`);
+            if (toggle) {
+                toggle.checked = !toggle.checked;
+            }
         }
     } catch (error) {
         console.error('Toggle error:', error);
         showMessage('Network error. Please try again.', 'error');
+        
+        // Reset toggle state on error
+        const toggle = document.querySelector(`[data-contribution-id="${id}"]`);
+        if (toggle) {
+            toggle.checked = !toggle.checked;
+        }
+    }
+}
+
+/**
+ * Update the stats cards at the top of the page
+ */
+function updateStatsCards() {
+    console.log('Updating stats cards...');
+    
+    const contributionCards = document.querySelectorAll('.contribution-card');
+    let activeCount = 0;
+    let inactiveCount = 0;
+    
+    contributionCards.forEach(card => {
+        const toggle = card.querySelector('.contribution-toggle');
+        if (toggle) {
+            if (toggle.checked) {
+                activeCount++;
+            } else {
+                inactiveCount++;
+            }
+        }
+    });
+    
+    console.log(`Stats: Active: ${activeCount}, Inactive: ${inactiveCount}, Total: ${contributionCards.length}`);
+    
+    // Update the stat cards
+    const activeStatCard = document.querySelector('.stat-card.primary .stat-value');
+    const inactiveStatCard = document.querySelector('.stat-card.warning .stat-value');
+    const totalStatCard = document.querySelector('.stat-card.success .stat-value');
+    
+    if (activeStatCard) {
+        activeStatCard.textContent = activeCount;
+        console.log('Updated active count to:', activeCount);
+    }
+    
+    if (inactiveStatCard) {
+        inactiveStatCard.textContent = inactiveCount;
+        console.log('Updated inactive count to:', inactiveCount);
+    }
+    
+    if (totalStatCard) {
+        totalStatCard.textContent = contributionCards.length;
+        console.log('Updated total count to:', contributionCards.length);
     }
 }
 
