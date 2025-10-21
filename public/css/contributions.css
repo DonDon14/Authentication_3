@@ -2,6 +2,56 @@
    Contributions Page Styles
    ====================================== */
 
+:root {
+    /* Color System */
+    --primary-color: #667eea;
+    --primary-rgb: 102, 126, 234;
+    --primary-light: #f0f3ff;
+    --info-color: #06b6d4;
+    --info-rgb: 6, 182, 212;
+    --info-light: #f0f9ff;
+    --success-color: #10b981;
+    --success-rgb: 16, 185, 129;
+    --success-light: #f0fdf4;
+    --warning-color: #f59e0b;
+    --warning-rgb: 245, 158, 11;
+    --warning-light: #fffbeb;
+    --error-color: #ef4444;
+    --error-rgb: 239, 68, 68;
+    --error-light: #fef2f2;
+    
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    
+    /* Text Colors */
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-tertiary: #94a3b8;
+    --text-inverse: #ffffff;
+    
+    /* Border and Layout */
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -236,8 +286,78 @@ body {
 }
 
 /* ======================================
-   Contribution Items
+   Contribution Cards
    ====================================== */
+.contribution-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.contribution-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary-color);
+}
+
+.contribution-card:hover .card-overlay {
+    opacity: 0.05;
+}
+
+.contribution-card:hover .contribution-icon {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.4);
+}
+
+.contribution-card:hover .contribution-amount {
+    color: var(--primary-color);
+    transform: scale(1.02);
+}
+
+.contribution-card:active {
+    transform: translateY(-2px);
+}
+
+/* Action Buttons */
+.contribution-actions .btn-icon {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.contribution-actions .btn-icon:hover {
+    transform: scale(1.1);
+}
+
+.contribution-actions .edit-btn:hover {
+    background: var(--warning-color) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(var(--warning-rgb), 0.3);
+}
+
+.contribution-actions .delete-btn:hover {
+    background: var(--error-color) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(var(--error-rgb), 0.3);
+}
+
+/* Toggle Switch */
+.toggle-switch .slider {
+    transition: all 0.3s ease;
+}
+
+.toggle-switch:hover .slider {
+    box-shadow: 0 0 0 8px rgba(var(--success-rgb), 0.1);
+}
+
+.toggle-switch input:checked + .slider {
+    background-color: var(--success-color);
+}
+
+.toggle-switch input:checked + .slider .slider-button {
+    transform: translateX(22px);
+}
+
+/* Legacy contribution-item styles for backward compatibility */
 .contribution-item {
     background: rgba(255, 255, 255, 0.9);
     padding: 20px;
@@ -528,6 +648,49 @@ input:checked + .slider:before {
         padding: 20px;
     }
     
+    /* New contribution cards responsive */
+    .contributions-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    .contribution-card {
+        padding: 1rem !important;
+    }
+    
+    .contribution-content {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+    
+    .contribution-icon {
+        width: 48px !important;
+        height: 48px !important;
+        font-size: 1.2rem !important;
+    }
+    
+    .contribution-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.75rem !important;
+    }
+    
+    .contribution-amount {
+        text-align: left !important;
+    }
+    
+    .contribution-footer {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+    }
+    
+    .contribution-actions {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+    
+    /* Legacy contribution items responsive */
     .contribution-item {
         flex-direction: column;
         align-items: flex-start;
@@ -562,6 +725,49 @@ input:checked + .slider:before {
         font-size: 0.9rem;
     }
     
+    /* New contribution cards mobile styles */
+    .contribution-card {
+        padding: 0.75rem !important;
+    }
+    
+    .contribution-content {
+        gap: 0.75rem !important;
+    }
+    
+    .contribution-icon {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1rem !important;
+    }
+    
+    .contribution-title-section h4 {
+        font-size: 1rem !important;
+    }
+    
+    .contribution-amount div:first-child {
+        font-size: 1.25rem !important;
+    }
+    
+    .contribution-actions {
+        gap: 0.5rem !important;
+    }
+    
+    .contribution-actions .btn-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    .toggle-switch {
+        width: 40px !important;
+        height: 22px !important;
+    }
+    
+    .toggle-switch .slider-button {
+        width: 16px !important;
+        height: 16px !important;
+    }
+    
+    /* Legacy styles */
     .contribution-details h4 {
         font-size: 1rem;
     }

@@ -285,39 +285,85 @@
           <div class="card-content">
             <div id="contributionsList">
               <?php if (!empty($contributions)): ?>
-                <div class="contributions-grid" style="display: grid; gap: 1rem;">
+                <div class="contributions-grid" style="display: grid; gap: 1.5rem;">
                   <?php foreach ($contributions as $contribution): ?>
-                    <div class="contribution-item" data-id="<?= $contribution['id'] ?>" data-title="<?= esc($contribution['title']) ?>" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; transition: all var(--transition-fast); cursor: pointer;">
-                      <div class="contribution-content" style="display: flex; align-items: center; gap: 1rem;">
-                        <div class="contribution-icon" style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color), var(--info-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: var(--text-inverse); font-size: 1.5rem; flex-shrink: 0;">
+                    <div class="contribution-card" 
+                         data-id="<?= $contribution['id'] ?>" 
+                         data-title="<?= esc($contribution['title']) ?>"
+                         onclick="viewContributionPayments(<?= $contribution['id'] ?>)"
+                         style="background: var(--bg-secondary); 
+                                border: 1px solid var(--border-color); 
+                                border-radius: var(--radius-lg); 
+                                padding: 1.5rem; 
+                                transition: all var(--transition-fast); 
+                                cursor: pointer;
+                                position: relative;
+                                overflow: hidden;">
+                      
+                      <!-- Hover overlay -->
+                      <div class="card-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, var(--primary-color), var(--info-color)); opacity: 0; transition: all var(--transition-fast); pointer-events: none;"></div>
+                      
+                      <div class="contribution-content" style="display: flex; align-items: flex-start; gap: 1.5rem; position: relative; z-index: 2;">
+                        <div class="contribution-icon" style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary-color), var(--info-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: var(--text-inverse); font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);">
                           <i class="fas fa-hand-holding-usd"></i>
                         </div>
-                        <div class="contribution-info" style="flex: 1;">
-                          <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <h4 style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin: 0;"><?= esc($contribution['title']) ?></h4>
-                            <div class="contribution-amount" style="text-align: right;">
-                              <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">$<?= number_format($contribution['amount'], 2) ?></span>
+                        
+                        <div class="contribution-info" style="flex: 1; min-width: 0;">
+                          <div class="contribution-header" style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.75rem; gap: 1rem;">
+                            <div class="contribution-title-section" style="flex: 1; min-width: 0;">
+                              <h4 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin: 0 0 0.25rem 0; line-height: 1.3;"><?= esc($contribution['title']) ?></h4>
+                              <div class="contribution-tags" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <span class="status status-<?= $contribution['status'] === 'active' ? 'verified' : 'pending' ?>" style="font-size: 0.75rem;"><?= ucfirst($contribution['status']) ?></span>
+                                <span class="category-tag" style="background: var(--info-light); color: var(--info-color); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 500;"><?= esc($contribution['category']) ?></span>
+                              </div>
+                            </div>
+                            <div class="contribution-amount" style="text-align: right; flex-shrink: 0;">
+                              <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); line-height: 1;">$<?= number_format($contribution['amount'], 2) ?></div>
+                              <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Per payment</div>
                             </div>
                           </div>
-                          <p style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.9rem;"><?= esc($contribution['description']) ?></p>
-                          <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div class="contribution-tags" style="display: flex; gap: 0.5rem;">
-                              <span class="status status-<?= $contribution['status'] === 'active' ? 'verified' : 'pending' ?>"><?= ucfirst($contribution['status']) ?></span>
-                              <span style="background: var(--info-light); color: var(--info-color); padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500;"><?= esc($contribution['category']) ?></span>
+                          
+                          <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5;"><?= esc($contribution['description']) ?></p>
+                          
+                          <div class="contribution-footer" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div class="contribution-stats" style="display: flex; gap: 1rem; align-items: center;">
+                              <div class="stat-item" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%;"></div>
+                                <span style="font-size: 0.8rem; color: var(--text-secondary);">Active</span>
+                              </div>
+                              <div class="stat-item" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fas fa-users" style="font-size: 0.8rem; color: var(--text-secondary);"></i>
+                                <span style="font-size: 0.8rem; color: var(--text-secondary);">View details</span>
+                              </div>
                             </div>
-                            <div class="contribution-actions" style="display: flex; align-items: center; gap: 0.5rem;">
-                              <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                                <input type="checkbox" <?= $contribution['status'] === 'active' ? 'checked' : '' ?> data-contribution-id="<?= $contribution['id'] ?>" style="opacity: 0; width: 0; height: 0;">
-                                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: <?= $contribution['status'] === 'active' ? 'var(--success-color)' : 'var(--border-color)' ?>; transition: var(--transition-fast); border-radius: 24px; &:before { position: absolute; content: ''; height: 18px; width: 18px; left: <?= $contribution['status'] === 'active' ? '23px' : '3px' ?>; bottom: 3px; background-color: white; transition: var(--transition-fast); border-radius: 50%; }"></span>
-                              </label>
-                              <button class="btn-icon edit-btn" data-contribution-id="<?= $contribution['id'] ?>" title="Edit contribution">
-                                <i class="fas fa-edit"></i>
+                            
+                            <div class="contribution-actions" style="display: flex; align-items: center; gap: 0.75rem; position: relative; z-index: 10;">
+                              <div class="toggle-wrapper" style="position: relative;">
+                                <label class="toggle-switch" style="position: relative; display: inline-block; width: 48px; height: 26px;">
+                                  <input type="checkbox" <?= $contribution['status'] === 'active' ? 'checked' : '' ?> 
+                                         data-contribution-id="<?= $contribution['id'] ?>" 
+                                         onclick="event.stopPropagation();"
+                                         style="opacity: 0; width: 0; height: 0;">
+                                  <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: <?= $contribution['status'] === 'active' ? 'var(--success-color)' : 'var(--border-color)' ?>; transition: var(--transition-fast); border-radius: 26px;">
+                                    <span class="slider-button" style="position: absolute; content: ''; height: 20px; width: 20px; left: <?= $contribution['status'] === 'active' ? '25px' : '3px' ?>; bottom: 3px; background-color: white; transition: var(--transition-fast); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
+                                  </span>
+                                </label>
+                              </div>
+                              
+                              <button class="btn-icon edit-btn" 
+                                      data-contribution-id="<?= $contribution['id'] ?>" 
+                                      title="Edit contribution"
+                                      onclick="event.stopPropagation(); editContribution(<?= $contribution['id'] ?>)"
+                                      style="width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--warning-light); color: var(--warning-color); border: none; display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast);">
+                                <i class="fas fa-edit" style="font-size: 0.8rem;"></i>
                               </button>
-                              <button class="btn-icon" onclick="viewContributionPayments(<?= $contribution['id'] ?>)" title="View payments" style="color: var(--info-color);">
-                                <i class="fas fa-eye"></i>
-                              </button>
-                              <button class="btn-icon delete-btn" data-contribution-id="<?= $contribution['id'] ?>" title="Delete contribution" style="color: var(--error-color);">
-                                <i class="fas fa-trash"></i>
+                              
+                              <button class="btn-icon delete-btn" 
+                                      data-contribution-id="<?= $contribution['id'] ?>" 
+                                      title="Delete contribution"
+                                      onclick="event.stopPropagation(); deleteContribution(<?= $contribution['id'] ?>)"
+                                      style="width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--error-light); color: var(--error-color); border: none; display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast);">
+                                <i class="fas fa-trash" style="font-size: 0.8rem;"></i>
                               </button>
                             </div>
                           </div>
@@ -744,7 +790,23 @@
     }
     
     function viewContributionPayments(contributionId) {
-      window.location.href = `<?= base_url('payments') ?>?contribution_id=${contributionId}`;
+      window.location.href = `<?= base_url('payments/viewContribution/') ?>${contributionId}`;
+    }
+    
+    function editContribution(contributionId) {
+      // Implementation for editing contribution
+      console.log('Edit contribution:', contributionId);
+      // You can add modal or redirect to edit page here
+      alert('Edit functionality coming soon!');
+    }
+    
+    function deleteContribution(contributionId) {
+      // Implementation for deleting contribution
+      if (confirm('Are you sure you want to delete this contribution?')) {
+        console.log('Delete contribution:', contributionId);
+        // Add AJAX call to delete contribution here
+        alert('Delete functionality coming soon!');
+      }
     }
   </script>
   

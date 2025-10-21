@@ -310,13 +310,13 @@
                   </div>
                 </button>
                 
-                <button class="action-btn success" onclick="window.location.href='<?= base_url('payments/history') ?>'">
+                <button class="action-btn success" onclick="showVerificationModal()">
                   <div class="action-icon">
                     <i class="fas fa-check"></i>
                   </div>
                   <div class="action-text">
                     <h4>Verify Payments</h4>
-                    <p>Review pending payments</p>
+                    <p>Scan QR codes to verify</p>
                   </div>
                 </button>
                 
@@ -535,6 +535,11 @@
 
       // Auto-refresh recent payments every 30 seconds
       setInterval(refreshPayments, 30000);
+
+      // Initialize verification functionality
+      if (typeof initializeVerifyButton === 'function') {
+        initializeVerifyButton();
+      }
     }
 
     function toggleNotifications() {
@@ -576,5 +581,13 @@
       }
     });
   </script>
+
+  <!-- QR Code Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  
+  <!-- Dashboard JavaScript -->
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
+  
 </body>
 </html>

@@ -285,7 +285,7 @@ function initializeVerifyButton() {
 /**
  * Show QR Code Verification Modal with Improved UI
  */
-function showVerificationModal() {
+window.showVerificationModal = function() {
     const modalHTML = `
         <div id="verificationModal" class="verification-modal" style="
             position: fixed;
@@ -907,7 +907,7 @@ function hideVerificationResult() {
 /**
  * Close Verification Modal
  */
-function closeVerificationModal() {
+window.closeVerificationModal = function() {
     const modal = document.getElementById('verificationModal');
     if (modal) {
         modal.remove();
