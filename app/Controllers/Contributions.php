@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ContributionModel;
 use App\Models\PaymentModel;
+use App\Models\ActivityModel;
 use CodeIgniter\Controller;
 
 class Contributions extends Controller
@@ -73,6 +74,15 @@ class Contributions extends Controller
                 $insertId = $contributionModel->getInsertID();
                 log_message('info', 'Inserted ID: ' . $insertId);
                 
+                // Log activity
+                $activityModel = new ActivityModel();
+                $activityModel->logActivity(
+                    session()->get('user_id'),
+                    ActivityModel::ACTIVITY_CONTRIBUTION_CREATED,
+                    "Created contribution: {$title}",
+                    ['contribution_id' => $insertId, 'amount' => $amount, 'category' => $category]
+                );
+                
                 return $this->response->setJSON([
                     'success' => true,
                     'message' => 'Contribution added successfully!',
@@ -141,6 +151,15 @@ class Contributions extends Controller
         try {
             $contributionModel->update($id, $data);
             
+            // Log activity
+            $activityModel = new ActivityModel();
+            $activityModel->logActivity(
+                session()->get('user_id'),
+                ActivityModel::ACTIVITY_CONTRIBUTION_UPDATED,
+                "Updated contribution: {$title}",
+                ['contribution_id' => $id, 'amount' => $amount, 'category' => $category]
+            );
+            
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Contribution updated successfully!'
@@ -165,6 +184,15 @@ class Contributions extends Controller
             $newStatus = $contribution['status'] === 'active' ? 'inactive' : 'active';
             $contributionModel->update($id, ['status' => $newStatus]);
             
+            // Log activity
+            $activityModel = new ActivityModel();
+            $activityModel->logActivity(
+                session()->get('user_id'),
+                ActivityModel::ACTIVITY_CONTRIBUTION_UPDATED,
+                "Changed contribution '{$contribution['title']}' status to {$newStatus}",
+                ['contribution_id' => $id, 'old_status' => $contribution['status'], 'new_status' => $newStatus]
+            );
+            
             return $this->response->setJSON([
                 'success' => true,
                 'status' => $newStatus,
@@ -182,7 +210,21 @@ class Contributions extends Controller
     public function delete($id)
     {
         $contributionModel = new ContributionModel();
+        
+        // Get contribution details before deletion for logging
+        $contribution = $contributionModel->find($id);
+        $contributionTitle = $contribution ? $contribution['title'] : "Contribution ID: $id";
+        
         $contributionModel->delete($id);
+        
+        // Log activity
+        $activityModel = new ActivityModel();
+        $activityModel->logActivity(
+            session()->get('user_id'),
+            ActivityModel::ACTIVITY_CONTRIBUTION_DELETED,
+            "Deleted contribution: {$contributionTitle}",
+            ['contribution_id' => $id]
+        );
         
         return $this->response->setJSON([
             'success' => true,

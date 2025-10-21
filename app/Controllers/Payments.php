@@ -119,6 +119,28 @@ class Payments extends Controller
             $paymentId = $paymentModel->recordPayment($data);
             
             if ($paymentId) {
+                // Log payment creation activity
+                try {
+                    $activityModel = new \App\Models\ActivityModel();
+                    $session = session();
+                    $activityModel->logActivity(
+                        $session->get('user_id'),
+                        \App\Models\ActivityModel::ACTIVITY_PAYMENT_CREATED,
+                        'New payment recorded for ' . $studentName . ' - $' . number_format((float)$amount, 2),
+                        'payment',
+                        $paymentId,
+                        [
+                            'student_id' => $studentId,
+                            'student_name' => $studentName,
+                            'contribution_id' => $contributionId,
+                            'amount' => (float)$amount,
+                            'payment_method' => $paymentMethod
+                        ]
+                    );
+                } catch (\Exception $activityError) {
+                    log_message('warning', 'Failed to log payment creation activity: ' . $activityError->getMessage());
+                }
+                
                 // Get updated payment status after recording
                 $updatedStatus = $paymentModel->getStudentPaymentStatus($contributionId, $studentId);
                 
@@ -141,6 +163,22 @@ class Payments extends Controller
                 
                 // Add receipt data if generated successfully
                 if ($receiptResponse['success']) {
+                    // Log QR receipt generation activity
+                    try {
+                        $activityModel = new \App\Models\ActivityModel();
+                        $session = session();
+                        $activityModel->logActivity(
+                            $session->get('user_id'),
+                            \App\Models\ActivityModel::ACTIVITY_QR_GENERATED,
+                            'QR receipt generated for payment #' . $paymentId,
+                            'payment',
+                            $paymentId,
+                            ['receipt_generated' => true]
+                        );
+                    } catch (\Exception $activityError) {
+                        log_message('warning', 'Failed to log QR generation activity: ' . $activityError->getMessage());
+                    }
+                    
                     $response['receipt'] = $receiptResponse['receipt_data'];
                     $response['qr_download_url'] = $receiptResponse['download_url'];
                     $response['show_receipt'] = true;

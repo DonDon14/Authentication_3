@@ -174,6 +174,22 @@ class Auth extends BaseController
                 'logged_in' => true
             ]);
 
+            // Log the login activity
+            try {
+                $activityModel = new \App\Models\ActivityModel();
+                $activityModel->logActivity(
+                    $user['id'],
+                    \App\Models\ActivityModel::ACTIVITY_LOGIN,
+                    $user['name'] . ' logged into the system',
+                    'user',
+                    $user['id'],
+                    ['username' => $user['username'], 'login_time' => date('Y-m-d H:i:s')]
+                );
+            } catch (\Exception $activityError) {
+                // Don't fail login if activity logging fails
+                log_message('warning', 'Failed to log login activity: ' . $activityError->getMessage());
+            }
+
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Login successful! Redirecting to dashboard...',
@@ -197,6 +213,7 @@ class Auth extends BaseController
             // Load models
             $paymentModel = new \App\Models\PaymentModel();
             $contributionModel = new \App\Models\ContributionModel();
+            $activityModel = new \App\Models\ActivityModel();
 
             // Get recent payments (last 10) - FIXED QUERY
             $recentPayments = $paymentModel->select('
@@ -219,9 +236,22 @@ class Auth extends BaseController
             // Get today's payments count
             $todayCount = $paymentModel->where('DATE(payment_date)', date('Y-m-d'))->countAllResults();
 
+            // Get recent activities for the activity timeline
+            $recentActivities = $activityModel->getRecentActivities(15);
+            
+            // Format activities for display
+            $formattedActivities = [];
+            foreach ($recentActivities as $activity) {
+                $formattedActivities[] = $activityModel->formatActivityForDisplay($activity);
+            }
+
+            // Get activity statistics
+            $activityStats = $activityModel->getActivityStats(7);
+
             // Debug logging
             log_message('debug', 'Recent payments count: ' . count($recentPayments));
             log_message('debug', 'Total collections: ' . $totalCollections);
+            log_message('debug', 'Recent activities count: ' . count($recentActivities));
 
         } catch (\Exception $e) {
             log_message('error', 'Dashboard data retrieval error: ' . $e->getMessage());
@@ -230,12 +260,16 @@ class Auth extends BaseController
             $verifiedCount = 0;
             $pendingCount = 0;
             $todayCount = 0;
+            $formattedActivities = [];
+            $activityStats = ['by_type' => [], 'today_count' => 0, 'period_days' => 7];
         }
 
         $data = [
             'name' => $session->get('name'),
             'email' => $session->get('email'),
             'recentPayments' => $recentPayments,
+            'recentActivities' => $formattedActivities,
+            'activityStats' => $activityStats,
             'stats' => [
                 'total_collections' => $totalCollections,
                 'verified_count' => $verifiedCount,
@@ -465,6 +499,25 @@ class Auth extends BaseController
     public function logout()
     {
         $session = session();
+        
+        // Log logout activity before destroying session
+        if ($session->get('logged_in')) {
+            try {
+                $activityModel = new \App\Models\ActivityModel();
+                $activityModel->logActivity(
+                    $session->get('user_id'),
+                    \App\Models\ActivityModel::ACTIVITY_LOGOUT,
+                    $session->get('name') . ' logged out of the system',
+                    'user',
+                    $session->get('user_id'),
+                    ['logout_time' => date('Y-m-d H:i:s')]
+                );
+            } catch (\Exception $activityError) {
+                // Don't fail logout if activity logging fails
+                log_message('warning', 'Failed to log logout activity: ' . $activityError->getMessage());
+            }
+        }
+        
         $session->destroy();
         return redirect()->to('/')->with('message', 'You have been logged out successfully');
     }

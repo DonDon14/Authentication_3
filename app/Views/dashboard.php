@@ -452,43 +452,48 @@
           <div class="dashboard-card">
             <div class="card-header">
               <h3>Recent Activity</h3>
-              <p>Latest system activities</p>
+              <p>Latest system activities (<?= count($recentActivities ?? []) ?> recent activities)</p>
             </div>
             <div class="card-content">
               <div class="activity-timeline">
-                <div class="timeline-item">
-                  <div class="timeline-marker success">
-                    <i class="fas fa-check"></i>
+                <?php if (!empty($recentActivities)): ?>
+                  <?php foreach ($recentActivities as $activity): ?>
+                    <div class="timeline-item">
+                      <div class="timeline-marker <?= $activity['color'] ?>">
+                        <i class="<?= $activity['icon'] ?>"></i>
+                      </div>
+                      <div class="timeline-content">
+                        <h4><?= esc($activity['title']) ?></h4>
+                        <p><?= esc($activity['description']) ?></p>
+                        <?php if (!empty($activity['user_name']) && $activity['user_name'] !== 'System'): ?>
+                          <small class="activity-user">by <?= esc($activity['user_name']) ?></small>
+                        <?php endif; ?>
+                        <span class="timeline-time"><?= $activity['time_ago'] ?></span>
+                      </div>
+                    </div>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <div class="timeline-item">
+                    <div class="timeline-marker primary">
+                      <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="timeline-content">
+                      <h4>Welcome to ClearPay</h4>
+                      <p>No recent activities yet. Start by recording your first payment!</p>
+                      <span class="timeline-time">System</span>
+                    </div>
                   </div>
-                  <div class="timeline-content">
-                    <h4>Payment Verified</h4>
-                    <p>John Doe's uniform payment verified by admin</p>
-                    <span class="timeline-time">5 minutes ago</span>
-                  </div>
-                </div>
-                
-                <div class="timeline-item">
-                  <div class="timeline-marker primary">
-                    <i class="fas fa-plus"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <h4>New Payment Recorded</h4>
-                    <p>Jane Smith - Uniform fee payment</p>
-                    <span class="timeline-time">15 minutes ago</span>
-                  </div>
-                </div>
-                
-                <div class="timeline-item">
-                  <div class="timeline-marker info">
-                    <i class="fas fa-qrcode"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <h4>QR Receipt Generated</h4>
-                    <p>Receipt created for payment #1234</p>
-                    <span class="timeline-time">1 hour ago</span>
-                  </div>
-                </div>
+                <?php endif; ?>
               </div>
+              
+              <?php if (!empty($recentActivities) && count($recentActivities) >= 10): ?>
+              <div class="activity-footer">
+                <a href="#" class="view-all-link" onclick="showAllActivities()">
+                  <i class="fas fa-history"></i>
+                  View All Activities
+                </a>
+              </div>
+              <?php endif; ?>
             </div>
           </div>
 
@@ -578,6 +583,60 @@
       
       if (!event.target.closest('.user-profile')) {
         profileMenu?.classList.remove('active');
+      }
+    });
+  </script>
+
+  <!-- Activity Management Functions -->
+  <script>
+    function showAllActivities() {
+      // Create modal to show all activities
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-container">
+          <div class="modal-header">
+            <h3><i class="fas fa-history"></i> All Activities</h3>
+            <button onclick="closeActivityModal()" class="close-btn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-content">
+            <div class="loading-state">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Loading activities...</p>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      modal.style.display = 'flex';
+      
+      // You can implement AJAX call here to fetch more activities
+      // For now, we'll show a placeholder
+      setTimeout(() => {
+        const content = modal.querySelector('.modal-content');
+        content.innerHTML = `
+          <div class="activity-list">
+            <p>Extended activity history will be available in a future update.</p>
+            <p>Currently showing the most recent activities on the dashboard.</p>
+          </div>
+        `;
+      }, 1000);
+    }
+    
+    function closeActivityModal() {
+      const modal = document.querySelector('.modal-overlay');
+      if (modal) {
+        modal.remove();
+      }
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('modal-overlay')) {
+        closeActivityModal();
       }
     });
   </script>
