@@ -144,7 +144,7 @@
                 </div>
               </div>
               <div class="student-actions">
-                <button class="btn btn-outline btn-sm" onclick="editStudent()">
+                <button class="btn btn-secondary btn-sm" onclick="editStudent()">
                   <i class="fas fa-edit"></i>
                   Edit
                 </button>
@@ -739,8 +739,544 @@
 
   <script>
     function editStudent() {
-      console.log('Edit student functionality');
-      // Implement edit student functionality
+      const student = <?= json_encode($student) ?>;
+      
+      // Create edit modal
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = 'editStudentModal';
+      modal.innerHTML = `
+        <div class="modal-container" style="max-width: 600px;">
+          <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Student Information</h3>
+            <button class="close-btn" onclick="closeEditModal()">&times;</button>
+          </div>
+          
+          <div class="modal-body">
+            <form id="editStudentForm" onsubmit="updateStudent(event)">
+              <div class="form-group">
+                <label for="editStudentId">
+                  <i class="fas fa-id-card"></i> Student ID
+                </label>
+                <input type="text" id="editStudentId" name="student_id" 
+                       value="${student.student_id}" readonly class="readonly-field">
+                <small class="form-text">Student ID cannot be changed</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="editStudentName">
+                  <i class="fas fa-user"></i> Full Name *
+                </label>
+                <input type="text" id="editStudentName" name="student_name" 
+                       value="${student.student_name}" required class="form-control">
+              </div>
+              
+              <div class="form-group">
+                <label for="editStudentEmail">
+                  <i class="fas fa-envelope"></i> Email Address
+                </label>
+                <input type="email" id="editStudentEmail" name="student_email" 
+                       placeholder="Enter email address" class="form-control">
+              </div>
+              
+              <div class="form-group">
+                <label for="editStudentPhone">
+                  <i class="fas fa-phone"></i> Phone Number
+                </label>
+                <input type="tel" id="editStudentPhone" name="student_phone" 
+                       placeholder="Enter phone number" class="form-control">
+              </div>
+              
+              <div class="form-group">
+                <label for="editStudentNotes">
+                  <i class="fas fa-sticky-note"></i> Notes
+                </label>
+                <textarea id="editStudentNotes" name="student_notes" 
+                          placeholder="Additional notes about this student..." 
+                          class="form-control" rows="3"></textarea>
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="closeEditModal()">
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Update Student
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      
+      // Add click outside to close functionality
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeEditModal();
+        }
+      });
+      
+      document.body.appendChild(modal);
+      
+      // Add styles for edit modal
+      const style = document.createElement('style');
+      style.textContent = `
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          z-index: 9999;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+          overflow-y: auto;
+        }
+        
+        .modal-overlay.show {
+          opacity: 1;
+          visibility: visible;
+        }
+        
+        .modal-container {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+          width: 90%;
+          max-width: 600px;
+          margin: 50px auto;
+          position: relative;
+          transform: scale(0.8) translateY(-50px);
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .modal-overlay.show .modal-container {
+          transform: scale(1) translateY(0);
+        }
+        
+        .modal-header {
+          padding: 1.5rem;
+          border-bottom: 1px solid #e2e8f0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+          border-radius: 12px 12px 0 0;
+        }
+        
+        .modal-header h3 {
+          margin: 0;
+          color: var(--text-primary);
+          font-size: 1.25rem;
+          font-weight: 600;
+        }
+        
+        .modal-header h3 i {
+          margin-right: 0.5rem;
+          color: var(--primary-color);
+        }
+        
+        .modal-body {
+          padding: 2rem;
+        }
+        
+        .close-btn {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #6b7280;
+          padding: 0.5rem;
+          border-radius: 0.375rem;
+          transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+          background: #f3f4f6;
+          color: #374151;
+        }
+        
+        .readonly-field {
+          background-color: #f8f9fa;
+          cursor: not-allowed;
+        }
+        
+        .form-group {
+          margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+        }
+        
+        .form-group label i {
+          margin-right: 0.5rem;
+          color: var(--primary-color);
+        }
+        
+        .form-control {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #e2e8f0;
+          border-radius: 0.5rem;
+          font-size: 0.875rem;
+          transition: border-color 0.2s ease;
+        }
+        
+        .form-control:focus {
+          outline: none;
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-text {
+          font-size: 0.75rem;
+          color: #6b7280;
+          margin-top: 0.25rem;
+        }
+        
+        .form-actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: flex-end;
+          margin-top: 2rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid #e2e8f0;
+        }
+        
+        .form-actions .btn {
+          min-width: 120px;
+          padding: 0.75rem 1.5rem;
+          font-weight: 600;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+          cursor: pointer;
+          border: 2px solid transparent;
+        }
+        
+        .btn-outline {
+          background: white;
+          color: #6b7280;
+          border-color: #d1d5db;
+        }
+        
+        .btn-outline:hover {
+          background: #f9fafb;
+          border-color: #9ca3af;
+          color: #374151;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          color: white;
+          border-color: #3b82f6;
+        }
+        
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-primary:disabled {
+          background: #9ca3af;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+        
+        .btn i {
+          margin-right: 0.5rem;
+        }
+        
+        /* Student ID field styling */
+        .readonly-field {
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          border: 2px dashed #cbd5e1;
+          color: #64748b;
+          cursor: not-allowed;
+          font-weight: 500;
+        }
+        
+        /* Form validation styles */
+        .form-control:invalid {
+          border-color: #ef4444;
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        
+        .form-control:valid {
+          border-color: #10b981;
+        }
+        
+        /* Enhanced form text */
+        .form-text {
+          font-size: 0.75rem;
+          color: #6b7280;
+          margin-top: 0.25rem;
+          font-style: italic;
+        }
+        
+        /* Loading spinner */
+        .fa-spinner {
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      // Show modal with animation
+      requestAnimationFrame(() => {
+        modal.classList.add('show');
+        
+        // Load existing student metadata
+        loadStudentMetadata(student.student_id);
+      });
+    }
+    
+    function loadStudentMetadata(studentId) {
+      fetch(`/students/getStudentMetadata/${studentId}`, {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.data) {
+          const metadata = data.data;
+          
+          // Populate form fields with existing metadata
+          const emailField = document.getElementById('editStudentEmail');
+          const phoneField = document.getElementById('editStudentPhone');
+          const notesField = document.getElementById('editStudentNotes');
+          
+          if (emailField) emailField.value = metadata.email || '';
+          if (phoneField) phoneField.value = metadata.phone || '';
+          if (notesField) notesField.value = metadata.notes || '';
+        }
+      })
+      .catch(error => {
+        console.log('Could not load student metadata:', error);
+        // This is not critical, form will work with empty fields
+      });
+    }
+    
+    function closeEditModal() {
+      const modal = document.querySelector('.modal-overlay');
+      if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+          modal.remove();
+        }, 300);
+      }
+    }
+    
+    function updateStudent(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const studentId = formData.get('student_id');
+      const studentName = formData.get('student_name').trim();
+      
+      // Validate required fields
+      if (!studentName) {
+        showNotification('Student name is required', 'error');
+        return;
+      }
+      
+      // Show loading state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+      submitBtn.disabled = true;
+      
+      // Prepare update data
+      const updateData = {
+        student_id: studentId,
+        student_name: studentName,
+        student_email: formData.get('student_email') || null,
+        student_phone: formData.get('student_phone') || null,
+        student_notes: formData.get('student_notes') || null
+      };
+      
+      console.log('Sending update data:', updateData);
+      
+      // Send update request
+      fetch('/students/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(updateData)
+      })
+      .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+          showNotification(data.message || 'Student information updated successfully', 'success');
+          
+          // Update the student name in the page
+          const studentNameElements = document.querySelectorAll('h2, .student-name, [data-student-name]');
+          studentNameElements.forEach(element => {
+            if (element.textContent.includes('<?= esc($student["student_name"]) ?>') || 
+                element.getAttribute('data-student-name') === '<?= esc($student["student_name"]) ?>') {
+              element.textContent = studentName;
+              if (element.hasAttribute('data-student-name')) {
+                element.setAttribute('data-student-name', studentName);
+              }
+            }
+          });
+          
+          // Update browser title
+          document.title = document.title.replace('<?= esc($student["student_name"]) ?>', studentName);
+          
+          // Close modal
+          closeEditModal();
+          
+          // Optionally reload page after short delay to reflect all changes
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+          
+        } else {
+          showNotification(data.message || 'Failed to update student information', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Update error:', error);
+        showNotification('An error occurred while updating student information: ' + error.message, 'error');
+      })
+      .finally(() => {
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      });
+    }
+    
+    function showNotification(message, type = 'info') {
+      // Remove existing notifications
+      const existingNotification = document.querySelector('.notification');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+      
+      // Create notification
+      const notification = document.createElement('div');
+      notification.className = `notification notification-${type}`;
+      notification.innerHTML = `
+        <div class="notification-content">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+          <span>${message}</span>
+          <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `;
+      
+      // Add notification styles
+      const notificationStyle = document.createElement('style');
+      notificationStyle.textContent = `
+        .notification {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 10000;
+          min-width: 300px;
+          max-width: 500px;
+          border-radius: 0.5rem;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          animation: slideInRight 0.3s ease-out;
+        }
+        
+        .notification-success {
+          background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+          border: 1px solid #c3e6cb;
+          color: #155724;
+        }
+        
+        .notification-error {
+          background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+          border: 1px solid #f5c6cb;
+          color: #721c24;
+        }
+        
+        .notification-info {
+          background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+          border: 1px solid #bee5eb;
+          color: #0c5460;
+        }
+        
+        .notification-content {
+          display: flex;
+          align-items: center;
+          padding: 1rem;
+          gap: 0.75rem;
+        }
+        
+        .notification-content i {
+          font-size: 1.25rem;
+        }
+        
+        .notification-close {
+          margin-left: auto;
+          background: none;
+          border: none;
+          cursor: pointer;
+          opacity: 0.7;
+          padding: 0.25rem;
+          border-radius: 0.25rem;
+          transition: opacity 0.2s ease;
+        }
+        
+        .notification-close:hover {
+          opacity: 1;
+        }
+        
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(notificationStyle);
+      
+      document.body.appendChild(notification);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
     }
 
     function addPayment() {

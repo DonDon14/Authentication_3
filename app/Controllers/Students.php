@@ -84,6 +84,148 @@ class Students extends BaseController
     }
 
     /**
+     * Update student information
+     */
+    public function update()
+    {
+        // Check if user is logged in
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized access']);
+        }
+
+        // Get JSON input
+        $json = $this->request->getJSON(true);
+        
+        if (!$json) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid request data']);
+        }
+
+        $studentId = $json['student_id'] ?? '';
+        $studentName = trim($json['student_name'] ?? '');
+        $studentEmail = trim($json['student_email'] ?? '') ?: null;
+        $studentPhone = trim($json['student_phone'] ?? '') ?: null;
+        $studentNotes = trim($json['student_notes'] ?? '') ?: null;
+
+        // Validate required fields
+        if (empty($studentId) || empty($studentName)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Student ID and name are required']);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            
+            // Start transaction
+            $db->transStart();
+            
+            // Update all payment records for this student
+            $updateQuery = "
+                UPDATE payments 
+                SET student_name = ?
+                WHERE student_id = ?
+            ";
+            
+            $db->query($updateQuery, [$studentName, $studentId]);
+            
+            // Check if student metadata table exists, if not create it
+            $this->ensureStudentMetadataTable($db);
+            
+            // Insert or update student metadata
+            $metadataQuery = "
+                INSERT INTO student_metadata (student_id, student_name, email, phone, notes, updated_at) 
+                VALUES (?, ?, ?, ?, ?, NOW())
+                ON DUPLICATE KEY UPDATE 
+                    student_name = VALUES(student_name),
+                    email = VALUES(email),
+                    phone = VALUES(phone),
+                    notes = VALUES(notes),
+                    updated_at = NOW()
+            ";
+            
+            $db->query($metadataQuery, [$studentId, $studentName, $studentEmail, $studentPhone, $studentNotes]);
+            
+            // Complete transaction
+            $db->transComplete();
+            
+            if ($db->transStatus() === false) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to update student information']);
+            }
+            
+            // Log the update
+            log_message('info', 'Student updated: ' . $studentId . ' by user ' . session()->get('username'));
+            
+            return $this->response->setJSON([
+                'success' => true, 
+                'message' => 'Student information updated successfully',
+                'data' => [
+                    'student_id' => $studentId,
+                    'student_name' => $studentName,
+                    'email' => $studentEmail,
+                    'phone' => $studentPhone,
+                    'notes' => $studentNotes
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Student update error: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Get student metadata
+     */
+    public function getStudentMetadata($studentId)
+    {
+        // Check if user is logged in
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized access']);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            
+            $query = "
+                SELECT student_id, student_name, email, phone, notes, created_at, updated_at
+                FROM student_metadata 
+                WHERE student_id = ?
+            ";
+            
+            $result = $db->query($query, [$studentId])->getRowArray();
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => $result
+            ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Get student metadata error: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to get student information']);
+        }
+    }
+
+    /**
+     * Ensure student metadata table exists
+     */
+    private function ensureStudentMetadataTable($db)
+    {
+        $createTableQuery = "
+            CREATE TABLE IF NOT EXISTS student_metadata (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id VARCHAR(50) NOT NULL UNIQUE,
+                student_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NULL,
+                phone VARCHAR(20) NULL,
+                notes TEXT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX idx_student_id (student_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ";
+        
+        $db->query($createTableQuery);
+    }
+
+    /**
      * Export student payment data to PDF
      */
     public function exportStudentData($studentId)
