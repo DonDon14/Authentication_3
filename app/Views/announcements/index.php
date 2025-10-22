@@ -347,7 +347,9 @@
           <div class="logo-icon">
             <i class="fas fa-credit-card"></i>
           </div>
-          <h2 class="app-name">ClearPay</h2>
+          <a href="<?= base_url('dashboard') ?>" class="app-name-link">
+            <h2 class="app-name">ClearPay</h2>
+          </a>
         </div>
         <button class="sidebar-toggle" id="sidebarToggle">
           <i class="fas fa-bars"></i>
