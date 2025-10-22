@@ -21,6 +21,19 @@
       object-fit: cover !important;
       border-radius: 50%;
     }
+    
+    /* Header user avatar styles */
+    .user-avatar {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .user-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -196,7 +209,11 @@
           <div class="user-menu">
             <button class="user-menu-btn" onclick="toggleUserMenu()">
               <div class="user-avatar">
-                <i class="fas fa-user"></i>
+                <?php if (!empty($profilePictureUrl)): ?>
+                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+                <?php else: ?>
+                  <i class="fas fa-user"></i>
+                <?php endif; ?>
               </div>
               <span class="user-name"><?= esc(explode(' ', $name)[0]) ?></span>
               <i class="fas fa-chevron-down"></i>
@@ -959,6 +976,12 @@
         const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
         if (sidebarAvatar && e.newValue) {
           sidebarAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
+        }
+        
+        // Update profile picture in header
+        const headerAvatar = document.querySelector('.user-menu .user-avatar');
+        if (headerAvatar && e.newValue) {
+          headerAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
         }
       }
     });

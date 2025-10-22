@@ -403,10 +403,22 @@ class Auth extends BaseController
             return redirect()->to('/');
         }
 
+        // Get user profile picture
+        $userId = $session->get('user_id');
+        $userModel = new \App\Models\UsersModel();
+        $user = $userModel->find($userId);
+        
+        $profilePictureUrl = '';
+        if (!empty($user['profile_picture'])) {
+            $filename = basename($user['profile_picture']);
+            $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+        }
+
         return view('settings', [
             'username' => $session->get('username'),
             'name' => $session->get('name'),
-            'email' => $session->get('email')
+            'email' => $session->get('email'),
+            'profilePictureUrl' => $profilePictureUrl
         ]);
     }
 

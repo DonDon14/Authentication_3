@@ -385,6 +385,27 @@
       color: var(--text-primary);
       font-weight: 600;
     }
+    
+    /* Header user avatar styles */
+    .user-avatar {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .user-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
+    
+    /* Sidebar profile avatar styles */
+    .sidebar-footer .profile-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -476,7 +497,11 @@
       <div class="sidebar-footer">
         <div class="user-profile">
           <div class="profile-avatar">
-            <i class="fas fa-user"></i>
+            <?php if (!empty($profilePictureUrl)): ?>
+              <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+            <?php else: ?>
+              <i class="fas fa-user"></i>
+            <?php endif; ?>
           </div>
           <div class="profile-info">
             <h4><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></h4>
@@ -551,7 +576,11 @@
           <div class="user-menu">
             <button class="user-menu-btn" onclick="toggleUserMenu()">
               <div class="user-avatar">
-                <i class="fas fa-user"></i>
+                <?php if (!empty($profilePictureUrl)): ?>
+                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+                <?php else: ?>
+                  <i class="fas fa-user"></i>
+                <?php endif; ?>
               </div>
               <span class="user-name"><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></span>
               <i class="fas fa-chevron-down"></i>
@@ -1271,6 +1300,23 @@
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
       console.log('System Settings page loaded');
+    });
+    
+    // Listen for profile picture updates from other pages
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'profilePictureUpdated') {
+        // Update profile picture in sidebar
+        const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
+        if (sidebarAvatar && e.newValue) {
+          sidebarAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
+        }
+        
+        // Update profile picture in header
+        const headerAvatar = document.querySelector('.user-menu .user-avatar');
+        if (headerAvatar && e.newValue) {
+          headerAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
+        }
+      }
     });
   </script>
   

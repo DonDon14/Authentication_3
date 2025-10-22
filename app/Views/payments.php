@@ -21,6 +21,19 @@
       object-fit: cover !important;
       border-radius: 50%;
     }
+    
+    /* Header user avatar styles */
+    .user-avatar {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .user-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
   </style>
   
   <!-- QR Code Scanner Library -->
@@ -151,9 +164,13 @@
           <div class="user-menu">
             <button class="user-menu-btn" id="userMenuBtn">
               <div class="user-avatar">
-                <i class="fas fa-user"></i>
+                <?php if (!empty($profilePictureUrl)): ?>
+                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+                <?php else: ?>
+                  <i class="fas fa-user"></i>
+                <?php endif; ?>
               </div>
-              <span class="user-name"><?= session()->get('username') ?? 'Admin' ?></span>
+              <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin') ?></span>
               <i class="fas fa-chevron-down"></i>
             </button>
           </div>
@@ -888,6 +905,23 @@
         dropdown.addEventListener('click', function(e) {
           e.stopPropagation();
         });
+      });
+      
+      // Listen for profile picture updates from other pages
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'profilePictureUpdated') {
+          // Update profile picture in sidebar
+          const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
+          if (sidebarAvatar && e.newValue) {
+            sidebarAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
+          }
+          
+          // Update profile picture in header
+          const headerAvatar = document.querySelector('.user-menu .user-avatar');
+          if (headerAvatar && e.newValue) {
+            headerAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
+          }
+        }
       });
     });
   </script>

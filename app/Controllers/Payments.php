@@ -286,13 +286,28 @@ public function history()
         }
     }
     
+    // Add profile picture for sidebar and header
+    $session = session();
+    $userId = $session->get('user_id');
+    $usersModel = new \App\Models\UsersModel();
+    $user = $usersModel->find($userId);
+    
+    $profilePictureUrl = '';
+    if (!empty($user['profile_picture'])) {
+        $filename = basename($user['profile_picture']);
+        $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+    }
+    
     $data = [
         'payments' => $payments,
         'totalAmount' => $totalAmount,
         'verifiedCount' => $verifiedCount,
         'pendingCount' => $pendingCount,
         'todayCount' => $todayCount,
-        'title' => 'Payment History'
+        'title' => 'Payment History',
+        'profilePictureUrl' => $profilePictureUrl,
+        'name' => $session->get('name'),
+        'email' => $session->get('email')
     ];
     
     return view('payments/history', $data);
@@ -1533,8 +1548,23 @@ private function generatePaymentsPDFContent($payments, $statistics)
             log_message('info', 'Found ' . count($partialPayments) . ' partial payments');
             log_message('debug', 'Partial payments data: ' . json_encode($partialPayments));
             
+            // Add profile picture for sidebar and header
+            $session = session();
+            $userId = $session->get('user_id');
+            $usersModel = new \App\Models\UsersModel();
+            $user = $usersModel->find($userId);
+            
+            $profilePictureUrl = '';
+            if (!empty($user['profile_picture'])) {
+                $filename = basename($user['profile_picture']);
+                $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+            }
+            
             $data = [
-                'partialPayments' => $partialPayments
+                'partialPayments' => $partialPayments,
+                'profilePictureUrl' => $profilePictureUrl,
+                'name' => $session->get('name'),
+                'email' => $session->get('email')
             ];
             
             return view('partial_payments', $data);

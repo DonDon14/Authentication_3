@@ -25,13 +25,28 @@ class Analytics extends BaseController
             return redirect()->to('/');
         }
 
+        // Add profile picture for sidebar and header
+        $session = session();
+        $userId = $session->get('user_id');
+        $usersModel = new \App\Models\UsersModel();
+        $user = $usersModel->find($userId);
+        
+        $profilePictureUrl = '';
+        if (!empty($user['profile_picture'])) {
+            $filename = basename($user['profile_picture']);
+            $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+        }
+
         $data = [
             'title' => 'Analytics Dashboard',
             'overview' => $this->getOverviewStats(),
             'contributions' => $this->getContributionAnalytics(),
             'payments' => $this->getPaymentAnalytics(),
             'trends' => $this->getTrendAnalytics(),
-            'charts' => $this->getChartData()
+            'charts' => $this->getChartData(),
+            'profilePictureUrl' => $profilePictureUrl,
+            'name' => $session->get('name'),
+            'email' => $session->get('email')
         ];
 
         return view('analytics/dashboard', $data);
