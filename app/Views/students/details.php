@@ -1545,18 +1545,6 @@
       console.log('Profile menu toggled');
     }
 
-    // Sidebar functionality
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const mainContent = document.querySelector('.main-content');
-
-    function toggleSidebar() {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('expanded');
-    }
-
-    sidebarToggle?.addEventListener('click', toggleSidebar);
-
     // Modal functionality
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {

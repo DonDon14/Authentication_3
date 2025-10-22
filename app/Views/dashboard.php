@@ -51,7 +51,7 @@
             <h2 class="app-name">ClearPay</h2>
           </a>
         </div>
-        <button class="sidebar-toggle" id="sidebarToggle">
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="console.log('Button clicked directly!')">
           <i class="fas fa-bars"></i>
         </button>
       </div>
@@ -106,6 +106,12 @@
             <a href="<?= base_url('announcements') ?>" class="nav-link">
               <i class="fas fa-bullhorn"></i>
               <span>Announcements</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('profile') ?>" class="nav-link">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
             </a>
           </li>
           <li class="nav-item">
@@ -586,7 +592,6 @@
   </div>
 
   <!-- JavaScript -->
-  <script src="<?= base_url('js/dashboard.js') ?>"></script>
   <script>
     // Initialize dashboard functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -594,14 +599,6 @@
     });
 
     function initializeDashboard() {
-      // Sidebar toggle functionality
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebar = document.querySelector('.sidebar');
-      
-      sidebarToggle?.addEventListener('click', function() {
-        sidebar.classList.toggle('collapsed');
-      });
-
       // Auto-refresh recent payments every 30 seconds
       setInterval(refreshPayments, 30000);
 

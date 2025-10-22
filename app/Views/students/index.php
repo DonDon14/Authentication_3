@@ -89,7 +89,19 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="<?= base_url('announcements') ?>" class="nav-link">
+              <i class="fas fa-bullhorn"></i>
+              <span>Announcements</span>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="<?= base_url('profile') ?>" class="nav-link">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('settings') ?>" class="nav-link">
               <i class="fas fa-cog"></i>
               <span>Settings</span>
             </a>
@@ -475,18 +487,6 @@
         }
       });
     });
-
-    // Sidebar functionality
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const mainContent = document.querySelector('.main-content');
-
-    function toggleSidebar() {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('expanded');
-    }
-
-    sidebarToggle?.addEventListener('click', toggleSidebar);
 
     function toggleProfileMenu() {
       console.log('Profile menu toggled');

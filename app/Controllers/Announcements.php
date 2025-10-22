@@ -32,11 +32,23 @@ class Announcements extends BaseController
             // Get status counts
             $statusCounts = $this->announcementModel->getStatusCounts();
 
+            // Add profile picture for sidebar and header
+            $userId = $session->get('user_id');
+            $usersModel = new \App\Models\UsersModel();
+            $user = $usersModel->find($userId);
+            
+            $profilePictureUrl = '';
+            if (!empty($user['profile_picture'])) {
+                $filename = basename($user['profile_picture']);
+                $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+            }
+
             $data = [
                 'announcements' => $announcements,
                 'status_counts' => $statusCounts,
                 'name' => $session->get('name'),
-                'email' => $session->get('email')
+                'email' => $session->get('email'),
+                'profilePictureUrl' => $profilePictureUrl
             ];
 
             return view('announcements/index', $data);

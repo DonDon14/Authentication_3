@@ -1164,17 +1164,6 @@
 
   <script>
     // Sidebar functionality
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const mainContent = document.querySelector('.main-content');
-
-    function toggleSidebar() {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('expanded');
-    }
-
-    sidebarToggle?.addEventListener('click', toggleSidebar);
-
     // Notifications functionality
     function toggleNotifications() {
       const dropdown = document.getElementById('notificationDropdown');

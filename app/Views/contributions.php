@@ -103,7 +103,19 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="<?= base_url('announcements') ?>" class="nav-link">
+              <i class="fas fa-bullhorn"></i>
+              <span>Announcements</span>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="<?= base_url('profile') ?>" class="nav-link">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('settings') ?>" class="nav-link">
               <i class="fas fa-cog"></i>
               <span>Settings</span>
             </a>
@@ -871,16 +883,6 @@
           window.location.href = `<?= base_url('payments/viewContribution/') ?>${contributionId}`;
         });
       });
-      
-      // Sidebar toggle
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebar = document.querySelector('.sidebar');
-      
-      if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-          sidebar.classList.toggle('collapsed');
-        });
-      }
       
       // Notification dropdown
       const notificationBtn = document.getElementById('notificationBtn');

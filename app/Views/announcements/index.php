@@ -419,7 +419,11 @@
       <div class="sidebar-footer">
         <div class="user-profile">
           <div class="profile-avatar">
-            <i class="fas fa-user"></i>
+            <?php if (!empty($profilePictureUrl)): ?>
+              <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+            <?php else: ?>
+              <i class="fas fa-user"></i>
+            <?php endif; ?>
           </div>
           <div class="profile-info">
             <h4><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></h4>
@@ -461,7 +465,11 @@
           <div class="user-menu">
             <button class="user-menu-btn" onclick="toggleUserMenu()">
               <div class="user-avatar">
-                <i class="fas fa-user"></i>
+                <?php if (!empty($profilePictureUrl)): ?>
+                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                <?php else: ?>
+                  <i class="fas fa-user"></i>
+                <?php endif; ?>
               </div>
               <span class="user-name"><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></span>
               <i class="fas fa-chevron-down"></i>
@@ -1079,9 +1087,40 @@
       border-left: 4px solid var(--info-color);
       color: var(--info-color);
     }
+
+    /* Profile Picture Styling */
+    .user-avatar, .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--sidebar-color);
+      border: 2px solid var(--text-color);
+    }
+
+    .user-avatar img, .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
   </style>
 
   <!-- Dashboard JavaScript -->
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+
+  <!-- Profile Picture Update Listener -->
+  <script>
+    // Listen for profile picture updates from other pages
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'profilePictureUpdated') {
+        // Reload the page to show updated profile picture
+        window.location.reload();
+      }
+    });
+  </script>
 </body>
 </html>
