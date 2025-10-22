@@ -257,15 +257,6 @@
                   <p>Payment records</p>
                 </div>
               </button>
-              <button class="action-btn success" onclick="window.location.href='<?= base_url('contributions/analytics') ?>'">
-                <div class="action-icon">
-                  <i class="fas fa-chart-pie"></i>
-                </div>
-                <div class="action-text">
-                  <h4>Profit Analytics</h4>
-                  <p>View profitability</p>
-                </div>
-              </button>
             </div>
           </div>
         </div>
