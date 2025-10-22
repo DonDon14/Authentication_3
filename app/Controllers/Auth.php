@@ -323,8 +323,7 @@ class Auth extends BaseController
         $profilePictureUrl = '';
         if (!empty($user['profile_picture'])) {
             // Use the test route for now to bypass potential issues
-            $filename = basename($user['profile_picture']); // Get just the filename
-            $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+            $profilePictureUrl = base_url('payments/serveUpload/' . basename($user['profile_picture']));
             log_message('debug', 'Profile picture URL: ' . $profilePictureUrl);
             
             // Check if file exists
@@ -474,7 +473,7 @@ class Auth extends BaseController
             return $this->response->setJSON([
                 'success' => true, 
                 'message' => 'Profile picture updated successfully',
-                'profile_picture' => base_url('payments/serveUpload/' . $profilePicturePath)
+                'profile_picture' => base_url('payments/serveUpload/' . basename($profilePicturePath))
             ]);
 
         } catch (\Exception $e) {

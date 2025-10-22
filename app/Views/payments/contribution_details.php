@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿<?php
+use App\Models\UsersModel;
+$usersModel = new UsersModel();
+?>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,6 +14,38 @@
   
   <!-- Additional styles for contribution details -->
   <style>
+    /* Profile avatar styles */
+    .profile-avatar {
+      position: relative;
+      overflow: hidden;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+    
+    .profile-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
+    
+    /* Header user avatar styles */
+    .user-avatar {
+      position: relative;
+      overflow: hidden;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+    
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
     .contribution-info {
       margin-bottom: 1.5rem;
     }
@@ -239,12 +275,31 @@
       
       <div class="sidebar-footer">
         <div class="user-profile">
-          <div class="profile-avatar">
-            <i class="fas fa-user"></i>
-          </div>
+            <?php 
+            $user = $usersModel->find(session()->get('user_id'));
+            $profilePicture = !empty($user['profile_picture']) ? 
+                base_url('payments/serveUpload/' . basename($user['profile_picture'])) : 
+                session()->get('profile_picture');
+            
+            // Debug output
+            if (!empty($profilePicture)) {
+                echo "<!-- Profile URL: " . htmlspecialchars($profilePicture) . " -->";
+                echo "<!-- Profile DB Path: " . htmlspecialchars($user['profile_picture']) . " -->";
+                echo "<!-- User profile_picture field: " . htmlspecialchars($user['profile_picture'] ?? 'not set') . " -->";
+            } else {
+                echo "<!-- Profile picture not found -->";
+            }
+          ?>
+          <?php if (!empty($profilePicture)): ?>
+            <img src="<?= esc($profilePicture) ?>" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+          <?php else: ?>
+            <div class="profile-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+          <?php endif; ?>
           <div class="profile-info">
-            <h4><?= session()->get('username') ?? 'Admin User' ?></h4>
-            <p>Administrator</p>
+            <h4><?= $name ?? session()->get('username') ?? 'Admin User' ?></h4>
+            <p><?= $email ?? 'Administrator' ?></p>
           </div>
           <button class="profile-menu-btn" id="profileMenuBtn">
             <i class="fas fa-ellipsis-h"></i>
@@ -283,10 +338,20 @@
           <!-- User Menu -->
           <div class="user-menu">
             <button class="user-menu-btn" id="userMenuBtn">
-              <div class="user-avatar">
-                <i class="fas fa-user"></i>
-              </div>
-              <span class="user-name"><?= session()->get('username') ?? 'Admin' ?></span>
+              <?php 
+                $user = $usersModel->find(session()->get('user_id'));
+                $profilePicture = !empty($user['profile_picture']) ? 
+                    base_url('payments/serveUpload/' . $user['profile_picture']) : 
+                    session()->get('profile_picture');
+              ?>
+              <?php if (!empty($user['profile_picture'])): ?>
+                <img src="<?= base_url('payments/serveUpload/' . basename($user['profile_picture'])) ?>" alt="Profile Picture" class="user-avatar">
+              <?php else: ?>
+                <div class="user-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+              <?php endif; ?>
+              <span class="user-name"><?= session()->get('name') ?? session()->get('username') ?? 'Admin' ?></span>
               <i class="fas fa-chevron-down"></i>
             </button>
           </div>

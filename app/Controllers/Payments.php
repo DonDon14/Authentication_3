@@ -794,6 +794,25 @@ private function generatePaymentsPDFContent($payments, $statistics)
                 $totalAmount += (float)($payment['amount_paid'] ?? 0);
             }
 
+            // Add profile picture and user data
+            $session = session();
+            $userId = $session->get('user_id');
+            $usersModel = new \App\Models\UsersModel();
+            $user = $usersModel->find($userId);
+            
+            // Debug logging
+            log_message('debug', 'User ID from session: ' . $userId);
+            log_message('debug', 'User data: ' . json_encode($user));
+            
+            $profilePictureUrl = '';
+            if (!empty($user['profile_picture'])) {
+                $filename = basename($user['profile_picture']);
+                $profilePictureUrl = base_url('test-profile-picture/' . $filename); // Changed to test-profile-picture to match working views
+                log_message('debug', 'Profile picture URL: ' . $profilePictureUrl);
+            } else {
+                log_message('debug', 'No profile picture found in user data');
+            }
+
             $data = [
                 'contribution' => $contribution,
                 'payments' => $payments,
@@ -802,8 +821,11 @@ private function generatePaymentsPDFContent($payments, $statistics)
                     'total_amount' => $totalAmount,
                     'average_amount' => count($payments) > 0 ? $totalAmount / count($payments) : 0,
                     'payment_count' => count($payments)
-                ]
-                ];
+                ],
+                'profilePictureUrl' => $profilePictureUrl,
+                'name' => $session->get('name'),
+                'email' => $session->get('email')
+            ];
         
             log_message('info', 'Rendering contribution_details view');
             return view('payments/contribution_details', $data);
@@ -1360,11 +1382,22 @@ private function generatePaymentsPDFContent($payments, $statistics)
         }
         
         try {
-            // Handle subdirectories (like profile_pictures/)
-            $filepath = WRITEPATH . 'uploads/' . $filename;
+            // Debug output
+            log_message('debug', 'serveUpload called with filename: ' . $filename);
             
-            // Log the file path for debugging
-            log_message('debug', 'Attempting to serve file: ' . $filepath);
+            // Always check profile_pictures directory first for image files
+            $filepath = WRITEPATH . 'uploads/profile_pictures/' . basename($filename);
+            log_message('debug', 'Trying profile_pictures path: ' . $filepath);
+            
+            // If not found in profile_pictures, try main uploads directory
+            if (!file_exists($filepath)) {
+                $filepath = WRITEPATH . 'uploads/' . basename($filename);
+                log_message('debug', 'Trying main uploads path: ' . $filepath);
+            }
+            
+            // Log final path being used
+            log_message('debug', 'Using filepath: ' . $filepath);
+            log_message('debug', 'File exists: ' . (file_exists($filepath) ? 'YES' : 'NO'));
             
             if (!file_exists($filepath)) {
                 log_message('error', 'File not found: ' . $filepath);
