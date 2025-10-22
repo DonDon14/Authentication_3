@@ -34,6 +34,84 @@
       object-fit: cover !important;
       border-radius: 50%;
     }
+
+    /* Dropdown visibility styles */
+    .notification-dropdown,
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      margin-top: 8px;
+      min-width: 280px;
+    }
+
+    .notification-dropdown.show,
+    .user-dropdown.show {
+      display: block;
+      animation: dropdownFadeIn 0.2s ease-out;
+    }
+
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Button positioning */
+    #userMenuBtn,
+    #notificationBtn {
+      position: relative;
+      z-index: 1001;
+    }
+
+    /* Dropdown styles */
+    .notification-dropdown,
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      margin-top: 8px;
+      min-width: 280px;
+    }
+
+    .notification-dropdown.show,
+    .user-dropdown.show {
+      display: block;
+      animation: dropdownFadeIn 0.2s ease-out;
+    }
+
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Ensure buttons have position relative for dropdown alignment */
+    #userMenuBtn,
+    #notificationBtn {
+      position: relative;
+      z-index: 1001;
+    }
   </style>
 </head>
 <body>
@@ -134,40 +212,12 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1>Contributions</h1>
-          <p class="page-subtitle">Manage payment types and contribution settings</p>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back, <?= esc($name) ?>! Here's your overview.</p>
         </div>
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" class="search-input" placeholder="Search contributions...">
-          </div>
-          
-          <!-- Notification Center -->
-          <div class="notification-center">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" id="userMenuBtn">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+        
+        <?= $this->include('partials/header_components') ?>
       </header>
-
       <!-- Dashboard Content -->
       <div class="dashboard-content">
 
@@ -525,73 +575,7 @@
     </div>
   </div>
 
-  <!-- Notification Dropdown -->
-  <div class="notification-dropdown" id="notificationDropdown">
-    <div class="notification-header">
-      <h3>Notifications</h3>
-      <button class="mark-read-btn">Mark all read</button>
-    </div>
-    <div class="notification-list">
-      <div class="notification-item unread">
-        <div class="notification-icon success">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Contribution Added</h4>
-          <p>New contribution type created successfully</p>
-          <span class="notification-time">5 minutes ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon primary">
-          <i class="fas fa-info-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Status Updated</h4>
-          <p>Contribution status changed to active</p>
-          <span class="notification-time">2 hours ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon info">
-          <i class="fas fa-edit"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Contribution Modified</h4>
-          <p>Payment amount updated successfully</p>
-          <span class="notification-time">1 day ago</span>
-        </div>
-      </div>
-    </div>
-    <div class="notification-footer">
-      <a href="#" class="view-all-notifications">View all notifications</a>
-    </div>
-  </div>
 
-  <!-- User Dropdown -->
-  <div class="user-dropdown" id="userDropdown">
-    <div class="dropdown-header">
-      <div class="user-info">
-        <h4><?= session()->get('username') ?? 'Admin User' ?></h4>
-        <p>System Administrator</p>
-      </div>
-    </div>
-    <div class="dropdown-menu">
-      <a href="<?= base_url('profile') ?>" class="dropdown-item">
-        <i class="fas fa-user"></i>
-        <span>My Profile</span>
-      </a>
-      <a href="<?= base_url('dashboard') ?>" class="dropdown-item">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a href="<?= base_url('auth/logout') ?>" class="dropdown-item logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
 
   <!-- Profile Menu Dropdown (for sidebar) -->
   <div class="profile-menu-dropdown" id="profileMenuDropdown">
@@ -870,54 +854,10 @@
         });
       });
       
-      // Notification dropdown
-      const notificationBtn = document.getElementById('notificationBtn');
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      
-      if (notificationBtn) {
-        notificationBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          notificationDropdown.classList.toggle('active');
-          document.getElementById('userDropdown')?.classList.remove('active');
-        });
+      // Initialize header dropdowns through dropdown.js
+      if (typeof initializeHeaderDropdowns === 'function') {
+        initializeHeaderDropdowns();
       }
-      
-      // User dropdown
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const userDropdown = document.getElementById('userDropdown');
-      
-      if (userMenuBtn) {
-        userMenuBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdown.classList.toggle('active');
-          document.getElementById('notificationDropdown')?.classList.remove('active');
-        });
-      }
-      
-      // Profile menu (sidebar)
-      const profileMenuBtn = document.getElementById('profileMenuBtn');
-      const profileMenuDropdown = document.getElementById('profileMenuDropdown');
-      
-      if (profileMenuBtn) {
-        profileMenuBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          profileMenuDropdown.classList.toggle('active');
-        });
-      }
-      
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', function() {
-        document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-          dropdown.classList.remove('active');
-        });
-      });
-      
-      // Prevent dropdown close when clicking inside
-      document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-          e.stopPropagation();
-        });
-      });
       
       // Profit calculation function
       function calculateProfit() {
@@ -1020,7 +960,24 @@
   </script>
   
   <!-- External JS -->
-  <script src="<?= base_url('js/contributions.js') ?>"></script>
   <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/dropdown.js') ?>"></script>
+  
+  <!-- Initialize Dropdowns -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM Content Loaded - Contributions Page');
+      // Allow time for partials to load
+      setTimeout(function() {
+        if (typeof initializeHeaderDropdowns === 'function') {
+          console.log('Initializing header dropdowns...');
+          initializeHeaderDropdowns();
+        } else {
+          console.error('initializeHeaderDropdowns function not found');
+        }
+      }, 100);
+    });
+  </script>
 </body>
 </html>

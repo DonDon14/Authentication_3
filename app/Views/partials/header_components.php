@@ -8,7 +8,7 @@
   
   <!-- Notification Center -->
   <div class="notification-center">
-    <button class="notification-btn" id="notificationBtn">
+    <button class="notification-btn" id="notificationBtn" title="Notifications">
       <i class="fas fa-bell"></i>
       <span class="notification-count">3</span>
     </button>
@@ -16,7 +16,7 @@
   
   <!-- User Menu -->
   <div class="user-menu">
-    <button class="user-menu-btn" id="userMenuBtn">
+    <button class="user-menu-btn" id="userMenuBtn" title="User Menu">
       <div class="user-avatar">
         <?php if (!empty($profilePictureUrl)): ?>
           <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">

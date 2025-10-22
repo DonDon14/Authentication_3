@@ -3,26 +3,23 @@
  * Handles dropdown menus, notifications, sidebar toggle, and other interactive elements
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeDashboard();
-    // Initialize settings after dashboard
-    initializeSettings();
-    initializeTheme();
-    initializeSettingsModal();
+// Ensure DOM is fully loaded and parsed
+window.addEventListener('load', function() {
+    console.log('Window loaded, initializing...');
+    setTimeout(() => {
+        initializeDashboard();
+        // Initialize settings after dashboard
+        initializeSettings();
+        initializeTheme();
+        initializeSettingsModal();
+    }, 100); // Small delay to ensure all dynamic content is ready
 });
 
 function initializeDashboard() {
     console.log('Initializing dashboard...');
     
-    // Initialize dropdown menus
-    initializeUserDropdown();
-    initializeNotifications();
-    
     // Initialize verify button
     initializeVerifyButton();
-    
-    // Initialize click outside handlers
-    initializeClickOutsideHandlers();
     
     console.log('Dashboard initialized successfully');
 }
@@ -34,37 +31,17 @@ function initializeDashboard() {
  * Initialize user dropdown functionality
  */
 function initializeUserDropdown() {
-    const userDropdownBtn = document.getElementById('userDropdownBtn');
-    const userDropdownMenu = document.getElementById('userDropdownMenu');
-    
-    console.log('User dropdown button:', userDropdownBtn);
-    console.log('User dropdown menu:', userDropdownMenu);
-    
-    if (userDropdownBtn && userDropdownMenu) {
-        console.log('Adding click listener to user dropdown button');
-        userDropdownBtn.addEventListener('click', function(e) {
-            console.log('User dropdown clicked');
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Close notifications if open
-            closeNotifications();
-            
-            // Toggle user dropdown
-            toggleDropdown(userDropdownBtn, userDropdownMenu);
-        });
-    } else {
-        console.log('User dropdown elements not found!');
-    }
+    // Initialization moved to dropdown.js
+    console.log('User dropdown initialization moved to dropdown.js');
 }
 
 /**
  * Initialize notifications functionality
  */
 function initializeNotifications() {
-    const notificationsBtn = document.getElementById('notificationsBtn');
-    const notificationsDropdown = document.getElementById('notificationsDropdown');
-    const markAllReadBtn = document.querySelector('.mark-all-read');
+    const notificationsBtn = document.getElementById('notificationBtn');
+    const notificationsDropdown = document.getElementById('notificationDropdown');
+    const markAllReadBtn = document.querySelector('.mark-read-btn');
     
     console.log('Notifications button:', notificationsBtn);
     console.log('Notifications dropdown:', notificationsDropdown);
@@ -180,8 +157,8 @@ function closeDropdown(button, dropdown) {
  * Close user dropdown specifically
  */
 function closeUserDropdown() {
-    const userDropdownBtn = document.getElementById('userDropdownBtn');
-    const userDropdownMenu = document.getElementById('userDropdownMenu');
+    const userDropdownBtn = document.getElementById('userMenuBtn');
+    const userDropdownMenu = document.getElementById('userDropdown');
     
     if (userDropdownBtn && userDropdownMenu) {
         closeDropdown(userDropdownBtn, userDropdownMenu);
@@ -192,8 +169,8 @@ function closeUserDropdown() {
  * Close notifications specifically
  */
 function closeNotifications() {
-    const notificationsBtn = document.getElementById('notificationsBtn');
-    const notificationsDropdown = document.getElementById('notificationsDropdown');
+    const notificationsBtn = document.getElementById('notificationBtn');
+    const notificationsDropdown = document.getElementById('notificationDropdown');
     
     if (notificationsBtn && notificationsDropdown) {
         closeDropdown(notificationsBtn, notificationsDropdown);

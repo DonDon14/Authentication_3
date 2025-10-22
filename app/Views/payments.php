@@ -84,8 +84,8 @@
       width: 280px;
     }
     
-    .notification-dropdown.active,
-    .user-dropdown.active {
+    .notification-dropdown.show,
+    .user-dropdown.show {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
@@ -861,8 +861,8 @@
           console.log('Notification button clicked');
           e.preventDefault();
           e.stopPropagation();
-          notificationDropdown?.classList.toggle('active');
-          document.getElementById('userDropdown')?.classList.remove('active');
+          notificationDropdown?.classList.toggle('show');
+          document.getElementById('userDropdown')?.classList.remove('show');
         });
       }
       
@@ -879,16 +879,16 @@
           console.log('User menu button clicked');
           e.preventDefault();
           e.stopPropagation();
-          userDropdown?.classList.toggle('active');
-          notificationDropdown?.classList.remove('active');
+          userDropdown?.classList.toggle('show');
+          notificationDropdown?.classList.remove('show');
         });
       }
       
       // Close dropdowns when clicking outside
       function closeDropdowns(e) {
         if (!e.target.closest('.notification-center') && !e.target.closest('.user-menu')) {
-          notificationDropdown?.classList.remove('active');
-          userDropdown?.classList.remove('active');
+          notificationDropdown?.classList.remove('show');
+          userDropdown?.classList.remove('show');
         }
       }
       
@@ -909,13 +909,17 @@
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, initializing...');
-      initializeDropdowns();
+      setTimeout(() => {
+        initializeDropdowns();
+      }, 100); // Small delay to ensure all elements are ready
     });
     
     // Also initialize if the script runs after DOM is already loaded
     if (document.readyState === 'complete') {
       console.log('DOM already loaded, initializing...');
-      initializeDropdowns();
+      setTimeout(() => {
+        initializeDropdowns();
+      }, 100); // Small delay to ensure all elements are ready
     }
   </script>
 </body>

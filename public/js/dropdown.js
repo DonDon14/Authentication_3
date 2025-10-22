@@ -1,63 +1,110 @@
-// Initialize dropdowns when the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeHeaderDropdowns();
-});
+// Initialize dropdowns when the DOM is loaded - only if not already initialized
+if (!window.dropdownsInitialized) {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Initializing dropdowns from dropdown.js...');
+        initializeHeaderDropdowns();
+    });
+}
+
+// Track initialization
+window.dropdownsInitialized = true;
 
 // Header dropdown initialization function
 function initializeHeaderDropdowns() {
-    // Remove any existing event listeners by cloning and replacing elements
+    console.log('Setting up header dropdowns...');
+    
+    // Get all required elements
     const notificationBtn = document.getElementById('notificationBtn');
     const userMenuBtn = document.getElementById('userMenuBtn');
-    
-    if (notificationBtn) {
-        const newNotificationBtn = notificationBtn.cloneNode(true);
-        notificationBtn.parentNode.replaceChild(newNotificationBtn, notificationBtn);
-    }
-    
-    if (userMenuBtn) {
-        const newUserMenuBtn = userMenuBtn.cloneNode(true);
-        userMenuBtn.parentNode.replaceChild(newUserMenuBtn, userMenuBtn);
-    }
-    
-    // Now add fresh event listeners
     const notificationDropdown = document.getElementById('notificationDropdown');
     const userDropdown = document.getElementById('userDropdown');
     
-    if (newNotificationBtn && notificationDropdown) {
+    console.log('Found elements:', {
+        notificationBtn: !!notificationBtn,
+        userMenuBtn: !!userMenuBtn,
+        notificationDropdown: !!notificationDropdown,
+        userDropdown: !!userDropdown
+    });
+
+    // Setup notification button
+    if (notificationBtn && notificationDropdown) {
+        // Remove old event listeners
+        const newNotificationBtn = notificationBtn.cloneNode(true);
+        notificationBtn.parentNode.replaceChild(newNotificationBtn, notificationBtn);
+        
+        // Add new event listener
         newNotificationBtn.addEventListener('click', function(e) {
+            console.log('Notification button clicked');
             e.preventDefault();
             e.stopPropagation();
-            notificationDropdown.classList.toggle('active');
-            userDropdown?.classList.remove('active');
-            document.getElementById('profileMenuDropdown')?.classList.remove('active');
-        });
-    }
-    
-    if (newUserMenuBtn && userDropdown) {
-        newUserMenuBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            userDropdown.classList.toggle('active');
-            notificationDropdown?.classList.remove('active');
-            document.getElementById('profileMenuDropdown')?.classList.remove('active');
-        });
-    }
-    
-    // Remove any existing click handlers on document
-    const newBody = document.body.cloneNode(true);
-    document.body.parentNode.replaceChild(newBody, document.body);
-    
-    // Add fresh click handler for closing dropdowns
-    document.addEventListener('click', function(e) {
-        const dropdowns = document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown');
-        dropdowns.forEach(dropdown => {
-            if (!dropdown.contains(e.target) && 
-                !e.target.closest('#notificationBtn') && 
-                !e.target.closest('#userMenuBtn') && 
-                !e.target.closest('#profileMenuBtn')) {
-                dropdown.classList.remove('active');
+            
+            // Close all other dropdowns first
+            if (userDropdown) {
+                userDropdown.classList.remove('show');
+                userMenuBtn.classList.remove('active');
             }
+            
+            // Toggle notification dropdown
+            notificationBtn.classList.toggle('active');
+            notificationDropdown.classList.toggle('show');
         });
+    }
+    
+    // Setup user menu button
+    if (userMenuBtn && userDropdown) {
+        // Remove old event listeners
+        const newUserMenuBtn = userMenuBtn.cloneNode(true);
+        userMenuBtn.parentNode.replaceChild(newUserMenuBtn, userMenuBtn);
+        
+        // Add new event listener
+        newUserMenuBtn.addEventListener('click', function(e) {
+            console.log('User menu button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Close all other dropdowns first
+            if (notificationDropdown) {
+                notificationDropdown.classList.remove('show');
+                notificationBtn.classList.remove('active');
+            }
+            
+            // Toggle user dropdown
+            userMenuBtn.classList.toggle('active');
+            userDropdown.classList.toggle('show');
+        });
+    }
+    
+    // Add click handler for closing dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.notification-dropdown') && 
+            !e.target.closest('.user-dropdown') && 
+            !e.target.closest('#notificationBtn') && 
+            !e.target.closest('#userMenuBtn')) {
+            
+            // Close all dropdowns
+            if (notificationDropdown) {
+                notificationDropdown.classList.remove('show');
+                notificationBtn?.classList.remove('active');
+            }
+            if (userDropdown) {
+                userDropdown.classList.remove('show');
+                userMenuBtn?.classList.remove('active');
+            }
+        }
+    });
+
+    // Add escape key handler
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (notificationDropdown) {
+                notificationDropdown.classList.remove('show');
+                notificationBtn?.classList.remove('active');
+            }
+            if (userDropdown) {
+                userDropdown.classList.remove('show');
+                userMenuBtn?.classList.remove('active');
+            }
+        }
     });
 
     // Profile picture update listener
