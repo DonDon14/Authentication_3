@@ -73,6 +73,12 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="<?= base_url('announcements') ?>" class="nav-link">
+              <i class="fas fa-bullhorn"></i>
+              <span>Announcements</span>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="<?= base_url('settings') ?>" class="nav-link">
               <i class="fas fa-cog"></i>
               <span>Settings</span>

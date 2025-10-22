@@ -74,6 +74,16 @@ $routes->get('/students/details/(:any)', 'Students::details/$1');
 $routes->get('/profile', 'Auth::profile');
 $routes->post('/profile/update', 'Auth::updateProfile');
 $routes->get('/settings', 'Auth::settings');
+
+// Announcements routes
+$routes->get('/announcements', 'Announcements::index');
+$routes->get('/announcements/student-view', 'Announcements::studentView');
+$routes->post('/announcements/create', 'Announcements::create');
+$routes->post('/announcements/update/(:num)', 'Announcements::update/$1');
+$routes->delete('/announcements/delete/(:num)', 'Announcements::delete/$1');
+$routes->get('/announcements/get/(:num)', 'Announcements::get/$1');
+$routes->post('/announcements/archive/(:num)', 'Announcements::archive/$1');
+$routes->get('/announcements/search', 'Announcements::search');
 $routes->get('payments/getQRCode/(:any)/(:num)', 'Payments::getQRCode/$1/$2');
 //$routes->get('/public/js/contribution_details.js', 'Home::serveJs');
 

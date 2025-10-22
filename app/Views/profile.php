@@ -406,7 +406,18 @@
               <span>Students</span>
             </a>
           </li>
-      
+          <li class="nav-item">
+            <a href="<?= base_url('announcements') ?>" class="nav-link">
+              <i class="fas fa-bullhorn"></i>
+              <span>Announcements</span>
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a href="<?= base_url('profile') ?>" class="nav-link">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
           <li class="nav-item">
             <a href="<?= base_url('settings') ?>" class="nav-link">
               <i class="fas fa-cog"></i>
