@@ -257,15 +257,6 @@
                   <p>Payment records</p>
                 </div>
               </button>
-              <button class="action-btn warning" onclick="exportContributions()">
-                <div class="action-icon">
-                  <i class="fas fa-download"></i>
-                </div>
-                <div class="action-text">
-                  <h4>Export Data</h4>
-                  <p>Download reports</p>
-                </div>
-              </button>
               <button class="action-btn success" onclick="window.location.href='<?= base_url('contributions/analytics') ?>'">
                 <div class="action-icon">
                   <i class="fas fa-chart-pie"></i>

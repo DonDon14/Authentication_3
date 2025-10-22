@@ -167,15 +167,6 @@
                   <p>Payment analytics</p>
                 </div>
               </button>
-              <button class="action-btn info" onclick="exportPartialPayments()">
-                <div class="action-icon">
-                  <i class="fas fa-download"></i>
-                </div>
-                <div class="action-text">
-                  <h4>Export Data</h4>
-                  <p>Download reports</p>
-                </div>
-              </button>
               <button class="action-btn warning" onclick="sendReminders()">
                 <div class="action-icon">
                   <i class="fas fa-bell"></i>

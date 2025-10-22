@@ -251,15 +251,6 @@
                   <p>View specific status</p>
                 </div>
               </button>
-              <button class="action-btn warning" onclick="refreshHistory()">
-                <div class="action-icon">
-                  <i class="fas fa-sync-alt"></i>
-                </div>
-                <div class="action-text">
-                  <h4>Refresh</h4>
-                  <p>Update records</p>
-                </div>
-              </button>
             </div>
           </div>
         </div>
@@ -602,6 +593,9 @@
 
   <!-- JavaScript -->
   <script>
+    // Global variable to store current payment data - must be declared first
+    let currentPaymentData = null;
+    
     // Dashboard functionality
     document.addEventListener('DOMContentLoaded', function() {
       // Sidebar toggle
@@ -710,11 +704,32 @@
           e.stopPropagation();
         });
       });
+
+      // Modal close functionality
+      const paymentModal = document.getElementById('paymentDetailsModal');
+      if (paymentModal) {
+        // Close modal when clicking outside
+        paymentModal.addEventListener('click', function(e) {
+          if (e.target === paymentModal) {
+            closePaymentModal();
+          }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && paymentModal.style.display === 'flex') {
+            closePaymentModal();
+          }
+        });
+      }
     });
     
-    // Modal functions
-    function viewPaymentDetails(paymentData) {
+    // Modal functions - ensure they're globally accessible
+    window.viewPaymentDetails = function(paymentData) {
       const modal = document.getElementById('paymentDetailsModal');
+      
+      // Store payment data globally for download function
+      currentPaymentData = paymentData;
       
       // Populate modal data
       document.getElementById('modalStudentName').textContent = paymentData.student_name || '-';
@@ -736,44 +751,66 @@
       document.body.style.overflow = 'hidden';
     }
     
-    function closePaymentModal() {
+    window.closePaymentModal = function() {
       const modal = document.getElementById('paymentDetailsModal');
-      modal.style.display = 'none';
-      document.body.style.overflow = 'auto';
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
     }
     
-    function generateQRCode(paymentData) {
+    window.generateQRCode = function(paymentData) {
       const qrContainer = document.getElementById('modalQrCode');
-      const qrData = {
-        student_id: paymentData.student_id,
-        student_name: paymentData.student_name,
-        amount: paymentData.amount_paid,
-        payment_id: paymentData.id,
-        status: paymentData.payment_status,
-        date: paymentData.created_at
-      };
       
       // Clear previous QR code
       qrContainer.innerHTML = '';
       
-      // Create QR code using external library if available
-      if (typeof QRCode !== 'undefined') {
-        QRCode.toCanvas(qrContainer, JSON.stringify(qrData), function (error) {
-          if (error) {
-            qrContainer.innerHTML = '<div style="color: var(--error-color); text-align: center;"><i class="fas fa-exclamation-triangle"></i><br>QR Code generation failed</div>';
-          }
-        });
+      // Check if payment has an existing QR receipt
+      if (paymentData.qr_receipt_path && paymentData.qr_receipt_path.trim() !== '') {
+        // Display the existing QR code image
+        const qrImage = document.createElement('img');
+        qrImage.src = '<?= base_url('payments/downloadReceipt/') ?>' + paymentData.id;
+        qrImage.style.cssText = `
+          width: 150px;
+          height: 150px;
+          object-fit: contain;
+          border-radius: 8px;
+          border: 1px solid var(--border-color);
+          background: white;
+          margin: 0 auto;
+          display: block;
+        `;
+        qrImage.alt = 'QR Receipt for Payment #' + paymentData.id;
+        
+        // Handle image load error
+        qrImage.onerror = function() {
+          qrContainer.innerHTML = `
+            <div style="color: var(--error-color); text-align: center; padding: 2rem;">
+              <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+              <p style="margin: 0;">QR Image Not Found</p>
+            </div>
+          `;
+        };
+        
+        qrContainer.appendChild(qrImage);
       } else {
-        qrContainer.innerHTML = '<div style="color: var(--warning-color); text-align: center;"><i class="fas fa-qrcode" style="font-size: 2rem;"></i><br>QR Code: ' + (paymentData.id || 'N/A') + '</div>';
+        // Payment doesn't have QR code - show fallback
+        qrContainer.innerHTML = `
+          <div style="color: var(--warning-color); text-align: center; padding: 2rem;">
+            <i class="fas fa-qrcode" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <p style="margin: 0; font-weight: 600;">Payment #${paymentData.id || 'N/A'}</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--text-secondary);">QR code not available</p>
+          </div>
+        `;
       }
     }
     
     // Helper functions
-    function refreshHistory() {
+    window.refreshHistory = function() {
       window.location.reload();
     }
     
-function exportPayments() {
+window.exportPayments = function() {
     console.log('Export function called - Generating PDF');
     
     // Show loading state - find the export button in quick actions
@@ -798,7 +835,9 @@ function exportPayments() {
     
     // Use window.location.href for direct download
     window.location.href = exportUrl;
-}    function filterPayments(status) {
+}    
+    
+window.filterPayments = function(status) {
       const statusFilter = document.getElementById('statusFilter');
       if (statusFilter) {
         statusFilter.value = status;
@@ -806,35 +845,51 @@ function exportPayments() {
       }
     }
     
-    function downloadReceipt(paymentId) {
-      alert('Download receipt for payment ID: ' + paymentId);
+    window.downloadReceipt = function(paymentId) {
+      if (!paymentId) {
+        alert('Payment ID is required for downloading receipt.');
+        return;
+      }
+      
+      // Create download link for the QR receipt
+      const downloadUrl = '<?= base_url('payments/downloadReceipt/') ?>' + paymentId;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.target = '_blank';
+      link.download = 'qr_receipt_' + paymentId + '.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
     
-    function verifyPayment(paymentId) {
+    window.verifyPayment = function(paymentId) {
       if (confirm('Are you sure you want to verify this payment?')) {
         alert('Payment verification for ID: ' + paymentId + ' - Feature coming soon!');
       }
     }
     
-    function downloadQR() {
-      alert('QR code download functionality coming soon!');
+    window.downloadQR = function() {
+      if (currentPaymentData && currentPaymentData.id) {
+        // Create download link for the QR receipt
+        const downloadUrl = '<?= base_url('payments/downloadReceipt/') ?>' + currentPaymentData.id;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.target = '_blank';
+        link.download = 'qr_receipt_' + currentPaymentData.id + '.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert('Unable to download QR code. Payment data not available.');
+      }
     }
     
-    function printReceipt() {
+    window.printReceipt = function() {
       window.print();
     }
-    
-    // Close modal when clicking outside
-    document.addEventListener('click', function(e) {
-      const modal = document.getElementById('paymentDetailsModal');
-      if (e.target === modal) {
-        closePaymentModal();
-      }
-    });
   </script>
 
   <!-- External JS -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-  <script src="<?= base_url('js/history.js') ?>"></script>
 </body>
 </html>

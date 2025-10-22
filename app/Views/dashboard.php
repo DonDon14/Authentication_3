@@ -402,9 +402,6 @@
                         </span>
                       </div>
                       <div class="payment-actions" onclick="event.stopPropagation();">
-                        <button class="btn-icon" onclick="viewPaymentDetails(<?= htmlspecialchars(json_encode($payment)) ?>)" title="View Details">
-                          <i class="fas fa-eye"></i>
-                        </button>
                         <?php if ($payment['qr_receipt_path']): ?>
                           <button class="btn-icon" onclick="downloadQRReceipt(<?= $payment['id'] ?>)" title="Download QR Receipt">
                             <i class="fas fa-qrcode"></i>
