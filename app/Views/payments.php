@@ -386,6 +386,24 @@
                   </div>
                 </div>
 
+                <div class="form-group">
+                  <label for="contactNumber">Contact Number</label>
+                  <div style="position: relative;">
+                    <i class="fas fa-phone" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);"></i>
+                    <input type="tel" id="contactNumber" name="contact_number" class="search-input" placeholder="e.g., 09123456789" style="padding-left: 2.5rem;">
+                  </div>
+                  <small style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.25rem; display: block;">Optional - Contact number of the person making the payment</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="emailAddress">Email Address</label>
+                  <div style="position: relative;">
+                    <i class="fas fa-envelope" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);"></i>
+                    <input type="email" id="emailAddress" name="email_address" class="search-input" placeholder="e.g., student@example.com" style="padding-left: 2.5rem;">
+                  </div>
+                  <small style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.25rem; display: block;">Optional - Email address for payment receipts and notifications</small>
+                </div>
+
                 <?php if (!isset($contribution)): ?>
                 <div class="form-group">
                   <label for="contributionType">

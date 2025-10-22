@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const formData = new FormData(paymentForm);
       const studentId = formData.get('student_id')?.trim();
       const studentName = formData.get('student_name')?.trim();
+      const contactNumber = formData.get('contact_number')?.trim();
+      const emailAddress = formData.get('email_address')?.trim();
       let amount = formData.get('amount');
       const contributionId = formData.get('contribution_id');
       const contributionType = formData.get('contribution_type');
@@ -35,6 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('FormData values:', {
         student_id: studentId,
         student_name: studentName,
+        contact_number: contactNumber,
+        email_address: emailAddress,
         amount: amount,
         contribution_id: contributionId,
         contribution_type: contributionType,
@@ -92,6 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Sending payment data:', {
           student_id: studentId,
           student_name: studentName,
+          contact_number: contactNumber,
+          email_address: emailAddress,
           amount: finalAmount,
           contribution_id: contributionId,
           contribution_type: contributionType,
@@ -1196,6 +1202,14 @@ function showQRReceipt(receiptData, downloadUrl) {
           <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <strong>Student ID:</strong> <span>${receiptData.student_id}</span>
           </div>
+          ${receiptData.contact_number ? `
+          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>Contact:</strong> <span>${receiptData.contact_number}</span>
+          </div>` : ''}
+          ${receiptData.email_address ? `
+          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>Email:</strong> <span>${receiptData.email_address}</span>
+          </div>` : ''}
           <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
             <strong>Contribution:</strong> <span>${receiptData.contribution_title}</span>
           </div>

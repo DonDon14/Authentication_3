@@ -70,6 +70,8 @@ class Payments extends Controller
             $contributionId = $this->request->getPost('contribution_id') ?: $this->request->getPost('contribution_type');
             $studentId = $this->request->getPost('student_id');
             $studentName = $this->request->getPost('student_name');
+            $contactNumber = $this->request->getPost('contact_number');
+            $emailAddress = $this->request->getPost('email_address');
             $amount = $this->request->getPost('amount');
             $paymentMethod = $this->request->getPost('payment_method') ?? 'cash';
             $paymentType = $this->request->getPost('payment_type') ?? 'partial'; // New field
@@ -112,6 +114,8 @@ class Payments extends Controller
                 'contribution_id' => $contributionId,
                 'student_id' => $studentId,
                 'student_name' => $studentName,
+                'contact_number' => !empty($contactNumber) ? $contactNumber : null,
+                'email_address' => !empty($emailAddress) ? $emailAddress : null,
                 'amount_paid' => (float)$amount,
                 'payment_method' => $paymentMethod,
                 'recorded_by' => session()->get('user_id')
@@ -133,6 +137,8 @@ class Payments extends Controller
                         [
                             'student_id' => $studentId,
                             'student_name' => $studentName,
+                            'contact_number' => $contactNumber,
+                            'email_address' => $emailAddress,
                             'contribution_id' => $contributionId,
                             'amount' => (float)$amount,
                             'payment_method' => $paymentMethod
@@ -968,6 +974,8 @@ private function generatePaymentsPDFContent($payments, $statistics)
                 'payment_id' => $payment['id'],
                 'student_id' => $payment['student_id'],
                 'student_name' => $payment['student_name'],
+                'contact_number' => $payment['contact_number'] ?? null,
+                'email_address' => $payment['email_address'] ?? null,
                 'contribution_title' => $contribution['title'] ?? 'General Payment',
                 'amount' => $payment['amount_paid'],
                 'payment_method' => $payment['payment_method'],
@@ -1105,6 +1113,8 @@ private function generatePaymentsPDFContent($payments, $statistics)
                 'payment_id' => $payment['id'],
                 'student_id' => $payment['student_id'],
                 'student_name' => $payment['student_name'],
+                'contact_number' => $payment['contact_number'] ?? null,
+                'email_address' => $payment['email_address'] ?? null,
                 'contribution_title' => $contribution['title'],
                 'amount' => $payment['amount_paid'],
                 'payment_method' => $payment['payment_method'],
