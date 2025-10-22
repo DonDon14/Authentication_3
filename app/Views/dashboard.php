@@ -355,6 +355,16 @@
                     <p>View installment records</p>
                   </div>
                 </button>
+                
+                <button class="action-btn purple" onclick="window.location.href='<?= base_url('announcements') ?>'">
+                  <div class="action-icon">
+                    <i class="fas fa-bullhorn"></i>
+                  </div>
+                  <div class="action-text">
+                    <h4>Add Announcement</h4>
+                    <p>Create system announcements</p>
+                  </div>
+                </button>
               </div>
             </div>
           </div>

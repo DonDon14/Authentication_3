@@ -29,6 +29,8 @@ $routes->get('/contributions/get/(:num)', 'Contributions::get/$1');
 
 // Payment routes
 $routes->get('/payments/history', 'Payments::history');
+$routes->get('/payments/test-export', 'Payments::testExport');
+$routes->get('/payments/export', 'Payments::exportPayments');
 $routes->get('/payments', 'Payments::index');
 $routes->post('/payments/save', 'Payments::save');
 $routes->post('/payments/searchByQR', 'Payments::searchByQR');

@@ -773,11 +773,43 @@
       window.location.reload();
     }
     
-    function exportPayments() {
-      alert('Export functionality coming soon!');
+function exportPayments() {
+    console.log('Export function called');
+    
+    // Show loading state - find the export button in quick actions
+    const exportBtn = document.querySelector('.action-btn.success');
+    console.log('Export button found:', exportBtn);
+    
+    if (exportBtn) {
+        const originalText = exportBtn.innerHTML;
+        exportBtn.innerHTML = '<div class="action-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="action-text"><h4>Exporting...</h4><p>Please wait</p></div>';
+        exportBtn.disabled = true;
+        
+        // Reset button after a short delay
+        setTimeout(() => {
+            exportBtn.innerHTML = originalText;
+            exportBtn.disabled = false;
+        }, 4000);
     }
     
-    function filterPayments(status) {
+    // Try different approach - create a temporary link and click it
+    const exportUrl = '<?= base_url('payments/export') ?>';
+    console.log('Export URL:', exportUrl);
+    
+    // Create temporary link
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.download = 'payments_export.csv';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Also try window.open as backup
+    setTimeout(() => {
+        window.open(exportUrl, '_blank');
+    }, 500);
+}    function filterPayments(status) {
       const statusFilter = document.getElementById('statusFilter');
       if (statusFilter) {
         statusFilter.value = status;

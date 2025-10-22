@@ -462,9 +462,7 @@
                     <i class="fas fa-credit-card" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);"></i>
                     <select id="paymentMethod" name="payment_method" required style="padding-left: 2.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.75rem 1rem 0.75rem 2.5rem; width: 100%; font-size: 0.9rem;">
                       <option value="cash">Cash</option>
-                      <option value="card">Card</option>
-                      <option value="bank_transfer">Bank Transfer</option>
-                      <option value="mobile_payment">Mobile Payment</option>
+                      <option value="card">GCash</option>
                     </select>
                   </div>
                 </div>
