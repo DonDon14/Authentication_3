@@ -166,11 +166,17 @@ class Auth extends BaseController
 
             // Start session and store user data
             $session = session();
+            $profilePictureUrl = '';
+            if (!empty($user['profile_picture'])) {
+                $profilePictureUrl = base_url('payments/serveUpload/' . $user['profile_picture']);
+            }
+            
             $session->set([
                 'user_id' => $user['id'],
                 'username' => $user['username'],
                 'name' => $user['name'],
                 'email' => $user['email'],
+                'profile_picture' => $profilePictureUrl,
                 'logged_in' => true
             ]);
 
@@ -264,9 +270,21 @@ class Auth extends BaseController
             $activityStats = ['by_type' => [], 'today_count' => 0, 'period_days' => 7];
         }
 
+        // Get user profile picture
+        $userId = $session->get('user_id');
+        $userModel = new \App\Models\UsersModel();
+        $user = $userModel->find($userId);
+        
+        $profilePictureUrl = '';
+        if (!empty($user['profile_picture'])) {
+            $filename = basename($user['profile_picture']);
+            $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+        }
+
         $data = [
             'name' => $session->get('name'),
             'email' => $session->get('email'),
+            'profilePictureUrl' => $profilePictureUrl,
             'recentPayments' => $recentPayments,
             'recentActivities' => $formattedActivities,
             'activityStats' => $activityStats,
@@ -297,11 +315,30 @@ class Auth extends BaseController
         // Get user data from database
         $user = $this->usersModel->find($session->get('user_id'));
         
+        // Debug the profile picture
+        log_message('debug', 'Profile picture in DB: ' . ($user['profile_picture'] ?? 'NULL'));
+        log_message('debug', 'User data: ' . json_encode($user));
+        
+        // Get profile picture URL
+        $profilePictureUrl = '';
+        if (!empty($user['profile_picture'])) {
+            // Use the test route for now to bypass potential issues
+            $filename = basename($user['profile_picture']); // Get just the filename
+            $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+            log_message('debug', 'Profile picture URL: ' . $profilePictureUrl);
+            
+            // Check if file exists
+            $filepath = WRITEPATH . 'uploads/' . $user['profile_picture'];
+            $fileExists = file_exists($filepath);
+            log_message('debug', 'Profile picture file exists: ' . ($fileExists ? 'YES' : 'NO') . ' at ' . $filepath);
+        }
+        
         return view('profile', [
             'username' => $user['username'],
             'name' => $user['name'],
             'email' => $user['email'],
-            'phone' => $user['phone'] ?? ''
+            'phone' => $user['phone'] ?? '',
+            'profile_picture' => $profilePictureUrl
         ]);
     }
 
@@ -371,6 +408,97 @@ class Auth extends BaseController
             'name' => $session->get('name'),
             'email' => $session->get('email')
         ]);
+    }
+
+    public function uploadPicture()
+    {
+        $session = session();
+        if (!$session->get('logged_in')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Not logged in']);
+        }
+
+        try {
+            $file = $this->request->getFile('profile_picture');
+            
+            if (!$file || !$file->isValid()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'No file uploaded or file is invalid']);
+            }
+
+            // Validate file type
+            $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($file->getMimeType(), $allowedTypes)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.']);
+            }
+
+            // Validate file size (max 5MB)
+            $maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if ($file->getSize() > $maxSize) {
+                return $this->response->setJSON(['success' => false, 'message' => 'File size too large. Maximum size is 5MB.']);
+            }
+
+            // Create uploads directory if it doesn't exist
+            $uploadPath = WRITEPATH . 'uploads/profile_pictures/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            // Generate unique filename
+            $userId = $session->get('user_id');
+            $extension = $file->getExtension();
+            $fileName = 'profile_' . $userId . '_' . time() . '.' . $extension;
+
+            // Move file to uploads directory
+            if (!$file->move($uploadPath, $fileName)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Failed to upload file']);
+            }
+
+            // Update database with profile picture path
+            $profilePicturePath = 'profile_pictures/' . $fileName;
+            $this->usersModel->update($userId, ['profile_picture' => $profilePicturePath]);
+
+            // Update session if needed
+            $session->set('profile_picture', $profilePicturePath);
+
+            return $this->response->setJSON([
+                'success' => true, 
+                'message' => 'Profile picture updated successfully',
+                'profile_picture' => base_url('payments/serveUpload/' . $profilePicturePath)
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Profile picture upload error: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error uploading profile picture']);
+        }
+    }
+
+    public function testProfilePicture($filename = null)
+    {
+        if (!$filename) {
+            return 'No filename provided';
+        }
+        
+        $filepath = WRITEPATH . 'uploads/profile_pictures/' . $filename;
+        
+        if (!file_exists($filepath)) {
+            return 'File not found: ' . $filepath;
+        }
+        
+        $fileinfo = pathinfo($filepath);
+        $extension = strtolower($fileinfo['extension']);
+        
+        $contentTypes = [
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif'
+        ];
+        
+        $contentType = $contentTypes[$extension] ?? 'application/octet-stream';
+        
+        return $this->response
+            ->setHeader('Content-Type', $contentType)
+            ->setHeader('Content-Length', filesize($filepath))
+            ->setBody(file_get_contents($filepath));
     }
 
     public function forgotPassword()

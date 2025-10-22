@@ -15,6 +15,8 @@ class UsersModel extends Model
                                 'reset_token', 
                                 'reset_expires', 
                                 'password', 
+                                'phone',
+                                'profile_picture',
                                 'created_at'];
     
     protected $useTimestamps = false;

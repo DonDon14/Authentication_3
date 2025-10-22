@@ -14,9 +14,24 @@ class Contributions extends Controller
     {
         $contributionModel = new ContributionModel();
         
+        // Add profile picture for sidebar
+        $session = session();
+        $userId = $session->get('user_id');
+        $usersModel = new \App\Models\UsersModel();
+        $user = $usersModel->find($userId);
+        
+        $profilePictureUrl = '';
+        if (!empty($user['profile_picture'])) {
+            $filename = basename($user['profile_picture']);
+            $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+        }
+        
         $data = [
             'contributions' => $contributionModel->findAll(),
-            'stats' => $contributionModel->getStats()
+            'stats' => $contributionModel->getStats(),
+            'profilePictureUrl' => $profilePictureUrl,
+            'name' => $session->get('name'),
+            'email' => $session->get('email')
         ];
         
         return view('contributions', $data);

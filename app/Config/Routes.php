@@ -78,7 +78,13 @@ $routes->get('/students/getStudentMetadata/(:any)', 'Students::getStudentMetadat
 // Profile and Settings routes
 $routes->get('/profile', 'Auth::profile');
 $routes->post('/profile/update', 'Auth::updateProfile');
+$routes->post('/profile/upload-picture', 'Auth::uploadPicture');
+$routes->post('/auth/uploadPicture', 'Auth::uploadPicture'); // Alternative route
+$routes->post('/auth/updateProfile', 'Auth::updateProfile'); // Alternative route
 $routes->get('/settings', 'Auth::settings');
+
+// Test route for profile pictures
+$routes->get('/test-profile-picture/(:any)', 'Auth::testProfilePicture/$1');
 
 // Announcements routes
 $routes->get('/announcements', 'Announcements::index');

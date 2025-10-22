@@ -1,6 +1,6 @@
 /**
  * Profile Page JavaScript
- * Handles profile form submission and validation
+ * Handles profile form submission, validation, and edit mode functionality
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -8,177 +8,384 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeProfile() {
-    // Initialize form submission
-    initializeProfileForm();
-    
-    // Initialize photo change functionality
-    initializePhotoChange();
-    
     console.log('Profile page initialized successfully');
+    
+    // Initialize form submission handlers
+    initializeFormHandlers();
+    
+    // Initialize edit mode functionality
+    initializeEditMode();
+    
+    // Initialize other functionality
+    initializeDropdowns();
+    initializeNotifications();
 }
 
 /**
- * Initialize profile form functionality
+ * Initialize form handlers
  */
-function initializeProfileForm() {
-    const profileForm = document.getElementById('profileForm');
-    
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
+function initializeFormHandlers() {
+    // Personal info form
+    const personalForm = document.getElementById('personalInfoForm');
+    if (personalForm) {
+        personalForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            submitProfileForm();
+            submitPersonalForm();
         });
     }
-}
-
-/**
- * Initialize photo change functionality
- */
-function initializePhotoChange() {
-    const changePhotoBtn = document.querySelector('.change-photo-btn');
     
-    if (changePhotoBtn) {
-        changePhotoBtn.addEventListener('click', function() {
-            // Create hidden file input
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/*';
-            fileInput.style.display = 'none';
-            
-            fileInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    handlePhotoChange(file);
-                }
-            });
-            
-            document.body.appendChild(fileInput);
-            fileInput.click();
-            document.body.removeChild(fileInput);
+    // Security form
+    const securityForm = document.getElementById('securityForm');
+    if (securityForm) {
+        securityForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitSecurityForm();
         });
     }
 }
 
 /**
- * Handle photo change
+ * Global functions for edit mode
  */
-function handlePhotoChange(file) {
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        showNotification('File size must be less than 5MB', 'error');
+window.toggleEditMode = function(section) {
+    console.log('toggleEditMode called with:', section);
+    const form = document.getElementById(section === 'personal' ? 'personalInfoForm' : 'securityForm');
+    const inputs = form.querySelectorAll('input:not(#profilePictureInput)');
+    const actions = document.getElementById(section + 'Actions');
+    const editBtn = form.closest('.card').querySelector('.btn-secondary');
+    
+    if (!form || !actions || !editBtn) {
+        console.error('Required elements not found for section:', section);
         return;
     }
     
+    const isCurrentlyReadOnly = inputs[0].readOnly;
+    
+    inputs.forEach(input => {
+        input.readOnly = !isCurrentlyReadOnly;
+        if (!isCurrentlyReadOnly) {
+            input.classList.add('editable');
+        } else {
+            input.classList.remove('editable');
+        }
+    });
+    
+    // Handle profile picture upload button for personal section
+    if (section === 'personal') {
+        const uploadBtn = document.getElementById('profilePictureUploadBtn');
+        if (uploadBtn) {
+            if (isCurrentlyReadOnly) {
+                uploadBtn.style.display = 'block';
+            } else {
+                uploadBtn.style.display = 'none';
+            }
+        }
+    }
+    
+    if (isCurrentlyReadOnly) {
+        actions.style.display = 'flex';
+        editBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+        editBtn.onclick = () => cancelEdit(section);
+    } else {
+        actions.style.display = 'none';
+        editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+        editBtn.onclick = () => toggleEditMode(section);
+    }
+};
+
+window.cancelEdit = function(section) {
+    const form = document.getElementById(section === 'personal' ? 'personalInfoForm' : 'securityForm');
+    const inputs = form.querySelectorAll('input:not(#profilePictureInput)');
+    const actions = document.getElementById(section + 'Actions');
+    const editBtn = form.closest('.card').querySelector('.btn-secondary');
+    
+    inputs.forEach(input => {
+        input.readOnly = true;
+        input.classList.remove('editable');
+    });
+    
+    if (section === 'personal') {
+        const uploadBtn = document.getElementById('profilePictureUploadBtn');
+        if (uploadBtn) {
+            uploadBtn.style.display = 'none';
+        }
+    }
+    
+    actions.style.display = 'none';
+    editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+    editBtn.onclick = () => toggleEditMode(section);
+    
+    location.reload();
+};
+
+/**
+ * Profile picture functions
+ */
+window.triggerFileInput = function() {
+    const fileInput = document.getElementById('profilePictureInput');
+    if (fileInput) {
+        fileInput.click();
+    }
+};
+
+window.handleProfilePictureChange = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+        showNotification('Please select a valid image file (JPG, PNG, or GIF)', 'error');
+        return;
+    }
+
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showNotification('File size must be less than 2MB', 'error');
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = function(e) {
-        const profileAvatar = document.querySelector('.profile-avatar');
-        profileAvatar.innerHTML = `<img src="${e.target.result}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        const preview = document.getElementById('profilePicturePreview');
+        const placeholder = document.getElementById('profilePlaceholder');
+        let existingImg = document.getElementById('profileImage');
         
-        showNotification('Photo updated successfully! Remember to save changes.', 'success');
+        if (existingImg) {
+            existingImg.src = e.target.result;
+        } else {
+            const img = document.createElement('img');
+            img.id = 'profileImage';
+            img.src = e.target.result;
+            img.alt = 'Profile Picture';
+            
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            
+            preview.appendChild(img);
+        }
     };
-    
     reader.readAsDataURL(file);
+
+    uploadProfilePicture(file);
+};
+
+function uploadProfilePicture(file) {
+    console.log('uploadProfilePicture called with file:', file);
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+
+    showNotification('Uploading profile picture...', 'info');
+
+    fetch('/profile/upload-picture', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        console.log('Upload response:', response);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Upload data:', data);
+        if (data.success) {
+            showNotification('Profile picture updated successfully!', 'success');
+            // Use test route for now to avoid 500 errors
+            const filename = data.profile_picture.split('/').pop(); // Get just the filename
+            const imageUrl = `/Authentication_3/test-profile-picture/${filename}`;
+            updateAllProfilePictures(imageUrl);
+            
+            // Notify other pages about the profile picture update
+            localStorage.setItem('profilePictureUpdated', imageUrl);
+            setTimeout(() => localStorage.removeItem('profilePictureUpdated'), 1000);
+        } else {
+            showNotification(data.message || 'Failed to upload profile picture', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        showNotification('Error uploading profile picture', 'error');
+    });
+}
+
+function updateAllProfilePictures(imageUrl) {
+    console.log('Updating all profile pictures with URL:', imageUrl);
+    
+    const profileImage = document.getElementById('profileImage');
+    const profilePlaceholder = document.getElementById('profilePlaceholder');
+    const profilePreview = document.getElementById('profilePicturePreview');
+    
+    if (profilePlaceholder && profilePreview) {
+        profilePreview.innerHTML = `<img src="${imageUrl}" alt="Profile Picture" id="profileImage">`;
+    } else if (profileImage) {
+        profileImage.src = imageUrl;
+    }
+
+    const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
+    if (sidebarAvatar) {
+        sidebarAvatar.innerHTML = `<img src="${imageUrl}" alt="Profile Picture">`;
+    }
+
+    const headerAvatar = document.querySelector('.header .user-avatar');
+    if (headerAvatar) {
+        headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Profile Picture">`;
+    }
+
+    const otherProfileImages = document.querySelectorAll('.profile-avatar img, .user-avatar img');
+    otherProfileImages.forEach(img => {
+        if (img.id !== 'profileImage') {
+            img.src = imageUrl;
+        }
+    });
 }
 
 /**
- * Submit profile form
+ * Submit personal information form
  */
-function submitProfileForm() {
-    const form = document.getElementById('profileForm');
+function submitPersonalForm() {
+    const form = document.getElementById('personalInfoForm');
     const formData = new FormData(form);
     
-    // Validate form
-    if (!validateProfileForm(formData)) {
-        return;
-    }
-    
-    // Show loading state
-    const submitBtn = form.querySelector('.btn-primary');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Saving...';
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     submitBtn.disabled = true;
     
-    // Convert FormData to URLSearchParams for proper submission
-    const data = new URLSearchParams();
-    for (let [key, value] of formData.entries()) {
-        data.append(key, value);
-    }
-    
-    // Submit form
-    fetch('/profile/update', {
+    fetch('/auth/updateProfile', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: data
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showNotification(data.message, 'success');
-            
-            // Update page title if name changed
-            const newName = formData.get('full_name');
-            if (newName) {
-                document.title = `Profile - ${newName}`;
-            }
+            showNotification('Personal information updated successfully!', 'success');
+            cancelEdit('personal');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         } else {
-            showNotification(data.message, 'error');
+            showNotification(data.message || 'Error updating personal information', 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification('An error occurred while updating profile', 'error');
+        showNotification('Error updating personal information', 'error');
     })
     .finally(() => {
-        // Reset button
-        submitBtn.textContent = originalText;
+        submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     });
 }
 
 /**
- * Validate profile form
+ * Submit security form
  */
-function validateProfileForm(formData) {
-    const fullName = formData.get('full_name');
-    const username = formData.get('username');
-    const email = formData.get('email');
+function submitSecurityForm() {
+    const form = document.getElementById('securityForm');
+    const formData = new FormData(form);
+    
     const newPassword = formData.get('new_password');
     const confirmPassword = formData.get('confirm_password');
-    const currentPassword = formData.get('current_password');
     
-    // Required fields validation
-    if (!fullName || !username || !email) {
-        showNotification('Please fill in all required fields', 'error');
-        return false;
+    if (newPassword !== confirmPassword) {
+        showNotification('Passwords do not match!', 'error');
+        return;
     }
     
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showNotification('Please enter a valid email address', 'error');
-        return false;
-    }
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    submitBtn.disabled = true;
     
-    // Password validation (if changing password)
-    if (newPassword) {
-        if (!currentPassword) {
-            showNotification('Current password is required to set a new password', 'error');
-            return false;
+    fetch('/auth/updateProfile', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Password updated successfully!', 'success');
+            cancelEdit('security');
+            form.reset();
+        } else {
+            showNotification(data.message || 'Failed to update password', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating password', 'error');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+/**
+ * Initialize dropdowns and other UI elements
+ */
+function initializeDropdowns() {
+    // Notification dropdown toggle
+    window.toggleNotifications = function() {
+        const dropdown = document.getElementById('notificationDropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('active');
+        }
+    };
+    
+    // User menu dropdown toggle
+    window.toggleUserMenu = function() {
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('active');
+        }
+    };
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        const notificationBtn = document.querySelector('.notification-btn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const userMenuBtn = document.querySelector('.user-menu-btn');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        if (notificationDropdown && !notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+            notificationDropdown.classList.remove('active');
         }
         
-        if (newPassword.length < 8) {
-            showNotification('New password must be at least 8 characters long', 'error');
-            return false;
+        if (userDropdown && !userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+            userDropdown.classList.remove('active');
         }
-        
-        if (newPassword !== confirmPassword) {
-            showNotification('New password and confirmation do not match', 'error');
-            return false;
+    });
+}
+
+/**
+ * Initialize notifications
+ */
+function initializeNotifications() {
+    // Toast functions
+    window.showToast = function(toastId, message) {
+        const toast = document.getElementById(toastId);
+        if (toast) {
+            const messageElement = toast.querySelector('.toast-message');
+            if (messageElement && message) {
+                messageElement.textContent = message;
+            }
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
-    }
+    };
     
-    return true;
+    window.hideToast = function(toastId) {
+        const toast = document.getElementById(toastId);
+        if (toast) {
+            toast.classList.remove('show');
+        }
+    };
 }
 
 /**
@@ -211,42 +418,44 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// Add CSS for toast notifications
-const additionalStyles = `
-    .toast-notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 500;
-        z-index: 1001;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        max-width: 350px;
-        word-wrap: break-word;
-    }
-    
-    .toast-notification.show {
-        transform: translateX(0);
-    }
-    
-    .toast-success {
-        background: linear-gradient(135deg, #10b981, #059669);
-    }
-    
-    .toast-error {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-    }
-    
-    .toast-info {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-    }
-`;
+// Add CSS for toast notifications if not already present
+if (!document.querySelector('#profile-toast-styles')) {
+    const additionalStyles = `
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 350px;
+            word-wrap: break-word;
+        }
+        
+        .toast-notification.show {
+            transform: translateX(0);
+        }
+        
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .toast-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .toast-info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+    `;
 
-// Inject additional styles
-const styleSheet = document.createElement('style');
-styleSheet.textContent = additionalStyles;
-document.head.appendChild(styleSheet);
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'profile-toast-styles';
+    styleSheet.textContent = additionalStyles;
+    document.head.appendChild(styleSheet);
+}

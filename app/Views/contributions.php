@@ -7,6 +7,21 @@
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Profile avatar styles for contributions */
+    .profile-avatar {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .profile-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
+  </style>
 </head>
 <body>
   <!-- Main App Container -->
@@ -86,10 +101,14 @@
       <div class="sidebar-footer">
         <div class="user-profile">
           <div class="profile-avatar">
-            <i class="fas fa-user"></i>
+            <?php if (!empty($profilePictureUrl)): ?>
+              <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+            <?php else: ?>
+              <i class="fas fa-user"></i>
+            <?php endif; ?>
           </div>
           <div class="profile-info">
-            <h4><?= session()->get('username') ?? 'Admin User' ?></h4>
+            <h4><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin User') ?></h4>
             <p>Administrator</p>
           </div>
           <button class="profile-menu-btn" id="profileMenuBtn">

@@ -51,6 +51,20 @@ class Payments extends Controller
         $usersModel = new UsersModel();
         $data['all_users'] = $usersModel->findAll();
         
+        // Add profile picture for sidebar
+        $session = session();
+        $userId = $session->get('user_id');
+        $user = $usersModel->find($userId);
+        
+        $profilePictureUrl = '';
+        if (!empty($user['profile_picture'])) {
+            $filename = basename($user['profile_picture']);
+            $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+        }
+        $data['profilePictureUrl'] = $profilePictureUrl;
+        $data['name'] = $session->get('name');
+        $data['email'] = $session->get('email');
+        
         return view('payments', $data);
     }
 
@@ -1323,38 +1337,59 @@ private function generatePaymentsPDFContent($payments, $statistics)
         }
     }
 
-    // Serve uploaded files (QR images)
+    // Serve uploaded files (QR images and profile pictures)
     public function serveUpload($filename = null)
     {
         if (!$filename) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('File not found');
         }
         
-        $filepath = WRITEPATH . 'uploads/' . $filename;
-        
-        if (!file_exists($filepath)) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('File not found');
+        try {
+            // Handle subdirectories (like profile_pictures/)
+            $filepath = WRITEPATH . 'uploads/' . $filename;
+            
+            // Log the file path for debugging
+            log_message('debug', 'Attempting to serve file: ' . $filepath);
+            
+            if (!file_exists($filepath)) {
+                log_message('error', 'File not found: ' . $filepath);
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('File not found: ' . $filepath);
+            }
+            
+            // Check if file is readable
+            if (!is_readable($filepath)) {
+                log_message('error', 'File not readable: ' . $filepath);
+                throw new \CodeIgniter\Exceptions\PageNotFoundException('File not readable');
+            }
+            
+            // Get file info
+            $fileinfo = pathinfo($filepath);
+            $extension = strtolower($fileinfo['extension']);
+            
+            // Set appropriate content type
+            $contentTypes = [
+                'png' => 'image/png',
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp'
+            ];
+            
+            $contentType = $contentTypes[$extension] ?? 'application/octet-stream';
+            
+            log_message('debug', 'Serving file with content type: ' . $contentType);
+            
+            // Serve the file
+            return $this->response
+                ->setHeader('Content-Type', $contentType)
+                ->setHeader('Content-Length', filesize($filepath))
+                ->setHeader('Cache-Control', 'public, max-age=31536000')
+                ->setBody(file_get_contents($filepath));
+                
+        } catch (\Exception $e) {
+            log_message('error', 'Error serving file: ' . $e->getMessage());
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Error serving file: ' . $e->getMessage());
         }
-        
-        // Get file info
-        $fileinfo = pathinfo($filepath);
-        $extension = strtolower($fileinfo['extension']);
-        
-        // Set appropriate content type
-        $contentTypes = [
-            'png' => 'image/png',
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'gif' => 'image/gif'
-        ];
-        
-        $contentType = $contentTypes[$extension] ?? 'application/octet-stream';
-        
-        // Serve the file
-        return $this->response
-            ->setHeader('Content-Type', $contentType)
-            ->setHeader('Content-Length', filesize($filepath))
-            ->setBody(file_get_contents($filepath));
     }
 
     // Generate unique verification code
