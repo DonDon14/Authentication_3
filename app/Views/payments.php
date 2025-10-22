@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClearPay Payments - Record Payment</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/dropdown.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -33,6 +34,73 @@
       height: 100% !important;
       object-fit: cover !important;
       border-radius: 50%;
+    }
+    
+    /* Fix z-index layering */
+    .app-container {
+      z-index: 1;
+    }
+    
+    .sidebar {
+      z-index: 100;
+    }
+    
+    .header {
+      z-index: 90;
+    }
+    
+    .header-right {
+      position: relative;
+      z-index: 1000;
+    }
+    
+    .notification-center,
+    .user-menu {
+      position: relative;
+      z-index: 1001;
+    }
+    
+    .notification-dropdown,
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 1000;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s ease;
+    }
+    
+    .notification-dropdown {
+      width: 360px;
+    }
+    
+    .user-dropdown {
+      width: 280px;
+    }
+    
+    .notification-dropdown.active,
+    .user-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .notification-dropdown,
+      .user-dropdown {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: calc(100vw - 40px);
+        max-width: 360px;
+      }
     }
   </style>
   
@@ -140,38 +208,11 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1>Record Payment</h1>
+          <h1 class="page-title">Record Payment</h1>
           <p class="page-subtitle">Add a new student payment to the system</p>
         </div>
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" class="search-input" placeholder="Search students, payments...">
-          </div>
-          
-          <!-- Notification Center -->
-          <div class="notification-center">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" id="userMenuBtn">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+        
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -630,74 +671,6 @@
     </div>
   </div>
 
-  <!-- Notification Dropdown -->
-  <div class="notification-dropdown" id="notificationDropdown">
-    <div class="notification-header">
-      <h3>Notifications</h3>
-      <button class="mark-read-btn">Mark all read</button>
-    </div>
-    <div class="notification-list">
-      <div class="notification-item unread">
-        <div class="notification-icon success">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Payment Recorded</h4>
-          <p>Successfully recorded payment for John Doe</p>
-          <span class="notification-time">2 minutes ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon primary">
-          <i class="fas fa-info-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>System Update</h4>
-          <p>QR scanner functionality improved</p>
-          <span class="notification-time">1 hour ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon info">
-          <i class="fas fa-user-plus"></i>
-        </div>
-        <div class="notification-content">
-          <h4>New Student</h4>
-          <p>Student profile created successfully</p>
-          <span class="notification-time">3 hours ago</span>
-        </div>
-      </div>
-    </div>
-    <div class="notification-footer">
-      <a href="#" class="view-all-notifications">View all notifications</a>
-    </div>
-  </div>
-
-  <!-- User Dropdown -->
-  <div class="user-dropdown" id="userDropdown">
-    <div class="dropdown-header">
-      <div class="user-info">
-        <h4><?= session()->get('username') ?? 'Admin User' ?></h4>
-        <p>System Administrator</p>
-      </div>
-    </div>
-    <div class="dropdown-menu">
-      <a href="<?= base_url('profile') ?>" class="dropdown-item">
-        <i class="fas fa-user"></i>
-        <span>My Profile</span>
-      </a>
-      <a href="<?= base_url('dashboard') ?>" class="dropdown-item">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a href="<?= base_url('auth/logout') ?>" class="dropdown-item logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
-
   <!-- Profile Menu Dropdown (for sidebar) -->
   <div class="profile-menu-dropdown" id="profileMenuDropdown">
     <div class="dropdown-content">
@@ -843,78 +816,107 @@
     // Pass student data to JavaScript
     window.STUDENTS_DATA = <?= json_encode($all_users ?? []) ?>;
     
-    // Dashboard functionality
-    document.addEventListener('DOMContentLoaded', function() {
+    // Listen for profile picture updates from other pages
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'profilePictureUpdated') {
+        // Update profile picture in sidebar
+        const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
+        if (sidebarAvatar && e.newValue) {
+          sidebarAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
+        }
+        
+        // Update profile picture in header
+        const headerAvatar = document.querySelector('.user-menu .user-avatar');
+        if (headerAvatar && e.newValue) {
+          headerAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
+        }
+      }
+    });
+  </script>
+  
+  <!-- External JS -->
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
+  
+  <script>
+    // Initialize dropdowns
+    function initializeDropdowns() {
+      console.log('Initializing dropdowns...');
+      
+      // Remove any existing event listeners
+      document.body.removeEventListener('click', closeDropdowns);
+      
       // Notification dropdown
       const notificationBtn = document.getElementById('notificationBtn');
       const notificationDropdown = document.getElementById('notificationDropdown');
       
       if (notificationBtn) {
-        notificationBtn.addEventListener('click', function(e) {
+        // Remove old event listeners by cloning
+        const newNotificationBtn = notificationBtn.cloneNode(true);
+        notificationBtn.parentNode.replaceChild(newNotificationBtn, notificationBtn);
+        
+        newNotificationBtn.addEventListener('click', function(e) {
+          console.log('Notification button clicked');
+          e.preventDefault();
           e.stopPropagation();
-          notificationDropdown.classList.toggle('active');
+          notificationDropdown?.classList.toggle('active');
           document.getElementById('userDropdown')?.classList.remove('active');
         });
       }
       
-      // User dropdown
+      // User dropdown in header
       const userMenuBtn = document.getElementById('userMenuBtn');
       const userDropdown = document.getElementById('userDropdown');
       
       if (userMenuBtn) {
-        userMenuBtn.addEventListener('click', function(e) {
+        // Remove old event listeners by cloning
+        const newUserMenuBtn = userMenuBtn.cloneNode(true);
+        userMenuBtn.parentNode.replaceChild(newUserMenuBtn, userMenuBtn);
+        
+        newUserMenuBtn.addEventListener('click', function(e) {
+          console.log('User menu button clicked');
+          e.preventDefault();
           e.stopPropagation();
-          userDropdown.classList.toggle('active');
-          document.getElementById('notificationDropdown')?.classList.remove('active');
-        });
-      }
-      
-      // Profile menu (sidebar)
-      const profileMenuBtn = document.getElementById('profileMenuBtn');
-      const profileMenuDropdown = document.getElementById('profileMenuDropdown');
-      
-      if (profileMenuBtn) {
-        profileMenuBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          profileMenuDropdown.classList.toggle('active');
+          userDropdown?.classList.toggle('active');
+          notificationDropdown?.classList.remove('active');
         });
       }
       
       // Close dropdowns when clicking outside
-      document.addEventListener('click', function() {
-        document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-          dropdown.classList.remove('active');
-        });
-      });
+      function closeDropdowns(e) {
+        if (!e.target.closest('.notification-center') && !e.target.closest('.user-menu')) {
+          notificationDropdown?.classList.remove('active');
+          userDropdown?.classList.remove('active');
+        }
+      }
       
-      // Prevent dropdown close when clicking inside
-      document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-          e.stopPropagation();
-        });
-      });
+      document.body.addEventListener('click', closeDropdowns);
       
-      // Listen for profile picture updates from other pages
+      // Profile picture updates
       window.addEventListener('storage', function(e) {
-        if (e.key === 'profilePictureUpdated') {
-          // Update profile picture in sidebar
-          const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
-          if (sidebarAvatar && e.newValue) {
-            sidebarAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
-          }
-          
-          // Update profile picture in header
-          const headerAvatar = document.querySelector('.user-menu .user-avatar');
-          if (headerAvatar && e.newValue) {
-            headerAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
-          }
+        if (e.key === 'profilePictureUpdated' && e.newValue) {
+          document.querySelectorAll('.profile-avatar img, .user-avatar img').forEach(img => {
+            img.src = e.newValue;
+          });
         }
       });
+      
+      console.log('Dropdowns initialized');
+    }
+    
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, initializing...');
+      initializeDropdowns();
     });
+    
+    // Also initialize if the script runs after DOM is already loaded
+    if (document.readyState === 'complete') {
+      console.log('DOM already loaded, initializing...');
+      initializeDropdowns();
+    }
   </script>
-  
-  <!-- External JS -->
-  <script src="<?= base_url('js/payments.js') ?>"></script>
-  <script src="<?= base_url('js/main.js') ?>"></script>
 </body>
 </html>

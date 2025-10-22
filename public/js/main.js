@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Dropdown functionality is now handled by dropdown.js
+
 /**
  * Enhanced Sidebar Toggle Functionality
  */

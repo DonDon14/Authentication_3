@@ -120,12 +120,26 @@
               <span>Settings</span>
             </a>
           </li>
-          
         </ul>
       </nav>
       
       <div class="sidebar-footer">
-        <?= $this->include('partials/help_section') ?>
+        <div class="user-profile">
+          <div class="profile-avatar">
+            <?php if (!empty($profilePictureUrl)): ?>
+              <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+            <?php else: ?>
+              <i class="fas fa-user"></i>
+            <?php endif; ?>
+          </div>
+          <div class="profile-info">
+            <h4><?= esc(explode(' ', $name)[0]) ?></h4>
+            <p>Administrator</p>
+          </div>
+          <button class="profile-menu-btn" onclick="toggleProfileMenu()">
+            <i class="fas fa-ellipsis-vertical"></i>
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -133,14 +147,13 @@
     <main class="main-content">
       
       <!-- Top Header Bar -->
-      <header class="header">
-        <div class="header-left">
-          <h1 class="page-title">Dashboard</h1>
-          <p class="page-subtitle">Welcome back, <?= esc($name) ?>! Here's your overview.</p>
-        </div>
-        
-        <?= $this->include('partials/header_components') ?>
-      </header>
+      <?= $this->include('partials/header', [
+        'pageTitle' => 'Dashboard Floro',
+        'pageSubtitle' => 'Welcome back, ' . esc($name) . '! Here\'s your overview.',
+        'name' => $name ?? '',
+        'email' => $email ?? '',
+        'profilePictureUrl' => $profilePictureUrl ?? ''
+      ]) ?>
 
       <!-- Dashboard Content -->
       <div class="dashboard-content">
@@ -849,7 +862,6 @@
   <!-- Dashboard JavaScript -->
   <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
-  <script src="<?= base_url('js/dropdown.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
   <script src="<?= base_url('js/verification-functions.js') ?>"></script>
   
@@ -869,49 +881,6 @@
           headerAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
         }
       }
-    });
-
-    // Initialize dropdowns
-    document.addEventListener('DOMContentLoaded', function() {
-      // Notification dropdown
-      const notificationBtn = document.getElementById('notificationBtn');
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      
-      if (notificationBtn && notificationDropdown) {
-        notificationBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          notificationDropdown.classList.toggle('active');
-          document.getElementById('userDropdown')?.classList.remove('active');
-          document.getElementById('profileMenuDropdown')?.classList.remove('active');
-        });
-      }
-      
-      // User dropdown in header
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const userDropdown = document.getElementById('userDropdown');
-      
-      if (userMenuBtn && userDropdown) {
-        userMenuBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdown.classList.toggle('active');
-          notificationDropdown?.classList.remove('active');
-          document.getElementById('profileMenuDropdown')?.classList.remove('active');
-        });
-      }
-      
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', function(e) {
-        const dropdowns = document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown');
-        dropdowns.forEach(dropdown => {
-          // Only close if click is outside dropdown and its toggle button
-          if (!dropdown.contains(e.target) && 
-              !e.target.closest('#notificationBtn') && 
-              !e.target.closest('#userMenuBtn') && 
-              !e.target.closest('#profileMenuBtn')) {
-            dropdown.classList.remove('active');
-          }
-        });
-      });
     });
   </script>
   
