@@ -1035,5 +1035,6 @@
   
   <!-- External JS -->
   <script src="<?= base_url('js/contributions.js') ?>"></script>
+  <script src="<?= base_url('js/main.js') ?>"></script>
 </body>
 </html>

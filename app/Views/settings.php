@@ -10,24 +10,43 @@
   
   <!-- Essential CSS for settings elements -->
   <style>
-    /* Force correct sidebar footer styling */
+    /* Enhanced sidebar footer styling to match dashboard.css */
     .sidebar-footer {
-      padding: 1rem !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+      padding: 1.5rem !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+      background: rgba(255, 255, 255, 0.02) !important;
     }
 
     .sidebar-footer .user-profile {
       display: flex !important;
       align-items: center !important;
-      gap: 0.75rem !important;
+      gap: 1rem !important;
       position: relative !important;
+      padding: 0.75rem !important;
+      border-radius: var(--radius-lg) !important;
+      transition: all var(--transition-fast) !important;
+      cursor: pointer !important;
+    }
+
+    .sidebar-footer .user-profile:hover {
+      background: rgba(255, 255, 255, 0.05) !important;
     }
 
     .sidebar-footer .profile-avatar {
-      width: 40px !important;
-      height: 40px !important;
-      background: linear-gradient(135deg, var(--primary-color), var(--success-color)) !important;
+      width: 44px !important;
+      height: 44px !important;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
       border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 1.1rem !important;
+      color: white !important;
+      overflow: hidden !important;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+      transition: all var(--transition-fast) !important;
+      border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    }
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -37,35 +56,39 @@
 
     .sidebar-footer .profile-info {
       flex: 1 !important;
-      transition: opacity var(--transition-normal) !important;
+      transition: all var(--transition-normal) !important;
     }
 
     .sidebar-footer .profile-info h4 {
-      font-size: 0.9rem !important;
+      font-size: 0.95rem !important;
       font-weight: 600 !important;
       color: var(--text-inverse) !important;
-      margin: 0 !important;
+      margin: 0 0 0.25rem 0 !important;
+      letter-spacing: -0.01em !important;
     }
 
     .sidebar-footer .profile-info p {
-      font-size: 0.75rem !important;
-      color: rgba(255, 255, 255, 0.6) !important;
+      font-size: 0.8rem !important;
+      color: rgba(255, 255, 255, 0.65) !important;
       margin: 0 !important;
+      font-weight: 400 !important;
     }
 
     .sidebar-footer .profile-menu-btn {
-      background: none !important;
+      background: rgba(255, 255, 255, 0.05) !important;
       border: none !important;
-      color: rgba(255, 255, 255, 0.7) !important;
+      color: rgba(255, 255, 255, 0.75) !important;
       cursor: pointer !important;
-      padding: 0.5rem !important;
+      padding: 0.6rem !important;
       border-radius: var(--radius-md) !important;
       transition: all var(--transition-fast) !important;
+      backdrop-filter: blur(10px) !important;
     }
 
     .sidebar-footer .profile-menu-btn:hover {
-      background-color: rgba(255, 255, 255, 0.1) !important;
+      background: rgba(255, 255, 255, 0.12) !important;
       color: var(--text-inverse) !important;
+      transform: scale(1.05) !important;
     }
 
     /* Toast notifications - proper positioning */
@@ -1163,7 +1186,11 @@
   </div>
 
   <script>
-    // Sidebar functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize main functionality
+      console.log('Settings page loaded');
+    });
+    
     // Notifications functionality
     function toggleNotifications() {
       const dropdown = document.getElementById('notificationDropdown');
@@ -1309,7 +1336,8 @@
     });
   </script>
   
-  <!-- Dashboard JavaScript -->
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
 </body>
 </html>

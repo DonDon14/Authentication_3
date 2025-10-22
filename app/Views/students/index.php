@@ -505,6 +505,8 @@
   </script>
   
   <!-- Dashboard JavaScript -->
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
 </body>
 </html>

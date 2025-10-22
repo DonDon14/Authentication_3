@@ -948,5 +948,6 @@ window.filterPayments = function(status) {
 
   <!-- External JS -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="<?= base_url('js/main.js') ?>"></script>
 </body>
 </html>

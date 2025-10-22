@@ -408,6 +408,12 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="<?= base_url('profile') ?>" class="nav-link">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="<?= base_url('settings') ?>" class="nav-link">
               <i class="fas fa-cog"></i>
               <span>Settings</span>
@@ -1110,6 +1116,8 @@
   </style>
 
   <!-- Dashboard JavaScript -->
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
 
   <!-- Profile Picture Update Listener -->

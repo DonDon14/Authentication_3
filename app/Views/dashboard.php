@@ -962,6 +962,8 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   
   <!-- Dashboard JavaScript -->
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
   <script src="<?= base_url('js/verification-functions.js') ?>"></script>
   

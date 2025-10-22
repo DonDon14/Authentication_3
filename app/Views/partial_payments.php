@@ -761,5 +761,6 @@
   </script>
 
   <script src="<?= base_url('js/payments.js') ?>"></script>
+  <script src="<?= base_url('js/main.js') ?>"></script>
 </body>
 </html>

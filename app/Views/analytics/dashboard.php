@@ -602,6 +602,11 @@
   </div>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize main functionality
+      console.log('Analytics page loaded');
+    });
+    
     // Chart initialization
     const ctx1 = document.getElementById('revenueChart').getContext('2d');
     const ctx2 = document.getElementById('transactionChart').getContext('2d');
@@ -723,7 +728,8 @@
     });
   </script>
   
-  <!-- Dashboard JavaScript -->
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
 </body>
 </html>
