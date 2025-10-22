@@ -84,6 +84,9 @@ $routes->delete('/announcements/delete/(:num)', 'Announcements::delete/$1');
 $routes->get('/announcements/get/(:num)', 'Announcements::get/$1');
 $routes->post('/announcements/archive/(:num)', 'Announcements::archive/$1');
 $routes->get('/announcements/search', 'Announcements::search');
+
+// Test route for debugging
+$routes->get('/test-announcements', 'TestAnnouncements::testCreate');
 $routes->get('payments/getQRCode/(:any)/(:num)', 'Payments::getQRCode/$1/$2');
 //$routes->get('/public/js/contribution_details.js', 'Home::serveJs');
 

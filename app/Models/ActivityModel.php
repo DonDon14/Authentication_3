@@ -34,6 +34,9 @@ class ActivityModel extends Model
     const ACTIVITY_CONTRIBUTION_DELETED = 'contribution_deleted';
     const ACTIVITY_PROFILE_UPDATED = 'profile_updated';
     const ACTIVITY_EXPORT_DATA = 'export_data';
+    const ACTIVITY_CREATE = 'create';
+    const ACTIVITY_UPDATE = 'update';
+    const ACTIVITY_DELETE = 'delete';
     
     /**
      * Log an activity

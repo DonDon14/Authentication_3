@@ -113,12 +113,26 @@ class Announcements extends BaseController
      */
     public function create()
     {
-        $session = session();
-        if (!$session->get('logged_in')) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Not authorized']);
-        }
-
+        // Add error handling and debugging
         try {
+            $session = session();
+            
+            // Debug session information
+            log_message('debug', 'Create announcement - Session data: ' . json_encode([
+                'logged_in' => $session->get('logged_in'),
+                'user_id' => $session->get('user_id'),
+                'session_id' => session_id()
+            ]));
+            
+            if (!$session->get('logged_in')) {
+                log_message('warning', 'Create announcement - User not logged in');
+                return $this->response->setJSON(['success' => false, 'message' => 'Not authorized - please log in']);
+            }
+
+            // Debug POST data
+            $postData = $this->request->getPost();
+            log_message('debug', 'Create announcement - POST data: ' . json_encode($postData));
+            
             $data = [
                 'title' => $this->request->getPost('title'),
                 'content' => $this->request->getPost('content'),
@@ -126,9 +140,17 @@ class Announcements extends BaseController
                 'priority' => $this->request->getPost('priority'),
                 'target_audience' => $this->request->getPost('target_audience'),
                 'status' => $this->request->getPost('status'),
-                'created_by' => $session->get('user_id'),
+                'created_by' => $session->get('user_id') ?: 1, // Fallback to user 1 if no user_id
                 'expires_at' => $this->request->getPost('expires_at') ?: null
             ];
+
+            log_message('debug', 'Create announcement - Processed data: ' . json_encode($data));
+
+            // Check if model exists
+            if (!$this->announcementModel) {
+                log_message('error', 'AnnouncementModel is null');
+                return $this->response->setJSON(['success' => false, 'message' => 'Model initialization error']);
+            }
 
             $id = $this->announcementModel->createAnnouncement($data);
 
@@ -163,9 +185,11 @@ class Announcements extends BaseController
 
         } catch (\Exception $e) {
             log_message('error', 'Create announcement error: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error creating announcement: ' . $e->getMessage()
+                'message' => 'Error creating announcement: ' . $e->getMessage(),
+                'debug' => $e->getTraceAsString()
             ]);
         }
     }

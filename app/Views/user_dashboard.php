@@ -43,6 +43,10 @@
                 <i class="fas fa-history"></i>
                 <span>Payment History</span>
               </a>
+              <a href="<?= base_url('announcements/student-view') ?>" class="menu-item">
+                <i class="fas fa-bullhorn"></i>
+                <span>Announcements</span>
+              </a>
               <a href="<?= base_url('user/profile') ?>" class="menu-item">
                 <i class="fas fa-user-edit"></i>
                 <span>Profile</span>
@@ -203,6 +207,10 @@
       <a href="<?= base_url('user/payment-history') ?>" class="nav-item">
         <i class="fas fa-history"></i>
         <span>History</span>
+      </a>
+      <a href="<?= base_url('announcements/student-view') ?>" class="nav-item">
+        <i class="fas fa-bullhorn"></i>
+        <span>News</span>
       </a>
       <a href="<?= base_url('user/profile') ?>" class="nav-item">
         <i class="fas fa-user"></i>

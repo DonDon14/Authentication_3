@@ -689,7 +689,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="saveAnnouncement()">Save Announcement</button>
+        <button type="button" class="btn btn-primary" onclick="saveAnnouncementForm(event)">Save Announcement</button>
       </div>
     </div>
   </div>
@@ -756,34 +756,160 @@
     }
 
     // Save announcement
-    async function saveAnnouncement() {
+    async function saveAnnouncementForm(event) {
+      // Prevent any default behavior if event exists
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      
+      console.log('Save announcement form function called');
+      
+      // Wait a bit for modal to be fully rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const form = document.getElementById('announcementForm');
-      const formData = new FormData(form);
+      console.log('Form element found:', form);
+      
+      if (!form) {
+        console.error('Form not found - checking all forms on page');
+        const allForms = document.querySelectorAll('form');
+        console.log('All forms on page:', allForms);
+        alert('Form not found');
+        return;
+      }
+      
+      // Check if form is actually a form element
+      if (form.tagName !== 'FORM') {
+        console.error('Element found but not a form element:', form.tagName);
+        alert('Form element is not valid');
+        return;
+      }
+      
+      // Manually collect form data instead of using FormData constructor
+      const formData = new FormData();
+      
+      // Get form values manually
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+      const type = document.getElementById('type').value;
+      const priority = document.getElementById('priority').value;
+      const target_audience = document.getElementById('target_audience').value;
+      const status = document.getElementById('status').value;
+      const expires_at = document.getElementById('expires_at').value;
+      
+      // Add to FormData
+      formData.append('title', title);
+      formData.append('content', content);
+      formData.append('type', type);
+      formData.append('priority', priority);
+      formData.append('target_audience', target_audience);
+      formData.append('status', status);
+      if (expires_at) {
+        formData.append('expires_at', expires_at);
+      }
+      
+      // Log form data for debugging
+      console.log('Form data:');
+      console.log('title:', title);
+      console.log('content:', content);
+      console.log('type:', type);
+      console.log('priority:', priority);
+      console.log('target_audience:', target_audience);
+      console.log('status:', status);
+      console.log('expires_at:', expires_at);
+      
+      // Validate required fields
+      if (!title || !content || !type || !priority || !target_audience || !status) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Additional validation
+      if (title.length < 3) {
+        alert('Title must be at least 3 characters long');
+        return;
+      }
+      
+      if (content.length < 10) {
+        alert('Content must be at least 10 characters long');
+        return;
+      }
+      
+      // Disable the save button to prevent double-clicks
+      const saveBtn = event ? event.target : document.querySelector('.btn-primary');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+      }
       
       try {
+        // Use PHP's base_url() function directly
         const url = currentEditId 
-          ? `<?= base_url('announcements/update') ?>/${currentEditId}`
-          : `<?= base_url('announcements/create') ?>`;
+          ? `<?= base_url() ?>announcements/update/${currentEditId}`
+          : `<?= base_url() ?>announcements/create`;
           
+        console.log('Full base URL from PHP:', '<?= base_url() ?>');
+        console.log('Posting to URL:', url);
+        console.log('Current edit ID:', currentEditId);
+        
         const response = await fetch(url, {
           method: 'POST',
-          body: formData
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
         });
         
-        const data = await response.json();
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+        
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse JSON response:', parseError);
+          console.error('Response text:', responseText);
+          throw new Error('Invalid JSON response from server');
+        }
+        
+        console.log('Parsed response data:', data);
         
         if (data.success) {
-          showNotification(data.message, 'success');
+          alert('Announcement saved successfully!');
           closeModal();
           setTimeout(() => {
             window.location.reload();
-          }, 1000);
+          }, 500);
         } else {
-          showNotification(data.message || 'Error saving announcement', 'error');
+          let errorMessage = data.message || 'Error saving announcement';
+          if (data.errors && Object.keys(data.errors).length > 0) {
+            errorMessage += '\n\nValidation errors:';
+            Object.keys(data.errors).forEach(field => {
+              errorMessage += '\n- ' + data.errors[field];
+            });
+          }
+          alert(errorMessage);
+          if (data.errors) {
+            console.error('Validation errors:', data.errors);
+          }
         }
       } catch (error) {
         console.error('Error saving announcement:', error);
-        showNotification('Error saving announcement', 'error');
+        alert('Error saving announcement: ' + error.message);
+      } finally {
+        // Re-enable the save button
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Announcement';
+        }
       }
     }
 
