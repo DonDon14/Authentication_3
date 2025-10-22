@@ -71,6 +71,7 @@ $routes->get('/analytics/export/(:any)', 'Analytics::export/$1');
 // Students routes
 $routes->get('/students', 'Students::index');
 $routes->get('/students/details/(:any)', 'Students::details/$1');
+$routes->get('/students/export/(:any)', 'Students::exportStudentData/$1');
 
 // Profile and Settings routes
 $routes->get('/profile', 'Auth::profile');

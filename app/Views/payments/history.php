@@ -235,11 +235,11 @@
               </button>
               <button class="action-btn success" onclick="exportPayments()">
                 <div class="action-icon">
-                  <i class="fas fa-download"></i>
+                  <i class="fas fa-file-pdf"></i>
                 </div>
                 <div class="action-text">
-                  <h4>Export Data</h4>
-                  <p>Download reports</p>
+                  <h4>Export PDF</h4>
+                  <p>Download report</p>
                 </div>
               </button>
               <button class="action-btn info" onclick="filterPayments('verified')">
@@ -774,7 +774,7 @@
     }
     
 function exportPayments() {
-    console.log('Export function called');
+    console.log('Export function called - Generating PDF');
     
     // Show loading state - find the export button in quick actions
     const exportBtn = document.querySelector('.action-btn.success');
@@ -782,7 +782,7 @@ function exportPayments() {
     
     if (exportBtn) {
         const originalText = exportBtn.innerHTML;
-        exportBtn.innerHTML = '<div class="action-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="action-text"><h4>Exporting...</h4><p>Please wait</p></div>';
+        exportBtn.innerHTML = '<div class="action-icon"><i class="fas fa-spinner fa-spin"></i></div><div class="action-text"><h4>Generating PDF...</h4><p>Please wait</p></div>';
         exportBtn.disabled = true;
         
         // Reset button after a short delay
@@ -792,23 +792,12 @@ function exportPayments() {
         }, 4000);
     }
     
-    // Try different approach - create a temporary link and click it
+    // Trigger PDF download
     const exportUrl = '<?= base_url('payments/export') ?>';
-    console.log('Export URL:', exportUrl);
+    console.log('PDF Export URL:', exportUrl);
     
-    // Create temporary link
-    const link = document.createElement('a');
-    link.href = exportUrl;
-    link.download = 'payments_export.csv';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    // Also try window.open as backup
-    setTimeout(() => {
-        window.open(exportUrl, '_blank');
-    }, 500);
+    // Use window.location.href for direct download
+    window.location.href = exportUrl;
 }    function filterPayments(status) {
       const statusFilter = document.getElementById('statusFilter');
       if (statusFilter) {

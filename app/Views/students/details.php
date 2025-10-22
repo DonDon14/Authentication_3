@@ -117,8 +117,8 @@
             Back to Students
           </button>
           <button class="btn btn-primary" onclick="exportStudentData()">
-            <i class="fas fa-download"></i>
-            Export Data
+            <i class="fas fa-file-pdf"></i>
+            Export PDF Report
           </button>
         </div>
       </header>
@@ -637,8 +637,30 @@
     }
 
     function exportStudentData() {
-      // Implement export functionality for this student
-      console.log('Export student data');
+      console.log('Export student data as PDF');
+      
+      // Show loading state
+      const exportBtn = document.querySelector('.btn.btn-primary');
+      if (exportBtn) {
+        const originalText = exportBtn.innerHTML;
+        exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+        exportBtn.disabled = true;
+        
+        // Reset button after a delay
+        setTimeout(() => {
+          exportBtn.innerHTML = originalText;
+          exportBtn.disabled = false;
+        }, 4000);
+      }
+      
+      // Trigger PDF download
+      const studentId = '<?= esc($student['student_id']) ?>';
+      const exportUrl = '<?= base_url('students/export') ?>/' + encodeURIComponent(studentId);
+      
+      console.log('PDF Export URL:', exportUrl);
+      
+      // Use window.location.href for direct download
+      window.location.href = exportUrl;
     }
 
     function viewTransaction(transactionId) {

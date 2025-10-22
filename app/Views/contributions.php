@@ -980,6 +980,8 @@
     }
     
     function exportContributions() {
+      console.log('Export contributions functionality');
+      // TODO: Implement export functionality
       alert('Export functionality coming soon!');
     }
     
@@ -989,10 +991,6 @@
     
     function refreshContributions() {
       window.location.reload();
-    }
-    
-    function exportContributions() {
-      alert('Export functionality coming soon!');
     }
   </script>
   
