@@ -127,24 +127,7 @@
         </ul>
       </nav>
       
-      <div class="sidebar-footer">
-        <div class="user-profile">
-          <div class="profile-avatar">
-            <?php if (!empty($profilePictureUrl)): ?>
-              <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-            <?php else: ?>
-              <i class="fas fa-user"></i>
-            <?php endif; ?>
-          </div>
-          <div class="profile-info">
-            <h4><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin User') ?></h4>
-            <p>Administrator</p>
-          </div>
-          <button class="profile-menu-btn" id="profileMenuBtn">
-            <i class="fas fa-ellipsis-h"></i>
-          </button>
-        </div>
-      </div>
+      
     </aside>
 
     <!-- Main Content -->

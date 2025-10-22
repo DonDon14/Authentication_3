@@ -259,9 +259,21 @@ $usersModel = new UsersModel();
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?= base_url('students') ?>" class="nav-link">
               <i class="fas fa-users"></i>
               <span>Students</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('announcements') ?>" class="nav-link">
+              <i class="fas fa-bullhorn"></i>
+              <span>Announcements</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= base_url('profile') ?>" class="nav-link">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
             </a>
           </li>
           <li class="nav-item">
@@ -273,39 +285,7 @@ $usersModel = new UsersModel();
         </ul>
       </nav>
       
-      <div class="sidebar-footer">
-        <div class="user-profile">
-            <?php 
-            $user = $usersModel->find(session()->get('user_id'));
-            $profilePicture = !empty($user['profile_picture']) ? 
-                base_url('payments/serveUpload/' . basename($user['profile_picture'])) : 
-                session()->get('profile_picture');
-            
-            // Debug output
-            if (!empty($profilePicture)) {
-                echo "<!-- Profile URL: " . htmlspecialchars($profilePicture) . " -->";
-                echo "<!-- Profile DB Path: " . htmlspecialchars($user['profile_picture']) . " -->";
-                echo "<!-- User profile_picture field: " . htmlspecialchars($user['profile_picture'] ?? 'not set') . " -->";
-            } else {
-                echo "<!-- Profile picture not found -->";
-            }
-          ?>
-          <?php if (!empty($profilePicture)): ?>
-            <img src="<?= esc($profilePicture) ?>" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-          <?php else: ?>
-            <div class="profile-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-          <?php endif; ?>
-          <div class="profile-info">
-            <h4><?= $name ?? session()->get('username') ?? 'Admin User' ?></h4>
-            <p><?= $email ?? 'Administrator' ?></p>
-          </div>
-          <button class="profile-menu-btn" id="profileMenuBtn">
-            <i class="fas fa-ellipsis-h"></i>
-          </button>
-        </div>
-      </div>
+      <?= $this->include('partials/help_section') ?>
     </aside>
 
     <!-- Main Content -->

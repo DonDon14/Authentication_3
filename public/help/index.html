@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - ClearPay</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1a1c23;
+            --bg-secondary: #24262d;
+            --bg-tertiary: #2a2d35;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition-fast: 0.2s ease;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .help-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .help-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .help-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .topic-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .help-card {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .help-card:hover {
+            background: var(--bg-tertiary);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .help-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 1.25rem;
+        }
+
+        .help-content h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .help-content p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .quick-links {
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            margin-top: 3rem;
+        }
+
+        .quick-links h2 {
+            margin: 0 0 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .quick-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-link i {
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .help-container {
+                padding: 1rem;
+            }
+
+            .topics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="help-container">
+        <header class="help-header">
+            <i class="fas fa-life-ring"></i>
+            <h1>How can we help you?</h1>
+        </header>
+
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Search help topics...">
+        </div>
+
+        <section class="topic-section">
+            <h2>Common Topics</h2>
+            <div class="topics-grid">
+                <a href="/help/account" class="help-card">
+                    <div class="help-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="help-content">
+                        <h3>Account Management</h3>
+                        <p>Profile settings, security, and account access</p>
+                    </div>
+                </a>
+
+                <a href="/help/payments" class="help-card">
+                    <div class="help-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="help-content">
+                        <h3>Payments & Transactions</h3>
+                        <p>Payment methods, transactions, and receipts</p>
+                    </div>
+                </a>
+
+                <a href="/help/contributions" class="help-card">
+                    <div class="help-icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div class="help-content">
+                        <h3>Contributions</h3>
+                        <p>Managing and tracking student contributions</p>
+                    </div>
+                </a>
+
+                <a href="/help/reports" class="help-card">
+                    <div class="help-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="help-content">
+                        <h3>Reports & Analytics</h3>
+                        <p>Financial reports and data analysis</p>
+                    </div>
+                </a>
+
+                <a href="/help/students" class="help-card">
+                    <div class="help-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="help-content">
+                        <h3>Student Management</h3>
+                        <p>Managing student records and information</p>
+                    </div>
+                </a>
+
+                <a href="/help/troubleshooting" class="help-card">
+                    <div class="help-icon">
+                        <i class="fas fa-wrench"></i>
+                    </div>
+                    <div class="help-content">
+                        <h3>Troubleshooting</h3>
+                        <p>Common issues and their solutions</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section class="quick-links">
+            <h2>Quick Links</h2>
+            <div class="links-grid">
+                <a href="/help/getting-started" class="quick-link">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Getting Started Guide</span>
+                </a>
+                <a href="/help/faq" class="quick-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span>FAQ</span>
+                </a>
+                <a href="mailto:support@clearpay.com" class="quick-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Support</span>
+                </a>
+                <a href="/help/documentation" class="quick-link">
+                    <i class="fas fa-book"></i>
+                    <span>Documentation</span>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.querySelector('.search-input');
+        const helpCards = document.querySelectorAll('.help-card');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+
+            helpCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('p').textContent.toLowerCase();
+
+                if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
