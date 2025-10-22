@@ -110,22 +110,7 @@
       </nav>
       
       <div class="sidebar-footer">
-        <div class="user-profile">
-          <div class="profile-avatar">
-            <?php if (!empty($profilePictureUrl)): ?>
-              <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-            <?php else: ?>
-              <i class="fas fa-user"></i>
-            <?php endif; ?>
-          </div>
-          <div class="profile-info">
-            <h4><?= isset($name) ? esc(explode(' ', $name)[0]) : (esc(session()->get('name') ? explode(' ', session()->get('name'))[0] : 'Admin')) ?></h4>
-            <p>Administrator</p>
-          </div>
-          <button class="profile-menu-btn" onclick="toggleProfileMenu()">
-            <i class="fas fa-ellipsis-vertical"></i>
-          </button>
-        </div>
+        <?= $this->include('partials/help_section') ?>
       </div>
     </aside>
 

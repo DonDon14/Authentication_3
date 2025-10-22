@@ -285,7 +285,9 @@ $usersModel = new UsersModel();
         </ul>
       </nav>
       
-      <?= $this->include('partials/help_section') ?>
+      <div class="sidebar-footer">
+        <?= $this->include('partials/help_section') ?>
+      </div>
     </aside>
 
     <!-- Main Content -->

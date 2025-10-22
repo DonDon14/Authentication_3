@@ -126,8 +126,9 @@
           </li>
         </ul>
       </nav>
-      
-      
+      <div class="sidebar-footer">
+        <?= $this->include('partials/help_section') ?>
+      </div>
     </aside>
 
     <!-- Main Content -->

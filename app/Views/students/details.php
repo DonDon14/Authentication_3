@@ -96,6 +96,9 @@
       </div>
     </aside>
 
+    <!-- Help Section -->
+    <?= view('help_section') ?>
+
     <!-- Main Content Area -->
     <main class="main-content">
       
