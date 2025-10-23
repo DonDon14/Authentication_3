@@ -1,12 +1,47 @@
+/* Header Container */
+.header {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Header Left Section */
+.header-left {
+  position: absolute;
+  z-index: 1;
+}
+
+.header-left h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Header Right Section */
 .dashboard-header {
   width: 100%;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 16px 32px;
+  padding: 0;
   background-color: transparent;
   box-sizing: border-box;
   position: relative;
+  min-height: 48px;
+  z-index: 2;
 }
 
 /* Right section (flattened look) */
@@ -15,9 +50,10 @@
   align-items: center;
   gap: 12px;
   background-color: #fff;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 50px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-left: auto;
 }
 
 /* Notification – flat, no circle background */
