@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Details - <?= esc($student['student_name']) ?> - ClearPay Admin</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/student-details.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -105,25 +106,11 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <div class="breadcrumb">
-            <a href="<?= base_url('students') ?>" class="breadcrumb-link">Students</a>
-            <i class="fas fa-chevron-right"></i>
-            <span class="breadcrumb-current"><?= esc($student['student_name']) ?></span>
-          </div>
-          <h1 class="page-title">Student Details</h1>
-          <p class="page-subtitle">Payment history and transaction records</p>
+          <h1 class="page-title">Students Management</h1>
+          <p class="page-subtitle">Manage student payment records and information</p>
         </div>
         
-        <div class="header-right">
-          <a href="<?= base_url('students') ?>" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i>
-            Back to Students
-          </a>
-          <button class="btn btn-primary" onclick="exportStudentData()">
-            <i class="fas fa-file-pdf"></i>
-            Export PDF Report
-          </button>
-        </div>
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -1564,5 +1551,6 @@
   
   <!-- Dashboard JavaScript -->
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
 </body>
 </html>

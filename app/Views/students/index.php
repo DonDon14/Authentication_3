@@ -5,23 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Students Management - ClearPay Admin</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/students.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style>
-    /* Profile avatar styles for students */
-    .profile-avatar {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .profile-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-  </style>
+
 </head>
 <body>
   <!-- Main App Container -->
@@ -124,17 +111,7 @@
           <p class="page-subtitle">Manage student payment records and information</p>
         </div>
         
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search students..." class="search-input" id="studentSearch">
-          </div>
-          
-          <button class="btn btn-primary" onclick="refreshStudents()">
-            <i class="fas fa-sync-alt"></i>
-            Refresh
-          </button>
-        </div>
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -472,26 +449,13 @@
         }
       });
     });
-
-    function toggleProfileMenu() {
-      console.log('Profile menu toggled');
-    }
     
-    // Listen for profile picture updates from other pages
-    window.addEventListener('storage', function(e) {
-      if (e.key === 'profilePictureUpdated') {
-        // Update profile picture in sidebar
-        const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
-        if (sidebarAvatar && e.newValue) {
-          sidebarAvatar.innerHTML = `<img src="${e.newValue}" alt="Profile Picture">`;
-        }
-      }
-    });
   </script>
   
   <!-- Dashboard JavaScript -->
   <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
 </body>
 </html>

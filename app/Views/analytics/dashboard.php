@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Analytics Dashboard - ClearPay Admin</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/header-components.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -224,53 +225,10 @@
       <header class="header">
         <div class="header-left">
           <h1 class="page-title">Analytics Dashboard</h1>
-          <p class="page-subtitle">Comprehensive insights into your payment system performance</p>
+          <p class="page-subtitle">Overview of key metrics and performance</p>
         </div>
-        
-        <div class="header-right">
-          <!-- Search Bar -->
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search analytics..." class="search-input">
-          </div>
-          
-          <!-- Date Filter -->
-          <div class="filter-container">
-            <select id="dateRange" onchange="updateAnalytics()" class="filter-select">
-              <option value="30">Last 30 Days</option>
-              <option value="7">Last 7 Days</option>
-              <option value="90">Last 3 Months</option>
-              <option value="365">Last Year</option>
-              <option value="all">All Time</option>
-            </select>
-          </div>
-          
-          <!-- Export Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" onclick="toggleExportMenu()">
-              <i class="fas fa-download"></i>
-              <span>Export</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            
-            <div class="user-dropdown" id="exportMenu">
-              <div class="dropdown-menu">
-                <a href="<?= base_url('analytics/export/pdf') ?>" class="dropdown-item">
-                  <i class="fas fa-file-pdf"></i>
-                  <span>Export PDF</span>
-                </a>
-                <a href="<?= base_url('analytics/export/csv') ?>" class="dropdown-item">
-                  <i class="fas fa-file-csv"></i>
-                  <span>Export CSV</span>
-                </a>
-                <a href="<?= base_url('analytics/export/excel') ?>" class="dropdown-item">
-                  <i class="fas fa-file-excel"></i>
-                  <span>Export Excel</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -716,5 +674,6 @@
   <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
 </body>
 </html>

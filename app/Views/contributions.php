@@ -108,8 +108,8 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1 class="page-title">Record Payment</h1>
-          <p class="page-subtitle">Record a payment for a contribution</p>
+          <h1 class="page-title">Record Contribution</h1>
+          <p class="page-subtitle">Record a contribution for an activity, project, or event</p>
         </div>
         
         <?= $this->include('partials/header_components') ?>
