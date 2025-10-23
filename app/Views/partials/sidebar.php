@@ -21,63 +21,67 @@
   
   <nav class="sidebar-nav">
     <ul class="nav-list">
-      <li class="nav-item <?= current_url() == base_url('dashboard') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/dashboard') ? 'active' : '' ?>">
         <a href="<?= base_url('dashboard') ?>" class="nav-link">
           <i class="fas fa-home"></i>
           <span>Dashboard</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('payments') ? 'active' : '' ?>">
+      <?php 
+      $currentPath = current_url(true)->getPath();
+      $isContributionView = str_contains($currentPath, '/payments/viewContribution/');
+      ?>
+      <li class="nav-item <?= (str_contains($currentPath, '/payments') && !str_contains($currentPath, '/partial') && !str_contains($currentPath, '/history') && !$isContributionView) ? 'active' : '' ?>">
         <a href="<?= base_url('payments') ?>" class="nav-link">
           <i class="fas fa-credit-card"></i>
           <span>Payments</span>
           <span class="nav-badge">New</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('contributions') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains($currentPath, '/contributions') || $isContributionView ? 'active' : '' ?>">
         <a href="<?= base_url('contributions') ?>" class="nav-link">
           <i class="fas fa-hand-holding-usd"></i>
           <span>Contributions</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('payments/partial') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/payments/partial') ? 'active' : '' ?>">
         <a href="<?= base_url('payments/partial') ?>" class="nav-link">
           <i class="fas fa-clock"></i>
           <span>Partial Payments</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('payments/history') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/payments/history') ? 'active' : '' ?>">
         <a href="<?= base_url('payments/history') ?>" class="nav-link">
           <i class="fas fa-history"></i>
           <span>Payment History</span>
         </a>
       </li>
       <li class="nav-divider"></li>
-      <li class="nav-item <?= current_url() == base_url('analytics') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/analytics') ? 'active' : '' ?>">
         <a href="<?= base_url('analytics') ?>" class="nav-link">
           <i class="fas fa-chart-bar"></i>
           <span>Analytics</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('students') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/students') ? 'active' : '' ?>">
         <a href="<?= base_url('students') ?>" class="nav-link">
           <i class="fas fa-users"></i>
           <span>Students</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('announcements') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/announcements') ? 'active' : '' ?>">
         <a href="<?= base_url('announcements') ?>" class="nav-link">
           <i class="fas fa-bullhorn"></i>
           <span>Announcements</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('profile') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/profile') ? 'active' : '' ?>">
         <a href="<?= base_url('profile') ?>" class="nav-link">
           <i class="fas fa-user"></i>
           <span>Profile</span>
         </a>
       </li>
-      <li class="nav-item <?= current_url() == base_url('settings') ? 'active' : '' ?>">
+      <li class="nav-item <?= str_contains(current_url(true)->getPath(), '/settings') ? 'active' : '' ?>">
         <a href="<?= base_url('settings') ?>" class="nav-link">
           <i class="fas fa-cog"></i>
           <span>Settings</span>

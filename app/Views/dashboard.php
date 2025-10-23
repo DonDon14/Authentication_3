@@ -10,6 +10,7 @@
   
   <link rel="stylesheet" href="<?= base_url('css/profile-avatars.css') ?>"
 </head>
+
 <body>
   <!-- Main App Container -->
   <div class="app-container">

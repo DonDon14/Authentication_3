@@ -11,45 +11,16 @@
   
   <style>
     /* Profile avatar styles for analytics */
-    .sidebar .profile-avatar {
-      width: 38px !important;
-      height: 38px !important;
+    .profile-avatar {
       position: relative;
       overflow: hidden;
-      flex-shrink: 0;
     }
     
-    .sidebar .profile-avatar img {
+    .profile-avatar img {
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important;
       border-radius: 50%;
-    }
-
-    .sidebar .user-profile {
-      padding: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .sidebar .profile-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .sidebar .profile-info h4 {
-      font-size: 0.9rem;
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .sidebar .profile-info p {
-      font-size: 0.75rem;
-      margin: 0;
-      opacity: 0.7;
     }
   </style>
   
@@ -160,95 +131,7 @@
   <div class="app-container">
     
     <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="app-logo">
-          <div class="logo-icon">
-            <i class="fas fa-credit-card"></i>
-          </div>
-          <a href="<?= base_url('dashboard') ?>" class="app-name-link">
-            <h2 class="app-name">ClearPay</h2>
-          </a>
-        </div>
-        <button class="sidebar-toggle" id="sidebarToggle">
-          <i class="fas fa-bars"></i>
-        </button>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <ul class="nav-list">
-          <li class="nav-item">
-            <a href="<?= base_url('dashboard') ?>" class="nav-link">
-              <i class="fas fa-home"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('payments') ?>" class="nav-link">
-              <i class="fas fa-credit-card"></i>
-              <span>Payments</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('contributions') ?>" class="nav-link">
-              <i class="fas fa-hand-holding-usd"></i>
-              <span>Contributions</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('payments/partial') ?>" class="nav-link">
-              <i class="fas fa-clock"></i>
-              <span>Partial Payments</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('payments/history') ?>" class="nav-link">
-              <i class="fas fa-history"></i>
-              <span>Payment History</span>
-            </a>
-          </li>
-          <li class="nav-divider"></li>
-          <li class="nav-item active">
-            <a href="<?= base_url('analytics') ?>" class="nav-link">
-              <i class="fas fa-chart-bar"></i>
-              <span>Analytics</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('students') ?>" class="nav-link">
-              <i class="fas fa-users"></i>
-              <span>Students</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('announcements') ?>" class="nav-link">
-              <i class="fas fa-bullhorn"></i>
-              <span>Announcements</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('profile') ?>" class="nav-link">
-              <i class="fas fa-user"></i>
-              <span>Profile</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('settings') ?>" class="nav-link">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      
-      <div class="sidebar-footer">
-        <?= $this->include('partials/help_section', [
-          'profilePictureUrl' => $profilePictureUrl ?? null,
-          'name' => $name ?? (session()->get('name') ?? 'Admin'),
-          'email' => $email ?? (session()->get('email') ?? null)
-        ]) ?>
-      </div>
-    </aside>
+    <?= $this->include('partials/sidebar') ?>
 
     <!-- Main Content Area -->
     <main class="main-content">
@@ -260,11 +143,7 @@
           <p class="page-subtitle">Comprehensive insights into your payment system performance</p>
         </div>
         
-        <?= $this->include('partials/header_components', [
-          'profilePictureUrl' => $profilePictureUrl ?? null,
-          'name' => $name ?? (session()->get('name') ?? 'Admin'),
-          'email' => $email ?? (session()->get('email') ?? null)
-        ]) ?>
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
