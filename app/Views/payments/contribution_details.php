@@ -13,57 +13,8 @@ $usersModel = new UsersModel();
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Additional styles for contribution details -->
-  <style>
-    /* Profile avatar styles */
-    .profile-avatar {
-      position: relative;
-      overflow: hidden;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    
-    .profile-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-    
-    /* Header user avatar styles */
-    .user-avatar {
-      position: relative;
-      overflow: hidden;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
 
-    .contribution-info {
-      margin-bottom: 1.5rem;
-    }
-    
-    .contribution-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1rem;
-    }
-    
-    .contribution-header h4 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    
+  <style>
     .contribution-description {
       margin: 0.5rem 0 1rem 0;
       color: var(--text-secondary);
@@ -295,49 +246,11 @@ $usersModel = new UsersModel();
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <button class="back-btn" onclick="window.location.href='<?= base_url('contributions') ?>'" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.5rem; margin-right: 1rem; color: var(--text-primary); cursor: pointer; transition: var(--transition-fast);">
-            <i class="fas fa-arrow-left"></i>
-          </button>
-          <div>
-            <h1><?= esc($contribution['title']) ?></h1>
-            <p class="page-subtitle">Payment details and student tracking</p>
-          </div>
+          <h1 class="page-title"><?= esc($contribution['title']) ?></h1>
+          <p class="page-subtitle">Payment details and student tracking</p>
         </div>
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="studentSearchInput" class="search-input" placeholder="Search students...">
-          </div>
-          
-          <!-- Notification Center -->
-          <div class="notification-center">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" id="userMenuBtn">
-              <?php 
-                $user = $usersModel->find(session()->get('user_id'));
-                $profilePicture = !empty($user['profile_picture']) ? 
-                    base_url('payments/serveUpload/' . $user['profile_picture']) : 
-                    session()->get('profile_picture');
-              ?>
-              <?php if (!empty($user['profile_picture'])): ?>
-                <img src="<?= base_url('payments/serveUpload/' . basename($user['profile_picture'])) ?>" alt="Profile Picture" class="user-avatar">
-              <?php else: ?>
-                <div class="user-avatar">
-                  <i class="fas fa-user"></i>
-                </div>
-              <?php endif; ?>
-              <span class="user-name"><?= session()->get('name') ?? session()->get('username') ?? 'Admin' ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+        
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -590,11 +503,6 @@ $usersModel = new UsersModel();
       </div>
     </div>
   </div>
-
-
-
-  <!-- Include Dashboard JavaScript -->
-  <script src="<?= base_url('js/dashboard.js') ?>"></script>
   
   <script>
     // Global functions that need to be accessible from onclick attributes
@@ -740,11 +648,6 @@ $usersModel = new UsersModel();
       `;
     }
 
-    function testFunction() {
-      alert('Test function works! JavaScript is working.');
-      console.log('Test function called');
-    }
-
     function exportStudentData() {
       alert('Export functionality will be implemented soon!');
     }
@@ -813,6 +716,11 @@ $usersModel = new UsersModel();
       }
     });
   </script>
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dropdown.js') ?>"></script>
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
 
 </body>
 </html>

@@ -1,10 +1,5 @@
 <!-- Header Right Components -->
 <div class="header-right">
-  <!-- Search Bar -->
-  <div class="search-container">
-    <i class="fas fa-search"></i>
-    <input type="text" class="search-input" placeholder="Search students, payments...">
-  </div>
   
   <!-- Notification Center -->
   <div class="notification-center">
