@@ -124,17 +124,7 @@
           <p class="page-subtitle">Manage student payment records and information</p>
         </div>
         
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search students..." class="search-input" id="studentSearch">
-          </div>
-          
-          <button class="btn btn-primary" onclick="refreshStudents()">
-            <i class="fas fa-sync-alt"></i>
-            Refresh
-          </button>
-        </div>
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -489,9 +479,10 @@
     });
   </script>
   
-  <!-- Dashboard JavaScript -->
   <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dropdown.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
 </body>
 </html>

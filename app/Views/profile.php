@@ -2182,7 +2182,7 @@
   </script>
   
   <!-- Profile JavaScript -->
-  <script src="<?= base_url('js/profile.js') ?>"></script>
+
   
   <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>

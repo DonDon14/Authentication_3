@@ -18,13 +18,13 @@
   <div class="user-menu">
     <button class="user-menu-btn" id="userMenuBtn" title="User Menu">
       <div class="user-avatar">
-        <?php if (!empty($profilePictureUrl)): ?>
-          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+        <?php if (isset($profilePictureUrl) && !empty($profilePictureUrl)): ?>
+          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
         <?php else: ?>
           <i class="fas fa-user"></i>
         <?php endif; ?>
       </div>
-      <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin') ?></span>
+      <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('name') ?? session()->get('username') ?? 'Admin') ?></span>
       <i class="fas fa-chevron-down"></i>
     </button>
   </div>
@@ -78,14 +78,14 @@
   <div class="dropdown-header">
     <div class="user-info">
       <div class="user-avatar">
-        <?php if (!empty($profilePictureUrl)): ?>
-          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
+        <?php if (isset($profilePictureUrl) && !empty($profilePictureUrl)): ?>
+          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
         <?php else: ?>
           <i class="fas fa-user"></i>
         <?php endif; ?>
       </div>
       <div>
-        <h4><?= isset($name) ? esc($name) : (session()->get('username') ?? 'Admin User') ?></h4>
+        <h4><?= isset($name) ? esc($name) : (session()->get('name') ?? session()->get('username') ?? 'Admin User') ?></h4>
         <p>System Administrator</p>
       </div>
     </div>
