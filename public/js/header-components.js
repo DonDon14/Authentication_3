@@ -1,15 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initializing dropdown functionality');
+    console.log('Initializing dropdowns functionality');
     
-    // Get elements
+    // Profile dropdown elements
     const profileBtn = document.querySelector('#profileBtn');
     const userDropdown = document.querySelector('#userDropdown');
 
-    if (!profileBtn) console.error('Profile button not found');
-    if (!userDropdown) console.error('User dropdown not found');
+    // Notification elements
+    const notificationBtn = document.querySelector('#notificationBtn');
+    const notificationDropdown = document.querySelector('#notificationDropdown');
+    const markAllReadBtn = document.querySelector('#markAllRead');
+    const notificationCount = document.querySelector('.notification-count');
 
+    // Initialize Profile Dropdown
     if (profileBtn && userDropdown) {
-        console.log('Found all required elements');
+        console.log('Profile dropdown elements found');
 
         // Ensure dropdown is hidden initially
         userDropdown.style.display = 'none';
@@ -18,27 +22,110 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             event.stopPropagation();
             
-            // Toggle visibility
+            // Close notification dropdown if open
+            if (notificationDropdown) {
+                notificationDropdown.style.display = 'none';
+            }
+            
+            // Toggle profile dropdown
             const currentDisplay = window.getComputedStyle(userDropdown).display;
             if (currentDisplay === 'none') {
                 userDropdown.style.display = 'block';
-                console.log('Opening dropdown - current display:', userDropdown.style.display);
+                console.log('Opening profile dropdown');
             } else {
                 userDropdown.style.display = 'none';
-                console.log('Closing dropdown - current display:', userDropdown.style.display);
+                console.log('Closing profile dropdown');
             }
         });
-
-        // Handle clicking outside
-        document.addEventListener('click', function(event) {
-            const isClickInside = profileBtn.contains(event.target) || userDropdown.contains(event.target);
-            
-            if (!isClickInside && userDropdown.style.display === 'block') {
-                userDropdown.style.display = 'none';
-                console.log('Clicked outside, closing dropdown');
-            }
-        });
-
-        console.log('Event listeners attached');
+    } else {
+        console.error('Profile dropdown elements not found');
     }
+
+    // Initialize Notification Dropdown
+    if (notificationBtn && notificationDropdown) {
+        console.log('Notification elements found');
+
+        // Ensure dropdown is hidden initially
+        notificationDropdown.style.display = 'none';
+
+        notificationBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Close profile dropdown if open
+            if (userDropdown) {
+                userDropdown.style.display = 'none';
+            }
+            
+            // Toggle notification dropdown
+            const currentDisplay = window.getComputedStyle(notificationDropdown).display;
+            if (currentDisplay === 'none') {
+                notificationDropdown.style.display = 'block';
+                console.log('Opening notification dropdown');
+            } else {
+                notificationDropdown.style.display = 'none';
+                console.log('Closing notification dropdown');
+            }
+        });
+
+        // Handle mark as read for individual notifications
+        document.querySelectorAll('.mark-read').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const notificationItem = this.closest('.notification-item');
+                if (notificationItem) {
+                    notificationItem.classList.remove('unread');
+                    this.style.display = 'none';
+                    
+                    // Update notification count
+                    const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+                    if (notificationCount) {
+                        notificationCount.textContent = unreadCount;
+                        if (unreadCount === 0) {
+                            notificationCount.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        });
+
+        // Handle mark all as read
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                    const markReadBtn = item.querySelector('.mark-read');
+                    if (markReadBtn) {
+                        markReadBtn.style.display = 'none';
+                    }
+                });
+                
+                if (notificationCount) {
+                    notificationCount.style.display = 'none';
+                }
+            });
+        }
+    } else {
+        console.error('Notification elements not found');
+    }
+
+    // Handle clicking outside of dropdowns
+    document.addEventListener('click', function(event) {
+        // Close profile dropdown
+        if (userDropdown && !profileBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+            userDropdown.style.display = 'none';
+        }
+        
+        // Close notification dropdown
+        if (notificationDropdown && !notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+            notificationDropdown.style.display = 'none';
+        }
+    });
+
+    console.log('All event listeners attached');
 });
