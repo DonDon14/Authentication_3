@@ -68,7 +68,7 @@
   align-items: center;
 }
 
-.notification .bell {
+.notification .fa-bell {
   font-size: 18px;
   color: #fbbf24; /* soft gold bell */
 }

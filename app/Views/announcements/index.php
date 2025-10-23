@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Announcements Management - ClearPay Admin</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/header-components.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -437,61 +438,7 @@
           <p class="page-subtitle">Create and manage system announcements for students and staff</p>
         </div>
         
-        <div class="header-right">
-          <!-- Search Bar -->
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search announcements..." class="search-input" id="headerSearch">
-          </div>
-          
-          <!-- Notifications -->
-          <div class="notification-center">
-            <button class="notification-btn" onclick="toggleNotifications()">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" onclick="toggleUserMenu()">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            
-            <!-- User Dropdown -->
-            <div class="user-dropdown" id="userDropdown">
-              <div class="dropdown-header">
-                <div class="user-info">
-                  <h4><?= esc($name ?? 'Admin User') ?></h4>
-                  <p><?= esc($email ?? 'admin@clearpay.com') ?></p>
-                </div>
-              </div>
-              <div class="dropdown-menu">
-                <a href="<?= base_url('profile') ?>" class="dropdown-item">
-                  <i class="fas fa-user"></i>
-                  <span>Profile</span>
-                </a>
-                <a href="<?= base_url('settings') ?>" class="dropdown-item">
-                  <i class="fas fa-cog"></i>
-                  <span>Settings</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="<?= base_url('logout') ?>" class="dropdown-item logout">
-                  <i class="fas fa-sign-out-alt"></i>
-                  <span>Sign Out</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Announcements Content -->
@@ -1039,71 +986,12 @@
     });
   </script>
 
-  <!-- Notification styles -->
-  <style>
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      padding: 1rem;
-      min-width: 300px;
-      z-index: 9999;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      opacity: 0;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .notification.show {
-      transform: translateX(0);
-      opacity: 1;
-    }
-
-    .notification-success {
-      border-left: 4px solid var(--success-color);
-      color: var(--success-color);
-    }
-
-    .notification-error {
-      border-left: 4px solid var(--error-color);
-      color: var(--error-color);
-    }
-
-    .notification-info {
-      border-left: 4px solid var(--info-color);
-      color: var(--info-color);
-    }
-
-    /* Profile Picture Styling */
-    .user-avatar, .profile-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--sidebar-color);
-      border: 2px solid var(--text-color);
-    }
-
-    .user-avatar img, .profile-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-  </style>
 
   <!-- Dashboard JavaScript -->
   <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
 
   <!-- Profile Picture Update Listener -->
   <script>

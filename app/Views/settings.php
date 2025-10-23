@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>System Settings - ClearPay Admin</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/header-components.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -529,101 +530,10 @@
       <header class="header">
         <div class="header-left">
           <h1 class="page-title">System Settings</h1>
-          <p class="page-subtitle">Configure system preferences and administrative settings</p>
+          <p class="page-subtitle">Manage system configurations and preferences</p>
         </div>
         
-        <div class="header-right">
-          <!-- Search Bar -->
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search settings..." class="search-input">
-          </div>
-          
-          <!-- Notifications -->
-          <div class="notification-center">
-            <button class="notification-btn" onclick="toggleNotifications()">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">2</span>
-            </button>
-            
-            <!-- Notification Dropdown -->
-            <div class="notification-dropdown" id="notificationDropdown">
-              <div class="notification-header">
-                <h3>Notifications</h3>
-                <button class="mark-read-btn">Mark all read</button>
-              </div>
-              <div class="notification-list">
-                <div class="notification-item unread">
-                  <div class="notification-icon warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                  </div>
-                  <div class="notification-content">
-                    <h4>System Update Available</h4>
-                    <p>A new version is available for download</p>
-                    <span class="notification-time">1 hour ago</span>
-                  </div>
-                </div>
-                <div class="notification-item">
-                  <div class="notification-icon info">
-                    <i class="fas fa-server"></i>
-                  </div>
-                  <div class="notification-content">
-                    <h4>Database Backup Complete</h4>
-                    <p>Daily backup completed successfully</p>
-                    <span class="notification-time">3 hours ago</span>
-                  </div>
-                </div>
-              </div>
-              <div class="notification-footer">
-                <a href="#" class="view-all-btn">View all notifications</a>
-              </div>
-            </div>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" onclick="toggleUserMenu()">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            
-            <!-- User Dropdown -->
-            <div class="user-dropdown" id="userDropdown">
-              <div class="dropdown-header">
-                <div class="user-info">
-                  <h4><?= esc($name ?? 'Admin User') ?></h4>
-                  <p><?= esc($email ?? 'admin@clearpay.com') ?></p>
-                </div>
-              </div>
-              <div class="dropdown-menu">
-                <a href="<?= base_url('profile') ?>" class="dropdown-item">
-                  <i class="fas fa-user"></i>
-                  <span>Profile</span>
-                </a>
-                <a href="<?= base_url('settings') ?>" class="dropdown-item">
-                  <i class="fas fa-cog"></i>
-                  <span>Settings</span>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-question-circle"></i>
-                  <span>Help</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="<?= base_url('logout') ?>" class="dropdown-item logout">
-                  <i class="fas fa-sign-out-alt"></i>
-                  <span>Sign Out</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Settings Content -->
@@ -1324,5 +1234,6 @@
   <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
 </body>
 </html>
