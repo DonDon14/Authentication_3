@@ -3,6 +3,7 @@
 
 
 <div class="dashboard-header">
+
   <div class="dashboard-right">
     <!-- Notification Bell-->
     <div class="notification">
