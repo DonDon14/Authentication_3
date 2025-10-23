@@ -3,7 +3,7 @@
   
   <!-- Notification Center -->
   <div class="notification-center">
-    <button class="notification-btn" id="notificationBtn" title="Notifications">
+    <button class="notification-btn" id="notificationBtn" title="Notifications" onclick="toggleNotifications()">
       <i class="fas fa-bell"></i>
       <span class="notification-count">3</span>
     </button>
@@ -11,7 +11,7 @@
   
   <!-- User Menu -->
   <div class="user-menu">
-    <button class="user-menu-btn" id="userMenuBtn" title="User Menu">
+    <button class="user-menu-btn" id="userMenuBtn" title="User Menu" onclick="toggleUserMenu()">
       <div class="user-avatar">
         <?php 
         $profilePic = session()->get('profile_picture');
@@ -34,7 +34,7 @@
     <button class="mark-read-btn">Mark all read</button>
   </div>
   <div class="notification-list">
-    <div class="notification-item unread">
+    <a href="<?= base_url('payments/verified') ?>" class="notification-item unread">
       <div class="notification-icon success">
         <i class="fas fa-check-circle"></i>
       </div>
@@ -43,8 +43,8 @@
         <p>Successfully verified payment</p>
         <span class="notification-time">2 minutes ago</span>
       </div>
-    </div>
-    <div class="notification-item">
+    </a>
+    <a href="<?= base_url('announcements/view/system-update') ?>" class="notification-item">
       <div class="notification-icon primary">
         <i class="fas fa-info-circle"></i>
       </div>
@@ -53,8 +53,8 @@
         <p>QR scanner functionality improved</p>
         <span class="notification-time">1 hour ago</span>
       </div>
-    </div>
-    <div class="notification-item">
+    </a>
+    <a href="<?= base_url('announcements/view/new-student') ?>" class="notification-item">
       <div class="notification-icon info">
         <i class="fas fa-user-plus"></i>
       </div>
@@ -63,7 +63,7 @@
         <p>Student profile created successfully</p>
         <span class="notification-time">3 hours ago</span>
       </div>
-    </div>
+    </a>
   </div>
   <div class="notification-footer">
     <a href="#" class="view-all-notifications">View all notifications</a>

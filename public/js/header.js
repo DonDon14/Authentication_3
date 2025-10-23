@@ -2,6 +2,26 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize header functionality
     initializeHeader();
+    
+    // Add click handlers for buttons
+    const notificationBtn = document.getElementById('notificationBtn');
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleNotifications();
+        });
+    }
+    
+    if (userMenuBtn) {
+        userMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleUserMenu();
+        });
+    }
 });
 
 function initializeHeader() {
@@ -13,11 +33,11 @@ function initializeHeader() {
         const notificationDropdown = document.getElementById('notificationDropdown');
         const userDropdown = document.getElementById('userDropdown');
         
-        if (!event.target.closest('.notification-center')) {
+        if (!event.target.closest('.notification-center') && !event.target.closest('#notificationDropdown')) {
             notificationDropdown?.classList.remove('active');
         }
         
-        if (!event.target.closest('.user-menu')) {
+        if (!event.target.closest('.user-menu') && !event.target.closest('#userDropdown')) {
             userDropdown?.classList.remove('active');
         }
     });
@@ -64,8 +84,33 @@ function initializeHeader() {
         });
     }
     
-    function refreshNotifications() {
-        // Add AJAX call to refresh notifications data
-        console.log('Refreshing notifications...');
-        // Implement actual refresh logic here
+    async function refreshNotifications() {
+        try {
+            const response = await fetch('/notifications/get');
+            if (!response.ok) throw new Error('Failed to fetch notifications');
+            
+            const data = await response.json();
+            const container = document.querySelector('.notification-list');
+            const countElement = document.querySelector('.notification-count');
+            
+            if (container && data.notifications) {
+                // Update notifications list
+                container.innerHTML = data.notifications.map(notification => `
+                    <a href="${notification.link || '#'}" class="notification-item ${notification.read ? '' : 'unread'}">
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${notification.time}</div>
+                        </div>
+                    </a>
+                `).join('');
+                
+                // Update unread count
+                if (countElement && data.unreadCount !== undefined) {
+                    countElement.textContent = data.unreadCount;
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing notifications:', error);
+        }
     }
