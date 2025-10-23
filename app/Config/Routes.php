@@ -56,6 +56,7 @@ $routes->get('/payments/getStudentHistory/(:num)/(:any)', 'Payments::getStudentH
 $routes->get('/payments/getPaymentDetails/(:num)', 'Payments::getPaymentDetails/$1');
 $routes->get('/payments/generateQR/(:num)/(:any)/(:num)', 'Payments::generateQR/$1/$2/$3');
 $routes->get('/payments/verifyQR/(:num)', 'Payments::verifyQR/$1');
+$routes->get('/payments/renderReceiptPartial/(:num)', 'Payments::renderReceiptPartial/$1');
 
 // Profile routes
 $routes->get('/profile', 'Auth::profile');

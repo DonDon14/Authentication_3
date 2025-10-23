@@ -251,99 +251,6 @@
     </main>
   </div>
 
-  <!-- Payment Details Modal -->
-  <div id="paymentDetailsModal" class="modal-overlay" style="display: none;">
-    <div class="modal-container" style="max-width: 700px; width: 90%;">
-      <div class="card-header">
-        <div>
-          <h3><i class="fas fa-receipt"></i> Payment Receipt</h3>
-          <p>Detailed payment information and QR code</p>
-        </div>
-        <div class="card-actions">
-          <button type="button" class="btn-icon" onclick="closePaymentModal()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      </div>
-      <div style="padding: 1.5rem;">
-        
-        <!-- Student Information Card -->
-        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
-          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-            <div class="student-avatar-large" style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary-color), var(--info-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-inverse); font-size: 1.25rem; flex-shrink: 0;">
-              <i class="fas fa-user"></i>
-            </div>
-            <div>
-              <h4 id="modalStudentName" style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;"></h4>
-              <p id="modalStudentId" style="color: var(--text-secondary); margin-bottom: 0.25rem;"></p>
-              <p id="modalPaymentDate" style="color: var(--text-tertiary); font-size: 0.9rem;"></p>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Payment Summary Grid -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
-          <div style="text-align: center; padding: 1rem; background: var(--success-light); border-radius: var(--radius-md); border: 1px solid var(--success-color);">
-            <div style="color: var(--success-color); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;" id="modalTotalPaid">₱0.00</div>
-            <div style="color: var(--success-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Amount Paid</div>
-          </div>
-          <div style="text-align: center; padding: 1rem; background: var(--warning-light); border-radius: var(--radius-md); border: 1px solid var(--warning-color);">
-            <div style="color: var(--warning-color); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;" id="modalRemainingBalance">₱0.00</div>
-            <div style="color: var(--warning-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Remaining</div>
-          </div>
-          <div style="text-align: center; padding: 1rem; background: var(--info-light); border-radius: var(--radius-md); border: 1px solid var(--info-color);">
-            <div style="color: var(--info-color); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;" id="modalPaymentStatus">-</div>
-            <div style="color: var(--info-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Status</div>
-          </div>
-        </div>
-
-        <!-- Payment Details -->
-        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
-          <h5 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1rem; font-weight: 600;">Transaction Details</h5>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-            <div>
-              <span style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Payment Type:</span>
-              <span id="modalPaymentType" style="color: var(--text-primary); font-weight: 500;">-</span>
-            </div>
-            <div>
-              <span style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Payment Method:</span>
-              <span id="modalPaymentMethod" style="color: var(--text-primary); font-weight: 500;">-</span>
-            </div>
-            <div>
-              <span style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Transaction ID:</span>
-              <span id="modalTransactionId" style="color: var(--text-primary); font-weight: 500; font-family: monospace;">-</span>
-            </div>
-            <div>
-              <span style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.25rem;">Verified On:</span>
-              <span id="modalVerifiedDate" style="color: var(--text-primary); font-weight: 500;">-</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- QR Code Section -->
-        <div style="text-align: center; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem;">
-          <h5 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1rem; font-weight: 600;">QR Receipt Code</h5>
-          <div id="modalQrCode" style="margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; min-height: 200px; background: var(--bg-primary); border-radius: var(--radius-md); border: 2px dashed var(--border-color);">
-            <div style="text-align: center; color: var(--text-tertiary);">
-              <i class="fas fa-qrcode" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-              <p style="margin: 0;">QR Code will appear here</p>
-            </div>
-          </div>
-          <div style="display: flex; gap: 1rem; justify-content: center;">
-            <button class="btn-primary" onclick="downloadQR()" style="padding: 0.75rem 1.5rem;">
-              <i class="fas fa-download"></i>
-              Download QR
-            </button>
-            <button class="btn-secondary" onclick="printReceipt()" style="padding: 0.75rem 1.5rem;">
-              <i class="fas fa-print"></i>
-              Print Receipt
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Notification Dropdown -->
   <div class="notification-dropdown" id="notificationDropdown">
     <div class="notification-header">
@@ -433,28 +340,6 @@
 
   <!-- Additional Styles -->
   <style>
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      backdrop-filter: blur(4px);
-    }
-
-    .modal-container {
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xl);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
     .searchable {
       transition: opacity var(--transition-fast);
     }
@@ -635,29 +520,19 @@
     
     // Modal functions - ensure they're globally accessible
     window.viewPaymentDetails = function(paymentData) {
-      const modal = document.getElementById('paymentDetailsModal');
-      
-      // Store payment data globally for download function
+      // Store payment data globally
       currentPaymentData = paymentData;
       
-      // Populate modal data
-      document.getElementById('modalStudentName').textContent = paymentData.student_name || '-';
-      document.getElementById('modalStudentId').textContent = 'ID: ' + (paymentData.student_id || '-');
-      document.getElementById('modalPaymentDate').textContent = paymentData.created_at ? new Date(paymentData.created_at).toLocaleString() : '-';
-      document.getElementById('modalTotalPaid').textContent = '₱' + parseFloat(paymentData.amount_paid || 0).toFixed(2);
-      document.getElementById('modalRemainingBalance').textContent = '₱' + parseFloat(paymentData.remaining_balance || 0).toFixed(2);
-      document.getElementById('modalPaymentStatus').textContent = (paymentData.payment_status || 'Unknown').toUpperCase();
-      document.getElementById('modalPaymentType').textContent = paymentData.payment_type || 'General Payment';
-      document.getElementById('modalPaymentMethod').textContent = paymentData.payment_method || 'Not specified';
-      document.getElementById('modalTransactionId').textContent = paymentData.id || 'N/A';
-      document.getElementById('modalVerifiedDate').textContent = paymentData.verified_at || 'Not verified';
+      // Initialize and show receipt using the PaymentReceipt module
+      PaymentReceipt.init({
+        payment: paymentData,
+        modalId: 'paymentDetailsModal',
+        onClose: function() {
+          // Optional: Any cleanup needed when modal closes
+        }
+      });
       
-      // Generate QR code
-      generateQRCode(paymentData);
-      
-      // Show modal
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
+      PaymentReceipt.show(paymentData.id);
     }
     
     window.closePaymentModal = function() {
@@ -815,6 +690,15 @@ window.filterPayments = function(status) {
     });
   </script>
 
+  <!-- Payment Details Modal -->
+  <div class="modal-overlay" id="paymentDetailsModal" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-content">
+        <!-- Receipt will be loaded here -->
+      </div>
+    </div>
+  </div>
+
   <!-- External JS -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <!-- JavaScript Dependencies -->
@@ -822,5 +706,93 @@ window.filterPayments = function(status) {
   <script src="<?= base_url('js/dropdown.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
   <script src="<?= base_url('js/verification-functions.js') ?>"></script>
+
+  <!-- Initialize PaymentReceipt Module -->
+  <script>
+    // Define PaymentReceipt module if not already defined
+    if (typeof PaymentReceipt === 'undefined') {
+      const PaymentReceipt = {
+        init: function(options = {}) {
+          this.payment = options.payment || {};
+          this.modalId = options.modalId || 'paymentDetailsModal';
+          this.downloadUrl = options.downloadUrl || '';
+          this.onClose = options.onClose || null;
+          
+          const modal = document.getElementById(this.modalId);
+          if (modal) {
+            modal.addEventListener('click', (e) => {
+              if (e.target === modal) {
+                this.closeModal();
+              }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+              if (e.key === 'Escape' && modal.style.display === 'flex') {
+                this.closeModal();
+              }
+            });
+          }
+        },
+
+        printReceipt: function() {
+          window.print();
+        },
+
+        downloadQR: function() {
+          const qrImage = document.getElementById('qrCodeImage');
+          if (!qrImage || !qrImage.src) {
+            alert('QR code image not available.');
+            return;
+          }
+          const link = document.createElement('a');
+          link.href = qrImage.src;
+          link.download = `payment_receipt_qr_${Date.now()}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        },
+
+        closeModal: function() {
+          const modal = document.getElementById(this.modalId);
+          if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            if (typeof this.onClose === 'function') {
+              this.onClose();
+            }
+          }
+        },
+
+        show: function(paymentId) {
+          const modal = document.getElementById(this.modalId);
+          if (!modal) return;
+
+          fetch(window.location.origin + '/payments/renderReceiptPartial/' + paymentId)
+            .then(response => {
+              if (!response.ok) throw new Error('Network response was not ok');
+              return response.json();
+            })
+            .then(data => {
+              if (data.success) {
+                modal.querySelector('.modal-content').innerHTML = data.html;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                this.init({ payment: data.payment });
+              } else {
+                console.error('Error rendering receipt:', data.message);
+                alert('Error loading receipt: ' + data.message);
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching receipt:', error);
+              alert('Error loading receipt. Please try again.');
+            });
+        }
+      };
+
+      // Make PaymentReceipt global
+      window.PaymentReceipt = PaymentReceipt;
+    }
+  </script>
 </body>
 </html>

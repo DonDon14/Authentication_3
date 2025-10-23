@@ -1974,4 +1974,86 @@ private function generatePaymentsPDFContent($payments, $statistics)
             ->setHeader('Content-Disposition', 'inline; filename="payment_qr.png"')
             ->setBody($result->getString());
     }
+
+    /**
+     * Render the payment receipt partial view
+     */
+    public function renderReceiptPartial($paymentId)
+    {
+        try {
+            $paymentModel = new PaymentModel();
+            $contributionModel = new ContributionModel();
+            
+            // Get payment details with contribution title as payment type
+            $payment = $paymentModel->select('
+                payments.*, 
+                contributions.title as payment_type,
+                contributions.category
+            ')
+            ->join('contributions', 'contributions.id = payments.contribution_id')
+            ->where('payments.id', $paymentId)
+            ->first();
+
+            if (!$payment) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Payment not found'
+                ]);
+            }
+
+            // Get contribution details
+            $contribution = $contributionModel->find($payment['contribution_id']);
+            
+            // Add contribution title to payment data
+            if ($contribution) {
+                $payment['contribution_title'] = $contribution['title'];
+                $payment['contribution_category'] = $contribution['category'];
+            }
+            
+            // If QR code hasn't been generated yet, generate it
+            if (empty($payment['qr_receipt_path'])) {
+                $receiptResponse = $this->generateQRReceipt($paymentId);
+                if ($receiptResponse['success']) {
+                    $payment['qr_receipt_path'] = $receiptResponse['qr_path'];
+                    $payment['verification_code'] = $receiptResponse['receipt_data']['verification_code'];
+                }
+            }
+
+            // Format payment date
+            $payment['formatted_date'] = date('F j, Y g:i A', strtotime($payment['created_at']));
+            
+            // Prepare data for the partial
+            $data = [
+                'payment' => [
+                    'student_name' => $payment['student_name'],
+                    'student_id' => $payment['student_id'],
+                    'payment_date' => $payment['created_at'],
+                    'amount_paid' => $payment['amount_paid'],
+                    'remaining' => $payment['remaining_balance'] ?? 0,
+                    'payment_type' => $contribution['title'],  // Using contribution title
+                    'payment_method' => $payment['payment_method'],
+                    'transaction_id' => $payment['reference_number'] ?? '',
+                    'verification_status' => $payment['payment_status'] === 'verified' ? 'Verified' : 'Not verified',
+                    'qr_code' => $payment['qr_receipt_path'] ?? ''
+                ],
+                'qr_image_url' => base_url('payments/serveUpload/' . $payment['qr_receipt_path']),
+                'download_url' => base_url('payments/downloadReceipt/' . $payment['id'])
+            ];
+
+            // Render the partial view
+            $html = view('partials/payment_receipt', $data);
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'html' => $html
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Receipt partial render error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error rendering receipt partial: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
