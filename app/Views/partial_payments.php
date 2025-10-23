@@ -137,38 +137,11 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1>Partial Payments</h1>
+          <h1 class="page-title">Partial Payments</h1>
           <p class="page-subtitle">Manage installment payments and track student progress</p>
         </div>
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" class="search-input" placeholder="Search partial payments..." id="searchPartialPayments">
-          </div>
-          
-          <!-- Notification Center -->
-          <div class="notification-center">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" id="userMenuBtn">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+        
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -745,7 +718,10 @@
     });
   </script>
 
-  <script src="<?= base_url('js/payments.js') ?>"></script>
+  <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dropdown.js') ?>"></script>
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
 </body>
 </html>

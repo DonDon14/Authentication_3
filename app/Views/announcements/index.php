@@ -434,65 +434,12 @@
       <header class="header">
         <div class="header-left">
           <h1 class="page-title">Announcements Management</h1>
-          <p class="page-subtitle">Create and manage system announcements for students and staff</p>
+          <p class="page-subtitle">Create and manage system announcements for student and staff</p>
         </div>
         
-        <div class="header-right">
-          <!-- Search Bar -->
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search announcements..." class="search-input" id="headerSearch">
-          </div>
-          
-          <!-- Notifications -->
-          <div class="notification-center">
-            <button class="notification-btn" onclick="toggleNotifications()">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" onclick="toggleUserMenu()">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            
-            <!-- User Dropdown -->
-            <div class="user-dropdown" id="userDropdown">
-              <div class="dropdown-header">
-                <div class="user-info">
-                  <h4><?= esc($name ?? 'Admin User') ?></h4>
-                  <p><?= esc($email ?? 'admin@clearpay.com') ?></p>
-                </div>
-              </div>
-              <div class="dropdown-menu">
-                <a href="<?= base_url('profile') ?>" class="dropdown-item">
-                  <i class="fas fa-user"></i>
-                  <span>Profile</span>
-                </a>
-                <a href="<?= base_url('settings') ?>" class="dropdown-item">
-                  <i class="fas fa-cog"></i>
-                  <span>Settings</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="<?= base_url('logout') ?>" class="dropdown-item logout">
-                  <i class="fas fa-sign-out-alt"></i>
-                  <span>Sign Out</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <?= $this->include('partials/header_components') ?>
       </header>
+
 
       <!-- Announcements Content -->
       <div class="dashboard-content">
@@ -1115,5 +1062,10 @@
       }
     });
   </script>
+  <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dropdown.js') ?>"></script>
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
 </body>
 </html>

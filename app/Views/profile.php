@@ -1101,109 +1101,9 @@
           <p class="page-subtitle">Manage your account information and security settings</p>
         </div>
         
-        <div class="header-right">
-          <!-- Search Bar -->
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search settings..." class="search-input">
-          </div>
-          
-          <!-- Notifications -->
-          <div class="notification-center">
-            <button class="notification-btn" onclick="toggleNotifications()">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-            
-            <!-- Notification Dropdown -->
-            <div class="notification-dropdown" id="notificationDropdown">
-              <div class="notification-header">
-                <h3>Notifications</h3>
-                <button class="mark-read-btn">Mark all read</button>
-              </div>
-              <div class="notification-list">
-                <div class="notification-item unread">
-                  <div class="notification-icon success">
-                    <i class="fas fa-check-circle"></i>
-                  </div>
-                  <div class="notification-content">
-                    <h4>Settings Updated</h4>
-                    <p>Your profile information has been saved successfully</p>
-                    <span class="notification-time">Just now</span>
-                  </div>
-                </div>
-                <div class="notification-item">
-                  <div class="notification-icon primary">
-                    <i class="fas fa-user-shield"></i>
-                  </div>
-                  <div class="notification-content">
-                    <h4>Security Alert</h4>
-                    <p>Password changed successfully</p>
-                    <span class="notification-time">2 weeks ago</span>
-                  </div>
-                </div>
-                <div class="notification-item">
-                  <div class="notification-icon warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                  </div>
-                  <div class="notification-content">
-                    <h4>Login Alert</h4>
-                    <p>New login from Windows device</p>
-                    <span class="notification-time">2 hours ago</span>
-                  </div>
-                </div>
-              </div>
-              <div class="notification-footer">
-                <a href="#" class="view-all-btn">View all notifications</a>
-              </div>
-            </div>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" onclick="toggleUserMenu()">
-              <div class="user-avatar">
-                <?php if (!empty($profile_picture)): ?>
-                  <img src="<?= esc($profile_picture) ?>" alt="Profile Picture">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= esc(session()->get('name') ? explode(' ', session()->get('name'))[0] : 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            
-            <!-- User Dropdown -->
-            <div class="user-dropdown" id="userDropdown">
-              <div class="dropdown-header">
-                <div class="user-info">
-                  <h4><?= esc(session()->get('name') ?? 'Admin User') ?></h4>
-                  <p><?= esc(session()->get('email') ?? 'admin@clearpay.com') ?></p>
-                </div>
-              </div>
-              <div class="dropdown-menu">
-                <a href="<?= base_url('profile') ?>" class="dropdown-item">
-                  <i class="fas fa-user"></i>
-                  <span>Profile</span>
-                </a>
-                <a href="<?= base_url('settings') ?>" class="dropdown-item">
-                  <i class="fas fa-cog"></i>
-                  <span>Settings</span>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <i class="fas fa-question-circle"></i>
-                  <span>Help</span>
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="<?= base_url('logout') ?>" class="dropdown-item logout">
-                  <i class="fas fa-sign-out-alt"></i>
-                  <span>Sign Out</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <?= $this->include('partials/header_components') ?>
       </header>
+
 
       <!-- Dashboard Content -->
       <div class="dashboard-content">
@@ -2284,8 +2184,10 @@
   <!-- Profile JavaScript -->
   <script src="<?= base_url('js/profile.js') ?>"></script>
   
-  <!-- Dashboard JavaScript -->
-  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dropdown.js') ?>"></script>
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
 </body>
 </html>

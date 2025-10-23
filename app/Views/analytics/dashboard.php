@@ -11,16 +11,45 @@
   
   <style>
     /* Profile avatar styles for analytics */
-    .profile-avatar {
+    .sidebar .profile-avatar {
+      width: 38px !important;
+      height: 38px !important;
       position: relative;
       overflow: hidden;
+      flex-shrink: 0;
     }
     
-    .profile-avatar img {
+    .sidebar .profile-avatar img {
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important;
       border-radius: 50%;
+    }
+
+    .sidebar .user-profile {
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sidebar .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sidebar .profile-info h4 {
+      font-size: 0.9rem;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar .profile-info p {
+      font-size: 0.75rem;
+      margin: 0;
+      opacity: 0.7;
     }
   </style>
   
@@ -213,7 +242,11 @@
       </nav>
       
       <div class="sidebar-footer">
-        <?= $this->include('partials/help_section') ?>
+        <?= $this->include('partials/help_section', [
+          'profilePictureUrl' => $profilePictureUrl ?? null,
+          'name' => $name ?? (session()->get('name') ?? 'Admin'),
+          'email' => $email ?? (session()->get('email') ?? null)
+        ]) ?>
       </div>
     </aside>
 
@@ -227,50 +260,11 @@
           <p class="page-subtitle">Comprehensive insights into your payment system performance</p>
         </div>
         
-        <div class="header-right">
-          <!-- Search Bar -->
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search analytics..." class="search-input">
-          </div>
-          
-          <!-- Date Filter -->
-          <div class="filter-container">
-            <select id="dateRange" onchange="updateAnalytics()" class="filter-select">
-              <option value="30">Last 30 Days</option>
-              <option value="7">Last 7 Days</option>
-              <option value="90">Last 3 Months</option>
-              <option value="365">Last Year</option>
-              <option value="all">All Time</option>
-            </select>
-          </div>
-          
-          <!-- Export Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" onclick="toggleExportMenu()">
-              <i class="fas fa-download"></i>
-              <span>Export</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            
-            <div class="user-dropdown" id="exportMenu">
-              <div class="dropdown-menu">
-                <a href="<?= base_url('analytics/export/pdf') ?>" class="dropdown-item">
-                  <i class="fas fa-file-pdf"></i>
-                  <span>Export PDF</span>
-                </a>
-                <a href="<?= base_url('analytics/export/csv') ?>" class="dropdown-item">
-                  <i class="fas fa-file-csv"></i>
-                  <span>Export CSV</span>
-                </a>
-                <a href="<?= base_url('analytics/export/excel') ?>" class="dropdown-item">
-                  <i class="fas fa-file-excel"></i>
-                  <span>Export Excel</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <?= $this->include('partials/header_components', [
+          'profilePictureUrl' => $profilePictureUrl ?? null,
+          'name' => $name ?? (session()->get('name') ?? 'Admin'),
+          'email' => $email ?? (session()->get('email') ?? null)
+        ]) ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -714,7 +708,10 @@
   </script>
   
   <!-- JavaScript Dependencies -->
+  <!-- JavaScript Dependencies -->
   <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dropdown.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
 </body>
 </html>

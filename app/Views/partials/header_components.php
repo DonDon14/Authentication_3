@@ -76,10 +76,10 @@
 <!-- User Dropdown -->
 <div class="user-dropdown" id="userDropdown">
   <div class="dropdown-header">
-    <div class="user-info" style="display: flex; align-items: center; gap: 1rem;">
-      <div class="user-avatar" style="width: 48px; height: 48px;">
+    <div class="user-info">
+      <div class="user-avatar">
         <?php if (!empty($profilePictureUrl)): ?>
-          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
         <?php else: ?>
           <i class="fas fa-user"></i>
         <?php endif; ?>

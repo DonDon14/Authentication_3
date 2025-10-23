@@ -212,8 +212,8 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1 class="page-title">Dashboard</h1>
-          <p class="page-subtitle">Welcome back, <?= esc($name) ?>! Here's your overview.</p>
+          <h1 class="page-title">Contributions</h1>
+          <p class="page-subtitle">Manage student contributions and track their progress</p>
         </div>
         
         <?= $this->include('partials/header_components') ?>

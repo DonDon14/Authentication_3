@@ -1,0 +1,90 @@
+/* Profile Avatar Styles */
+
+/* Base avatar styles */
+.profile-avatar,
+.user-avatar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+  transition: all 0.2s ease !important;
+  border: 2px solid rgba(255, 255, 255, 0.1) !important;
+  flex-shrink: 0 !important;
+}
+
+/* Sidebar profile avatar */
+.sidebar-footer .profile-avatar,
+.sidebar-footer .profile-avatar img {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+}
+
+/* Header user avatar */
+.user-menu .user-avatar,
+.user-menu .user-avatar img {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+}
+
+/* User dropdown profile avatar */
+.dropdown-header .user-avatar,
+.dropdown-header .user-avatar img {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+}
+
+/* Profile page avatar - larger size */
+.profile-page .profile-avatar,
+.profile-page .profile-avatar img {
+  width: 120px !important;
+  height: 120px !important;
+  min-width: 120px !important;
+  min-height: 120px !important;
+  max-width: 120px !important;
+  max-height: 120px !important;
+}
+
+/* Image styling inside avatars */
+.profile-avatar img,
+.user-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}
+
+/* Fallback icon styling */
+.profile-avatar i,
+.user-avatar i {
+  font-size: 1.1rem;
+  color: var(--text-inverse);
+}
+
+/* Hover effects */
+.profile-avatar:hover,
+.user-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* Active/clicked state */
+.profile-avatar:active,
+.user-avatar:active {
+  transform: scale(0.95);
+}
