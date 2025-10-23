@@ -1,13 +1,59 @@
-/* Payment Receipt Styles */
-#paymentReceiptContainer {
-    margin: 2rem auto;
-    max-width: 800px;
-    background: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
+/* Payment Receipt Modal Styles */
+.receipt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
 }
 
+.receipt-container {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    position: relative;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.receipt-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.close-receipt-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+
+.close-receipt-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--error-color);
+}
+
+.receipt-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: calc(90vh - 4rem);
+}
+
+/* Loading and Error States */
 .loading-indicator {
     padding: 2rem;
     text-align: center;
@@ -37,26 +83,44 @@
     margin-top: 1rem;
 }
 
+/* Animation */
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Fade Animation */
+.receipt-overlay {
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+}
+
 /* Print styles */
 @media print {
-    body * {
-        visibility: hidden;
-    }
-    
-    #paymentReceiptContainer,
-    #paymentReceiptContainer * {
-        visibility: visible;
-    }
-    
-    #paymentReceiptContainer {
+    .receipt-overlay {
         position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        box-shadow: none;
+        background: none;
+        backdrop-filter: none;
     }
     
-    .receipt-actions {
+    .receipt-container {
+        box-shadow: none;
+        animation: none;
+    }
+    
+    .receipt-header,
+    .receipt-actions,
+    .close-receipt-btn {
         display: none !important;
+    }
+    
+    .receipt-content {
+        padding: 0;
     }
 }

@@ -73,9 +73,18 @@
           <span class="message-text"></span>
         </div>
 
-        <!-- Payment Receipt Container -->
-        <div id="paymentReceiptContainer" style="display: none;">
-          <!-- Receipt will be loaded here -->
+        <!-- Payment Receipt Modal -->
+        <div id="paymentReceiptOverlay" class="receipt-overlay" style="display: none;">
+          <div id="paymentReceiptContainer" class="receipt-container">
+            <div class="receipt-header">
+              <button type="button" class="close-receipt-btn" onclick="closeReceipt()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="receipt-content">
+              <!-- Receipt will be loaded here -->
+            </div>
+          </div>
         </div>
 
         <!-- Contribution Information Card -->

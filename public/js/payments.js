@@ -1139,32 +1139,41 @@ function initializeAmountField() {
   }
 }
 
-// Show QR Receipt in container
+// Show QR Receipt in modal
 function showQRReceipt(receiptData, downloadUrl) {
   console.log('showQRReceipt called with:', receiptData, downloadUrl);
   
-  // Get the payment receipt container
-  const receiptContainer = document.getElementById('paymentReceiptContainer');
-  
-  if (!receiptContainer) {
-    console.error('Receipt container not found');
-    return;
+  // Create modal overlay if it doesn't exist
+  let receiptOverlay = document.querySelector('.receipt-overlay');
+  if (!receiptOverlay) {
+    receiptOverlay = document.createElement('div');
+    receiptOverlay.className = 'receipt-overlay';
+    document.body.appendChild(receiptOverlay);
   }
   
-  // Show loading state
-  receiptContainer.style.display = 'block';
-  receiptContainer.innerHTML = `
-    <div class="loading-indicator" style="text-align: center; padding: 2rem;">
-      <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color);"></i>
-      <p style="margin-top: 1rem; color: var(--text-secondary);">Loading receipt...</p>
+  // Create modal container
+  const modalContent = document.createElement('div');
+  modalContent.className = 'receipt-container';
+  modalContent.innerHTML = `
+    <div class="receipt-header">
+      <button class="close-receipt-btn" onclick="closeQRReceiptModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="receipt-content">
+      <div class="loading-indicator">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading receipt...</p>
+      </div>
     </div>
   `;
   
-  // Hide the payment form
-  const paymentForm = document.getElementById('paymentForm');
-  if (paymentForm) {
-    paymentForm.style.display = 'none';
-  }
+  receiptOverlay.innerHTML = '';
+  receiptOverlay.appendChild(modalContent);
+  
+  // Show modal with fade in
+  receiptOverlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 
   // Get the receipt partial from the server
   const baseUrl = window.location.pathname.includes('Authentication_3') ? '/Authentication_3' : '';
@@ -1172,10 +1181,10 @@ function showQRReceipt(receiptData, downloadUrl) {
   // Ensure we have a payment ID
   if (!receiptData || !receiptData.payment_id) {
     console.error('No payment ID provided');
-    receiptContainer.innerHTML = `
-      <div class="error-message" style="text-align: center; padding: 2rem;">
-        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--error-color);"></i>
-        <p style="margin-top: 1rem; color: var(--error-color);">Error: Payment information not available</p>
+    modalContent.querySelector('.receipt-content').innerHTML = `
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Error: Payment information not available</p>
       </div>
     `;
     return;
@@ -1195,36 +1204,32 @@ function showQRReceipt(receiptData, downloadUrl) {
       
       if (data.success) {
         // Insert the receipt partial HTML
-        receiptContainer.innerHTML = data.html;
-        receiptContainer.style.display = 'block';
+        modalContent.querySelector('.receipt-content').innerHTML = data.html;
 
         // Initialize receipt functionality
         if (typeof PaymentReceipt !== 'undefined') {
           PaymentReceipt.init({
-            payment: data.payment, // Use server-side payment data
+            payment: data.payment,
             downloadUrl: downloadUrl
           });
         }
-        
-        // Scroll receipt into view
-        receiptContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
         console.error('Error loading receipt:', data.message);
-        receiptContainer.innerHTML = `
-          <div class="error-message" style="text-align: center; padding: 2rem;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--error-color);"></i>
-            <p style="margin-top: 1rem; color: var(--error-color);">${data.message || 'Error loading receipt'}</p>
+        modalContent.querySelector('.receipt-content').innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${data.message || 'Error loading receipt'}</p>
           </div>
         `;
       }
     })
     .catch(error => {
       console.error('Error loading receipt:', error);
-      receiptContainer.innerHTML = `
-        <div class="error-message" style="text-align: center; padding: 2rem;">
-          <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--error-color);"></i>
-          <p style="margin-top: 1rem; color: var(--error-color);">Failed to load receipt. Please try again.</p>
-          <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">
+      modalContent.querySelector('.receipt-content').innerHTML = `
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <p>Failed to load receipt. Please try again.</p>
+          <button onclick="location.reload()" class="btn btn-primary">
             <i class="fas fa-redo"></i> Retry
           </button>
         </div>
@@ -1234,17 +1239,38 @@ function showQRReceipt(receiptData, downloadUrl) {
 
 // Close QR Receipt Modal
 function closeQRReceiptModal() {
-  const modal = document.getElementById('qrReceiptModal');
-  if (modal) {
-    modal.remove();
+  const overlay = document.querySelector('.receipt-overlay');
+  if (overlay) {
+    // Fade out animation
+    overlay.style.opacity = '0';
     document.body.style.overflow = '';
     
-    // Refresh page after closing modal
+    // Remove after animation
     setTimeout(() => {
+      overlay.remove();
+      // Refresh page
       window.location.reload();
-    }, 500);
+    }, 300);
   }
 }
+
+// Close receipt modal when clicking outside
+document.addEventListener('click', function(e) {
+  const overlay = document.querySelector('.receipt-overlay');
+  if (overlay && e.target === overlay) {
+    closeQRReceiptModal();
+  }
+});
+
+// Close receipt modal with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const overlay = document.querySelector('.receipt-overlay');
+    if (overlay) {
+      closeQRReceiptModal();
+    }
+  }
+});
 
 /**
  * Initialize payment type functionality
