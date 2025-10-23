@@ -209,6 +209,12 @@ class PaymentModel extends Model
         
         log_message('info', "Payment determination: Is Fully Paid: " . ($isFullyPaid ? 'Yes' : 'No') . ", Sequence: $paymentSequence, New Remaining: $newRemainingBalance");
         
+        // Generate receipt number
+        $paymentDate = date('Ymd');
+        $lastPayment = $this->orderBy('id', 'DESC')->first();
+        $sequence = $lastPayment ? (intval(substr($lastPayment['receipt_number'] ?? '0000', -4)) + 1) : 1;
+        $receiptNumber = sprintf("RP-%s-%04d", $paymentDate, $sequence);
+
         // Prepare payment data
         $paymentData = [
             'contribution_id' => $data['contribution_id'],
@@ -225,6 +231,8 @@ class PaymentModel extends Model
             'payment_date' => $data['payment_date'] ?? date('Y-m-d H:i:s'),
             'recorded_by' => $data['recorded_by'] ?? null,
             'created_at' => date('Y-m-d H:i:s'),
+            'receipt_number' => $receiptNumber,
+            'reference_number' => $receiptNumber, // Use same number for reference
             'notes' => $data['notes'] ?? null
         ];
         

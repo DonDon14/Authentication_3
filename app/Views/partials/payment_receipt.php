@@ -69,7 +69,7 @@ if (!isset($payment)) {
     <div class="amount-box payment-status">
       <span class="label">STATUS</span>
       <span class="value status-<?= ($payment['remaining'] ?? 0) <= 0 ? 'paid' : 'partial' ?>">
-        <?= ($payment['remaining'] ?? 0) <= 0 ? 'FULLY_PAID' : 'PARTIAL' ?>
+        <?= ($payment['remaining'] ?? 0) <= 0 ? '<i class="fa fa-check-circle"></i> Fully Paid' : '<i class="fa fa-hourglass-half"></i> Partially Paid' ?>
       </span>
     </div>
   </div>
@@ -83,18 +83,8 @@ if (!isset($payment)) {
         <span class="value"><?= esc($payment['payment_type'] ?? 'Loading...') ?></span>
       </div>
       <div class="detail-item">
-        <span class="label">Payment Method:</span>
-        <span class="value"><?= esc($payment['payment_method'] ?? 'Loading...') ?></span>
-      </div>
-      <div class="detail-item">
-        <span class="label">Transaction ID:</span>
-        <span class="value"><?= esc($payment['reference_number'] ?? $payment['transaction_id'] ?? 'N/A') ?></span>
-      </div>
-      <div class="detail-item">
-        <span class="label">Verified On:</span>
-        <span class="value <?= ($payment['verification_status'] ?? 'Not verified') === 'Not verified' ? 'text-warning' : 'text-success' ?>">
-          <?= esc($payment['verification_status'] ?? 'Not verified') ?>
-        </span>
+        <span class="label">Receipt Number:</span>
+        <span class="value"><?= esc($payment['receipt_number'] ?? 'N/A') ?></span>
       </div>
     </div>
   </div>
@@ -121,6 +111,12 @@ if (!isset($payment)) {
       <i class="fas fa-download"></i> Download QR
     </button>
     <?php endif; ?>
+  </div>
+
+  <div class="receipt-footer">
+    <button onclick="PaymentReceipt.closeModal()" class="close-btn">
+      Close
+    </button>
   </div>
 </div>
 
@@ -245,13 +241,14 @@ const PaymentReceipt = {
     border: none;
 }
 
+
 .btn-primary {
     background: var(--primary-color);
     color: white;
 }
 
 .btn-primary:hover {
-    background: var(--primary-dark);
+    background: blue;
 }
 
 .btn-secondary {
@@ -260,7 +257,7 @@ const PaymentReceipt = {
 }
 
 .btn-secondary:hover {
-    background: var(--bg-tertiary);
+    background: lightgrey;
 }
 
 .btn-tertiary {
@@ -593,5 +590,34 @@ const PaymentReceipt = {
 
 .text-success {
   color: var(--success-color);
+}
+
+.receipt-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.close-btn {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.875rem;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: lightcoral;
+  color: white;
+}
+
+@media print {
+  .receipt-footer {
+    display: none !important;
+  }
 }
 </style>

@@ -2032,7 +2032,8 @@ private function generatePaymentsPDFContent($payments, $statistics)
                     'remaining' => $payment['remaining_balance'] ?? 0,
                     'payment_type' => $contribution['title'],  // Using contribution title
                     'payment_method' => $payment['payment_method'],
-                    'transaction_id' => $payment['reference_number'] ?? '',
+                    'reference_number' => $payment['reference_number'] ?? '',
+                    'receipt_number' => $payment['receipt_number'] ?? '',
                     'verification_status' => $payment['payment_status'] === 'verified' ? 'Verified' : 'Not verified',
                     'qr_code' => $payment['qr_receipt_path'] ?? ''
                 ],
