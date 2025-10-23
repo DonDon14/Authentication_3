@@ -51,8 +51,22 @@ abstract class BaseController extends Controller
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
-
-        // E.g.: $this->session = service('session');
+        // Initialize session service
+        $this->session = service('session');
+        
+        // Set common view variables for header components
+        $usersModel = new \App\Models\UsersModel();
+        $userId = $this->session->get('user_id');
+        if ($userId) {
+            $user = $usersModel->find($userId);
+            if ($user) {
+                $profilePictureUrl = '';
+                if (!empty($user['profile_picture'])) {
+                    $filename = basename($user['profile_picture']);
+                    $profilePictureUrl = base_url('test-profile-picture/' . $filename);
+                }
+                $this->session->set('profilePictureUrl', $profilePictureUrl);
+            }
+        }
     }
 }

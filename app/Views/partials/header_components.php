@@ -65,13 +65,13 @@
     <div class="profile-section" id="profileSection">
       <button type="button" class="profile-btn" id="profileBtn">
         <div class="avatar">
-          <?php if (!empty($profilePictureUrl)): ?>
-            <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+          <?php if (!empty(session()->get('profilePictureUrl'))): ?>
+            <img src="<?= esc(session()->get('profilePictureUrl')) ?>" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
           <?php else: ?>
             <i class="fas fa-user"></i>
           <?php endif; ?>
         </div>
-        <span class="user-name"><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></span>
+        <span class="user-name"><?= esc(session()->get('name') ? explode(' ', session()->get('name'))[0] : 'Admin') ?></span>
         <i class="fas fa-chevron-down"></i>
       </button>
 
@@ -79,8 +79,8 @@
       <div class="user-dropdown" id="userDropdown" style="display: none;">
         <div class="dropdown-header">
           <div class="user-info">
-            <h4><?= esc($name ?? 'Admin User') ?></h4>
-            <p><?= esc($email ?? 'admin@clearpay.com') ?></p>
+            <h4><?= esc(session()->get('name') ?? 'Admin User') ?></h4>
+            <p><?= esc(session()->get('email') ?? 'admin@clearpay.com') ?></p>
           </div>
         </div>
         <div class="dropdown-menu">

@@ -11,117 +11,6 @@
   
   <!-- Essential CSS for modal and profile elements -->
   <style>
-    /* Add missing CSS variables for profile page */
-    :root {
-      --surface-light: #f8fafc;
-      --surface-secondary: #f1f5f9;
-      --border-light: #e2e8f0;
-      --text-tertiary: #94a3b8;
-      --primary-rgb: 79, 70, 229;
-    }
-
-    /* Enhanced sidebar footer styling to match dashboard.css */
-    .sidebar-footer {
-      padding: 1.5rem !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-      background: rgba(255, 255, 255, 0.02) !important;
-    }
-
-    .sidebar-footer .user-profile {
-      display: flex !important;
-      align-items: center !important;
-      gap: 1rem !important;
-      position: relative !important;
-      padding: 0.75rem !important;
-      border-radius: var(--radius-lg) !important;
-      transition: all var(--transition-fast) !important;
-      cursor: pointer !important;
-    }
-
-    .sidebar-footer .user-profile:hover {
-      background: rgba(255, 255, 255, 0.05) !important;
-    }
-
-    .sidebar-footer .profile-avatar {
-      width: 44px !important;
-      height: 44px !important;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-      border-radius: 50% !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      font-size: 1.1rem !important;
-      color: white !important;
-      overflow: hidden !important;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
-      transition: all var(--transition-fast) !important;
-      border: 2px solid rgba(255, 255, 255, 0.1) !important;
-    }
-
-    .sidebar-footer .profile-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50% !important;
-    }
-
-    .sidebar-footer .profile-info {
-      flex: 1 !important;
-      transition: all var(--transition-normal) !important;
-    }
-
-    .sidebar-footer .profile-info h4 {
-      font-size: 0.95rem !important;
-      font-weight: 600 !important;
-      color: var(--text-inverse) !important;
-      margin: 0 0 0.25rem 0 !important;
-      letter-spacing: -0.01em !important;
-    }
-
-    .sidebar-footer .profile-info p {
-      font-size: 0.8rem !important;
-      color: rgba(255, 255, 255, 0.65) !important;
-      margin: 0 !important;
-      font-weight: 400 !important;
-    }
-
-    .sidebar-footer .profile-menu-btn {
-      background: rgba(255, 255, 255, 0.05) !important;
-      border: none !important;
-      color: rgba(255, 255, 255, 0.75) !important;
-      cursor: pointer !important;
-      padding: 0.6rem !important;
-      border-radius: var(--radius-md) !important;
-      transition: all var(--transition-fast) !important;
-      backdrop-filter: blur(10px) !important;
-    }
-
-    .sidebar-footer .profile-menu-btn:hover {
-      background: rgba(255, 255, 255, 0.12) !important;
-      color: var(--text-inverse) !important;
-      transform: scale(1.05) !important;
-    }
-
-    /* Header User Avatar Styling */
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, var(--primary-color), var(--success-color));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.875rem;
-      color: white;
-      overflow: hidden;
-    }
-
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
 
     /* Toast notifications - proper positioning */
     .toast {
@@ -1180,7 +1069,11 @@
             <div class="card-content">
               <div class="profile-summary">
                 <div class="profile-avatar" onclick="openAvatarModal()" style="cursor: pointer;" title="Click to change profile picture">
-                  <i class="fas fa-user"></i>
+                    <?php if (!empty($profile_picture)): ?>
+                        <img src="<?= esc($profile_picture) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    <?php else: ?>
+                        <i class="fas fa-user"></i>
+                    <?php endif; ?>
                 </div>
                 <div class="profile-details">
                   <h2><?= esc(session()->get('name') ?? 'Admin User') ?></h2>
@@ -1800,18 +1693,6 @@
         profileImage.src = imageUrl;
       }
 
-      // Update sidebar footer avatar
-      const sidebarAvatar = document.querySelector('.sidebar-footer .profile-avatar');
-      if (sidebarAvatar) {
-        sidebarAvatar.innerHTML = `<img src="${imageUrl}" alt="Profile Picture">`;
-      }
-
-      // Update header user avatar
-      const headerAvatar = document.querySelector('.header .user-avatar');
-      if (headerAvatar) {
-        headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Profile Picture">`;
-      }
-
       // Update any other profile images on the page
       const otherProfileImages = document.querySelectorAll('.profile-avatar img, .user-avatar img');
       otherProfileImages.forEach(img => {
@@ -1824,7 +1705,7 @@
       }
 
       // Update all profile picture instances throughout the UI
-      const profileImages = document.querySelectorAll('.profile-avatar img, .user-avatar img, .profile-picture img');
+      const profileImages = document.querySelectorAll('.profile-avatar img, .profile-picture img');
       profileImages.forEach(img => {
         if (img.id !== 'profileImage') { // Don't update the main one again
           img.src = imageUrl;
@@ -1832,7 +1713,7 @@
       });
 
       // Update placeholders to show images
-      const placeholders = document.querySelectorAll('.profile-avatar:not(:has(img)), .user-avatar:not(:has(img))');
+      const placeholders = document.querySelectorAll('.profile-avatar:not(:has(img))');
       placeholders.forEach(placeholder => {
         const img = document.createElement('img');
         img.src = imageUrl;
@@ -1875,56 +1756,6 @@
         }
       }, 5000);
     }
-
-    // Sidebar functionality
-    const sidebar = document.querySelector('.sidebar');
-    // Notifications functionality
-    function toggleNotifications() {
-      const dropdown = document.getElementById('notificationDropdown');
-      const userDropdown = document.getElementById('userDropdown');
-      
-      // Close user dropdown if open
-      if (userDropdown) {
-        userDropdown.classList.remove('active');
-      }
-      
-      dropdown.classList.toggle('active');
-    }
-
-    // User menu functionality
-    function toggleUserMenu() {
-      const dropdown = document.getElementById('userDropdown');
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      
-      // Close notification dropdown if open
-      if (notificationDropdown) {
-        notificationDropdown.classList.remove('active');
-      }
-      
-      dropdown.classList.toggle('active');
-    }
-
-    // Profile menu functionality
-    function toggleProfileMenu() {
-      // Add functionality for profile menu in sidebar footer
-      console.log('Profile menu toggled');
-    }
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(event) {
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      const userDropdown = document.getElementById('userDropdown');
-      const notificationBtn = document.querySelector('.notification-btn');
-      const userMenuBtn = document.querySelector('.user-menu-btn');
-      
-      if (notificationDropdown && !notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
-        notificationDropdown.classList.remove('active');
-      }
-      
-      if (userDropdown && !userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-        userDropdown.classList.remove('active');
-      }
-    });
 
     // Edit mode functionality
     function toggleEditMode(section) {

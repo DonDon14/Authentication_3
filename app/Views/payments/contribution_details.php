@@ -9,43 +9,12 @@ $usersModel = new UsersModel();
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= esc($contribution['title']) ?> - Payment Details | ClearPay</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/header-components.css') ?>">  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Additional styles for contribution details -->
   <style>
-    /* Profile avatar styles */
-    .profile-avatar {
-      position: relative;
-      overflow: hidden;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    
-    .profile-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-    
-    /* Header user avatar styles */
-    .user-avatar {
-      position: relative;
-      overflow: hidden;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-
     .contribution-info {
       margin-bottom: 1.5rem;
     }
@@ -295,49 +264,19 @@ $usersModel = new UsersModel();
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <button class="back-btn" onclick="window.location.href='<?= base_url('contributions') ?>'" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.5rem; margin-right: 1rem; color: var(--text-primary); cursor: pointer; transition: var(--transition-fast);">
-            <i class="fas fa-arrow-left"></i>
-          </button>
-          <div>
-            <h1><?= esc($contribution['title']) ?></h1>
-            <p class="page-subtitle">Payment details and student tracking</p>
-          </div>
+          <h1 class="page-title"><?= esc($contribution['title']) ?></h1>
+          <p class="page-subtitle">Payment details and student tracking</p>
         </div>
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="studentSearchInput" class="search-input" placeholder="Search students...">
-          </div>
-          
-          <!-- Notification Center -->
-          <div class="notification-center">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" id="userMenuBtn">
-              <?php 
-                $user = $usersModel->find(session()->get('user_id'));
-                $profilePicture = !empty($user['profile_picture']) ? 
-                    base_url('payments/serveUpload/' . $user['profile_picture']) : 
-                    session()->get('profile_picture');
-              ?>
-              <?php if (!empty($user['profile_picture'])): ?>
-                <img src="<?= base_url('payments/serveUpload/' . basename($user['profile_picture'])) ?>" alt="Profile Picture" class="user-avatar">
-              <?php else: ?>
-                <div class="user-avatar">
-                  <i class="fas fa-user"></i>
-                </div>
-              <?php endif; ?>
-              <span class="user-name"><?= session()->get('name') ?? session()->get('username') ?? 'Admin' ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+        
+        <?php
+        // Get current user's data
+        $currentUser = $usersModel->find(session()->get('id'));
+        $name = $currentUser['name'] ?? null;
+        $email = $currentUser['email'] ?? null;
+        $profilePictureUrl = $currentUser['profile_picture'] ?? null;
+        ?>
+        
+        <?= $this->include('partials/header_components', ['name' => $name, 'email' => $email, 'profilePictureUrl' => $profilePictureUrl]) ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -813,6 +752,7 @@ $usersModel = new UsersModel();
       }
     });
   </script>
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
 
 </body>
 </html>

@@ -228,12 +228,7 @@ function updateAllProfilePictures(imageUrl) {
         sidebarAvatar.innerHTML = `<img src="${imageUrl}" alt="Profile Picture">`;
     }
 
-    const headerAvatar = document.querySelector('.header .user-avatar');
-    if (headerAvatar) {
-        headerAvatar.innerHTML = `<img src="${imageUrl}" alt="Profile Picture">`;
-    }
-
-    const otherProfileImages = document.querySelectorAll('.profile-avatar img, .user-avatar img');
+    const otherProfileImages = document.querySelectorAll('.profile-avatar img');
     otherProfileImages.forEach(img => {
         if (img.id !== 'profileImage') {
             img.src = imageUrl;
