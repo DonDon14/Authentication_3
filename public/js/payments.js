@@ -16,6 +16,39 @@ document.addEventListener('DOMContentLoaded', function() {
   const errorMessage = document.getElementById('errorMessage');
 
   if (paymentForm) {
+    // Add hidden field to detect JavaScript
+    const jsField = document.createElement('input');
+    jsField.type = 'hidden';
+    jsField.name = 'js_enabled';
+    jsField.value = '1';
+    paymentForm.appendChild(jsField);
+
+    // Message handling functions
+    function hideMessages() {
+      const successMsg = document.getElementById('successMessage');
+      const errorMsg = document.getElementById('errorMessage');
+      if (successMsg) successMsg.style.display = 'none';
+      if (errorMsg) errorMsg.style.display = 'none';
+    }
+
+    function showError(message) {
+      const errorMsg = document.getElementById('errorMessage');
+      if (errorMsg) {
+        errorMsg.textContent = message;
+        errorMsg.style.display = 'block';
+        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function showSuccess(message) {
+      const successMsg = document.getElementById('successMessage');
+      if (successMsg) {
+        successMsg.textContent = message;
+        successMsg.style.display = 'block';
+        successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
     paymentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -107,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseUrl = window.location.pathname.includes('Authentication_3') ? '/Authentication_3' : '';
         const response = await fetch(`${baseUrl}/payments/save`, {
           method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
           body: formData
         });
         
@@ -114,25 +150,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Server response:', result);
         
         if (result.success) {
-          showSuccess(result.message || 'Payment recorded successfully!');
+          // Don't show success message immediately since we'll show the receipt
+          console.log('Payment successful:', result);
           
-          // Debug QR receipt data
-          console.log('Checking QR receipt conditions:');
-          console.log('- show_receipt:', result.show_receipt);
-          console.log('- receipt present:', !!result.receipt);
-          console.log('- download URL:', result.qr_download_url);
-          
-          // Show QR receipt if available
-          if (result.show_receipt && result.receipt) {
-            console.log('Showing QR receipt with data:', result.receipt);
-            try {
-              showQRReceipt(result.receipt, result.qr_download_url);
-            } catch (error) {
-              console.error('Error showing QR receipt:', error);
-              alert('QR receipt generated successfully, but there was an error displaying it. Check the console for details.');
-            }
-          } else {
-            console.log('QR receipt conditions not met - modal will not show');
+          // Always try to show receipt for successful payments
+          try {
+            showQRReceipt(result.receipt, result.qr_download_url);
+          } catch (error) {
+            console.error('Error showing receipt:', error);
+            // If receipt display fails, show success message
+            showSuccess(result.message || 'Payment recorded successfully!');
           }
           
           // Clear form but keep contribution info if present
@@ -167,7 +194,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       } catch (error) {
         console.error('Payment error:', error);
-        showError('An error occurred while recording payment');
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Server response:', errorText);
+          showError('Server error: ' + (response.status === 404 ? 'Payment endpoint not found' : 'An error occurred'));
+        } else {
+          showError('An error occurred while recording payment');
+        }
       } finally {
         // Reset button state
         submitBtn.classList.remove('loading');
@@ -1106,141 +1139,97 @@ function initializeAmountField() {
   }
 }
 
-// Show QR Receipt Modal
+// Show QR Receipt in container
 function showQRReceipt(receiptData, downloadUrl) {
   console.log('showQRReceipt called with:', receiptData, downloadUrl);
   
-  // Remove any existing modal first
-  const existingModal = document.getElementById('qrReceiptModal');
-  if (existingModal) {
-    existingModal.remove();
+  // Get the payment receipt container
+  const receiptContainer = document.getElementById('paymentReceiptContainer');
+  
+  if (!receiptContainer) {
+    console.error('Receipt container not found');
+    return;
   }
   
-  // Create modal HTML
-  const modalHTML = `
-    <div id="qrReceiptModal" class="qr-receipt-modal" style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    ">
-      <div class="receipt-modal-content" style="
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        max-width: 500px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-      ">
-        <div class="receipt-header">
-          <h2 style="color: #667eea; margin-bottom: 10px;">
-            <i class="fas fa-receipt"></i> Payment Receipt
-          </h2>
-          <p style="color: #666; margin-bottom: 20px;">QR Code Generated Successfully</p>
-        </div>
-        
-        <div class="receipt-details" style="
-          background: #f8f9fa;
-          border-radius: 10px;
-          padding: 20px;
-          margin-bottom: 20px;
-          text-align: left;
-        ">
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Student:</strong> <span>${receiptData.student_name}</span>
-          </div>
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Student ID:</strong> <span>${receiptData.student_id}</span>
-          </div>
-          ${receiptData.contact_number ? `
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Contact:</strong> <span>${receiptData.contact_number}</span>
-          </div>` : ''}
-          ${receiptData.email_address ? `
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Email:</strong> <span>${receiptData.email_address}</span>
-          </div>` : ''}
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Contribution:</strong> <span>${receiptData.contribution_title}</span>
-          </div>
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Amount:</strong> <span>$${parseFloat(receiptData.amount).toFixed(2)}</span>
-          </div>
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Payment Method:</strong> <span>${receiptData.payment_method}</span>
-          </div>
-          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <strong>Verification Code:</strong> <span style="font-family: monospace; background: #e9ecef; padding: 2px 5px; border-radius: 3px;">${receiptData.verification_code}</span>
-          </div>
-        </div>
-        
-        <div class="receipt-actions" style="display: flex; gap: 15px; justify-content: center;">
-          <a href="${downloadUrl}" class="btn-download" style="
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-          " download>
-            <i class="fas fa-download"></i> Download QR Receipt
-          </a>
-          <button onclick="closeQRReceiptModal()" style="
-            background: #6c757d;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-          ">
-            <i class="fas fa-times"></i> Close
-          </button>
-        </div>
-        
-        <div class="receipt-note" style="
-          margin-top: 20px;
-          padding: 15px;
-          background: #e3f2fd;
-          border-radius: 8px;
-          font-size: 0.9em;
-          color: #1565c0;
-        ">
-          <i class="fas fa-info-circle"></i>
-          <strong>Note:</strong> Save this QR receipt! Students can use it for verification when claiming their items.
-        </div>
-      </div>
+  // Show loading state
+  receiptContainer.style.display = 'block';
+  receiptContainer.innerHTML = `
+    <div class="loading-indicator" style="text-align: center; padding: 2rem;">
+      <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color);"></i>
+      <p style="margin-top: 1rem; color: var(--text-secondary);">Loading receipt...</p>
     </div>
   `;
   
-  // Add modal to page
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
-  
-  // Prevent body scroll
-  document.body.style.overflow = 'hidden';
-  
-  console.log('QR Receipt modal added to DOM');
-  
-  // Verify modal was added
-  const addedModal = document.getElementById('qrReceiptModal');
-  if (addedModal) {
-    console.log('✓ Modal successfully added and found in DOM');
-  } else {
-    console.error('✗ Modal not found in DOM after insertion');
+  // Hide the payment form
+  const paymentForm = document.getElementById('paymentForm');
+  if (paymentForm) {
+    paymentForm.style.display = 'none';
   }
+
+  // Get the receipt partial from the server
+  const baseUrl = window.location.pathname.includes('Authentication_3') ? '/Authentication_3' : '';
+  
+  // Ensure we have a payment ID
+  if (!receiptData || !receiptData.payment_id) {
+    console.error('No payment ID provided');
+    receiptContainer.innerHTML = `
+      <div class="error-message" style="text-align: center; padding: 2rem;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--error-color);"></i>
+        <p style="margin-top: 1rem; color: var(--error-color);">Error: Payment information not available</p>
+      </div>
+    `;
+    return;
+  }
+
+  console.log('Fetching receipt for payment ID:', receiptData.payment_id);
+  
+  fetch(`${baseUrl}/payments/renderReceiptPartial/${receiptData.payment_id}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Receipt data received:', data);
+      
+      if (data.success) {
+        // Insert the receipt partial HTML
+        receiptContainer.innerHTML = data.html;
+        receiptContainer.style.display = 'block';
+
+        // Initialize receipt functionality
+        if (typeof PaymentReceipt !== 'undefined') {
+          PaymentReceipt.init({
+            payment: data.payment, // Use server-side payment data
+            downloadUrl: downloadUrl
+          });
+        }
+        
+        // Scroll receipt into view
+        receiptContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        console.error('Error loading receipt:', data.message);
+        receiptContainer.innerHTML = `
+          <div class="error-message" style="text-align: center; padding: 2rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--error-color);"></i>
+            <p style="margin-top: 1rem; color: var(--error-color);">${data.message || 'Error loading receipt'}</p>
+          </div>
+        `;
+      }
+    })
+    .catch(error => {
+      console.error('Error loading receipt:', error);
+      receiptContainer.innerHTML = `
+        <div class="error-message" style="text-align: center; padding: 2rem;">
+          <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--error-color);"></i>
+          <p style="margin-top: 1rem; color: var(--error-color);">Failed to load receipt. Please try again.</p>
+          <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-redo"></i> Retry
+          </button>
+        </div>
+      `;
+    });
 }
 
 // Close QR Receipt Modal

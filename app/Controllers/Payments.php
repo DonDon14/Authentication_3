@@ -77,10 +77,18 @@ class Payments extends Controller
     // Save new payment
     public function save()
     {
+        // Set JSON response type for AJAX requests
+        if ($this->request->isAJAX()) {
+            $this->response->setContentType('application/json');
+        }
+
         $paymentModel = new PaymentModel();
         $usersModel = new \App\Models\UsersModel();
+        $contributionModel = new ContributionModel();
 
         try {
+            // Check if this is an AJAX request
+            $isAjax = $this->request->isAJAX();
             $contributionId = $this->request->getPost('contribution_id') ?: $this->request->getPost('contribution_type');
             $studentId = $this->request->getPost('student_id');
             $studentName = $this->request->getPost('student_name');
@@ -174,12 +182,37 @@ class Payments extends Controller
                     ? 'Payment completed! Student has fully paid this contribution.' 
                     : 'Partial payment recorded. Remaining balance: $' . number_format($updatedStatus['remaining_balance'], 2);
                 
-                $response = [
-                    'success' => true,
-                    'message' => $message,
+                // Get contribution details first
+            $contribution = $contributionModel->find($contributionId);
+            if (!$contribution) {
+                log_message('error', 'Contribution not found: ' . $contributionId);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Contribution not found'
+                ]);
+            }
+
+            // Initialize response
+            $response = [
+                'success' => true,
+                'message' => $message,
+                'payment_id' => $paymentId,
+                'payment_status' => $updatedStatus,
+                'is_fully_paid' => $updatedStatus['status'] === 'fully_paid',
+                'show_receipt' => true,  // Always show receipt on successful payment
+                'receipt' => [
                     'payment_id' => $paymentId,
-                    'payment_status' => $updatedStatus,
-                    'is_fully_paid' => $updatedStatus['status'] === 'fully_paid'
+                    'student_id' => $studentId,
+                    'student_name' => $studentName,
+                    'contact_number' => $contactNumber,
+                    'email_address' => $emailAddress,
+                    'contribution_title' => $contribution['title'],
+                    'amount' => $amount,
+                    'payment_method' => $paymentMethod,
+                    'remaining_balance' => $updatedStatus['remaining_balance'] ?? 0,
+                    'payment_date' => date('Y-m-d H:i:s'),
+                    'verification_code' => $this->generateVerificationCode($paymentId)
+                ]
                 ];
                 
                 // Add receipt data if generated successfully
@@ -205,19 +238,44 @@ class Payments extends Controller
                     $response['show_receipt'] = true;
                 }
                 
-                return $this->response->setJSON($response);
+                if ($isAjax) {
+                    return $this->response->setJSON($response);
+                } else {
+                    // For regular form submission, show the receipt page
+                    $contribution = $contributionModel->find($contributionId);
+                    $payment['contribution_title'] = $contribution['title'];
+                    
+                    return view('payments/receipt', [
+                        'payment' => $payment,
+                        'contribution' => $contribution,
+                        'receipt_data' => $receiptResponse['receipt_data'] ?? null,
+                        'qr_download_url' => $receiptResponse['download_url'] ?? null
+                    ]);
+                }
             } else {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to record payment.'
-                ]);
+                if ($isAjax) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Failed to record payment.'
+                    ]);
+                } else {
+                    return redirect()->back()
+                        ->with('error', 'Failed to record payment.')
+                        ->withInput();
+                }
             }
         } catch (\Exception $e) {
             log_message('error', 'Payment save error: ' . $e->getMessage());
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            if ($isAjax) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            } else {
+                return redirect()->back()
+                    ->with('error', $e->getMessage())
+                    ->withInput();
+            }
         }
     }
 
@@ -1672,7 +1730,68 @@ private function generatePaymentsPDFContent($payments, $statistics)
     /**
      * Clean up payment statuses (admin function)
      */
-    public function cleanupPaymentStatuses()
+    /**
+ * Render payment receipt partial
+ * 
+ * @param int $paymentId The payment ID to render receipt for
+ * @return \CodeIgniter\HTTP\Response
+ */
+public function renderReceiptPartial($paymentId)
+{
+    try {
+        $paymentModel = new PaymentModel();
+        $contributionModel = new ContributionModel();
+        
+        // Get payment details
+        $payment = $paymentModel->find($paymentId);
+        if (!$payment) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Payment not found'
+            ]);
+        }
+        
+        // Get contribution details
+        $contribution = $contributionModel->find($payment['contribution_id']);
+        if ($contribution) {
+            $payment['payment_type'] = $contribution['title']; // Set as payment_type to match view
+            $payment['contribution_title'] = $contribution['title']; // Also keep original for compatibility
+            $payment['contribution_category'] = $contribution['category'];
+        }
+        
+        // Calculate remaining balance if needed
+        if (!isset($payment['remaining'])) {
+            if (isset($contribution['amount'])) {
+                $payment['remaining'] = max(0, $contribution['amount'] - $payment['amount_paid']); 
+            } else {
+                $payment['remaining'] = 0;
+            }
+        }
+
+        // Get QR code URL if available
+        if (!empty($payment['qr_receipt_path'])) {
+            $payment['qr_code'] = $payment['qr_receipt_path'];
+        }
+        
+        // Render receipt partial view
+        $html = view('partials/payment_receipt', ['payment' => $payment]);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'html' => $html,
+            'payment' => $payment
+        ]);
+        
+    } catch (\Exception $e) {
+        log_message('error', 'Error rendering receipt partial: ' . $e->getMessage());
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Error rendering receipt'
+        ]);
+    }
+}
+
+public function cleanupPaymentStatuses()
     {
         // Only allow this for admin/development
         if (!session()->get('user_id')) {

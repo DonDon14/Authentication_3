@@ -6,6 +6,7 @@
   <title>ClearPay Payments - Record Payment</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
   <link rel="stylesheet" href="<?= base_url('css/header-components.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/receipt.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -70,6 +71,11 @@
         <div id="errorMessage" class="notification-message error" style="display: none;">
           <i class="fas fa-exclamation-triangle"></i>
           <span class="message-text"></span>
+        </div>
+
+        <!-- Payment Receipt Container -->
+        <div id="paymentReceiptContainer" style="display: none;">
+          <!-- Receipt will be loaded here -->
         </div>
 
         <!-- Contribution Information Card -->
@@ -259,7 +265,7 @@
               </div>
             </div>
             <div class="card-content">
-              <form id="paymentForm" autocomplete="off">
+              <form id="paymentForm" action="<?= base_url('payments/save') ?>" method="post" autocomplete="off">
                 <!-- Hidden fields for contribution data -->
                 <?php if (isset($contribution_id)): ?>
                 <input type="hidden" id="contributionId" name="contribution_id" value="<?= $contribution_id ?>">

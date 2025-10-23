@@ -99,7 +99,10 @@ $routes->get('/announcements/search', 'Announcements::search');
 // Test routes for debugging
 $routes->get('/test-announcements', 'TestAnnouncements::testCreate');
 $routes->get('/test/header', 'TestController::headerTest');
-$routes->get('payments/getQRCode/(:any)/(:num)', 'Payments::getQRCode/$1/$2');
+$routes->get('/payments/renderReceiptPartial/(:num)', 'Payments::renderReceiptPartial/$1');
+$routes->get('/payments/getQRCode/(:any)/(:num)', 'Payments::getQRCode/$1/$2');
+$routes->get('/test/receipt', 'TestController::receiptTest');
+$routes->get('/test/receiptTest', 'TestController::receiptTest');
 //$routes->get('/public/js/contribution_details.js', 'Home::serveJs');
 
 // Student/User Authentication Routes
