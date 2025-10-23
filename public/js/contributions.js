@@ -702,34 +702,6 @@ const additionalStyles = `
         color: white;
     }
     
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        z-index: 1001;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-    }
-    
-    .notification.show {
-        transform: translateX(0);
-    }
-    
-    .notification-success {
-        background: #10b981;
-    }
-    
-    .notification-error {
-        background: #ef4444;
-    }
-    
-    .notification-info {
-        background: #3b82f6;
-    }
-    
     .fade-in-up {
         animation: fadeInUp 0.6s ease-out;
     }

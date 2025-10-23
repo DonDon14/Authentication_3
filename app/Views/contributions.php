@@ -5,36 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClearPay Contributions - Manage Payment Types</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/header-components.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style>
-    /* Profile avatar styles for contributions */
-    .profile-avatar {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .profile-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-    
-    /* Header user avatar styles */
-    .user-avatar {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .user-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-  </style>
+
 </head>
 <body>
   <!-- Main App Container -->
@@ -134,53 +108,15 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1>Contributions</h1>
-          <p class="page-subtitle">Manage payment types and contribution settings</p>
+          <h1 class="page-title">Record Payment</h1>
+          <p class="page-subtitle">Record a payment for a contribution</p>
         </div>
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" class="search-input" placeholder="Search contributions...">
-          </div>
-          
-          <!-- Notification Center -->
-          <div class="notification-center">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" id="userMenuBtn">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+        
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
       <div class="dashboard-content">
-
-        <!-- Success/Error Messages -->
-        <div id="successMessage" class="notification-message success" style="display: none;">
-          <i class="fas fa-check-circle"></i>
-          <span class="message-text"></span>
-        </div>
-        <div id="errorMessage" class="notification-message error" style="display: none;">
-          <i class="fas fa-exclamation-triangle"></i>
-          <span class="message-text"></span>
-        </div>
-
         <!-- Stats Grid -->
         <div class="stats-grid">
           <div class="stat-card primary">
@@ -525,93 +461,6 @@
     </div>
   </div>
 
-  <!-- Notification Dropdown -->
-  <div class="notification-dropdown" id="notificationDropdown">
-    <div class="notification-header">
-      <h3>Notifications</h3>
-      <button class="mark-read-btn">Mark all read</button>
-    </div>
-    <div class="notification-list">
-      <div class="notification-item unread">
-        <div class="notification-icon success">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Contribution Added</h4>
-          <p>New contribution type created successfully</p>
-          <span class="notification-time">5 minutes ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon primary">
-          <i class="fas fa-info-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Status Updated</h4>
-          <p>Contribution status changed to active</p>
-          <span class="notification-time">2 hours ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon info">
-          <i class="fas fa-edit"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Contribution Modified</h4>
-          <p>Payment amount updated successfully</p>
-          <span class="notification-time">1 day ago</span>
-        </div>
-      </div>
-    </div>
-    <div class="notification-footer">
-      <a href="#" class="view-all-notifications">View all notifications</a>
-    </div>
-  </div>
-
-  <!-- User Dropdown -->
-  <div class="user-dropdown" id="userDropdown">
-    <div class="dropdown-header">
-      <div class="user-info">
-        <h4><?= session()->get('username') ?? 'Admin User' ?></h4>
-        <p>System Administrator</p>
-      </div>
-    </div>
-    <div class="dropdown-menu">
-      <a href="<?= base_url('profile') ?>" class="dropdown-item">
-        <i class="fas fa-user"></i>
-        <span>My Profile</span>
-      </a>
-      <a href="<?= base_url('dashboard') ?>" class="dropdown-item">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a href="<?= base_url('auth/logout') ?>" class="dropdown-item logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- Profile Menu Dropdown (for sidebar) -->
-  <div class="profile-menu-dropdown" id="profileMenuDropdown">
-    <div class="dropdown-content">
-      <a href="<?= base_url('profile') ?>" class="dropdown-item">
-        <i class="fas fa-user"></i>
-        <span>Profile</span>
-      </a>
-      <a href="<?= base_url('dashboard') ?>" class="dropdown-item">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a href="<?= base_url('auth/logout') ?>" class="dropdown-item logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
-
   <!-- Additional Styles -->
   <style>
     .modal-overlay {
@@ -634,28 +483,6 @@
       box-shadow: var(--shadow-xl);
       max-height: 90vh;
       overflow-y: auto;
-    }
-
-    .notification-message {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem 1.5rem;
-      border-radius: var(--radius-md);
-      margin-bottom: 1.5rem;
-      font-weight: 500;
-    }
-
-    .notification-message.success {
-      background: var(--success-light);
-      color: var(--success-color);
-      border: 1px solid var(--success-color);
-    }
-
-    .notification-message.error {
-      background: var(--error-light);
-      color: var(--error-color);
-      border: 1px solid var(--error-color);
     }
 
     .form-group {
@@ -870,55 +697,6 @@
         });
       });
       
-      // Notification dropdown
-      const notificationBtn = document.getElementById('notificationBtn');
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      
-      if (notificationBtn) {
-        notificationBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          notificationDropdown.classList.toggle('active');
-          document.getElementById('userDropdown')?.classList.remove('active');
-        });
-      }
-      
-      // User dropdown
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const userDropdown = document.getElementById('userDropdown');
-      
-      if (userMenuBtn) {
-        userMenuBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdown.classList.toggle('active');
-          document.getElementById('notificationDropdown')?.classList.remove('active');
-        });
-      }
-      
-      // Profile menu (sidebar)
-      const profileMenuBtn = document.getElementById('profileMenuBtn');
-      const profileMenuDropdown = document.getElementById('profileMenuDropdown');
-      
-      if (profileMenuBtn) {
-        profileMenuBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          profileMenuDropdown.classList.toggle('active');
-        });
-      }
-      
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', function() {
-        document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-          dropdown.classList.remove('active');
-        });
-      });
-      
-      // Prevent dropdown close when clicking inside
-      document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-          e.stopPropagation();
-        });
-      });
-      
       // Profit calculation function
       function calculateProfit() {
         const amount = parseFloat(document.getElementById('contributionAmount').value) || 0;
@@ -1022,5 +800,6 @@
   <!-- External JS -->
   <script src="<?= base_url('js/contributions.js') ?>"></script>
   <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
 </body>
 </html>

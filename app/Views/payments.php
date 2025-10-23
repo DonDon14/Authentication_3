@@ -52,8 +52,8 @@
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1 class="page-title">Dashboard</h1>
-          <p class="page-subtitle">Welcome back, <?= esc($name) ?>! Here's your overview.</p>
+          <h1 class="page-title">Record Payment</h1>
+          <p class="page-subtitle">Record a payment for a contribution</p>
         </div>
         
         <?= $this->include('partials/header_components') ?>
