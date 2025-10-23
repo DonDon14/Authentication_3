@@ -250,26 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  function showSuccess(message) {
-    hideMessages();
-    successMessage.textContent = message;
-    successMessage.classList.add('show');
-    successMessage.style.display = 'block';
-  }
-  
-  function showError(message) {
-    hideMessages();
-    errorMessage.textContent = message;
-    errorMessage.classList.add('show');
-    errorMessage.style.display = 'block';
-  }
-  
-  function hideMessages() {
-    successMessage.style.display = 'none';
-    errorMessage.style.display = 'none';
-    successMessage.classList.remove('show');
-    errorMessage.classList.remove('show');
-  }
+  // Use common message display functions from header-components.js
   
   // Clear form fields on page load to prevent auto-fill
   window.addEventListener('load', function() {
@@ -436,37 +417,13 @@ function processUploadedQRImage(file) {
   }
 
   function showUploadSuccess(message, data) {
-    const successMsg = document.getElementById('successMessage');
-    if (successMsg) {
-      const idLength = data.studentId.length;
-      successMsg.innerHTML = `
-        <div style="text-align: left;">
-          <strong>${message}</strong><br>
-          <small>Student ID: ${data.studentId} (${idLength} digits) | Name: ${data.studentName} | Course: ${data.course}</small>
-        </div>
-      `;
-      successMsg.style.display = 'block';
-      successMsg.classList.add('show');
-      
-      setTimeout(() => {
-        successMsg.style.display = 'none';
-        successMsg.classList.remove('show');
-      }, 5000);
-    }
-  }
+  const idLength = data.studentId.length;
+  const fullMessage = `${message}\nStudent ID: ${data.studentId} (${idLength} digits) | Name: ${data.studentName} | Course: ${data.course}`;
+  showSuccess(fullMessage);
+}
 
 function showUploadError(message) {
-  const errorMsg = document.getElementById('errorMessage');
-  if (errorMsg) {
-    errorMsg.textContent = message;
-    errorMsg.style.display = 'block';
-    errorMsg.classList.add('show');
-    
-    setTimeout(() => {
-      errorMsg.style.display = 'none';
-      errorMsg.classList.remove('show');
-    }, 5000);
-  }
+  showError(message);
   
   // Clear the file input
   const qrFileInput = document.getElementById('qrFileInput');
@@ -1707,51 +1664,18 @@ function initializeCardHoverEffects() {
 /**
  * Show success message for partial payments
  */
+/**
+ * Show success message for partial payments using common notification function
+ */
 function showSuccessMessage(message) {
-    // Create or update success message element
-    let successDiv = document.getElementById('successMessage');
-    if (!successDiv) {
-        successDiv = document.createElement('div');
-        successDiv.id = 'successMessage';
-        successDiv.className = 'success-message';
-        const container = document.querySelector('.partial-payments-content');
-        if (container) {
-            container.prepend(successDiv);
-        }
-    }
-    
-    successDiv.textContent = message;
-    successDiv.style.display = 'block';
-    
-    // Auto hide after 5 seconds
-    setTimeout(() => {
-        successDiv.style.display = 'none';
-    }, 5000);
+    showSuccess(message);
 }
 
 /**
- * Show error message for partial payments
+ * Show error message for partial payments using common notification function
  */
 function showErrorMessage(message) {
-    // Create or update error message element
-    let errorDiv = document.getElementById('errorMessage');
-    if (!errorDiv) {
-        errorDiv = document.createElement('div');
-        errorDiv.id = 'errorMessage';
-        errorDiv.className = 'error-message';
-        const container = document.querySelector('.partial-payments-content');
-        if (container) {
-            container.prepend(errorDiv);
-        }
-    }
-    
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    
-    // Auto hide after 5 seconds
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
+    showError(message);
 }
 
 // Close modal when clicking outside

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Components Test</title>
+    <link rel="stylesheet" href="/Authentication_3/public/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-primary, #f8f9fa);
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-panel">
+            <h1>Header Components Test Page</h1>
+            <p>This page is for testing the header components functionality in isolation.</p>
+        </div>
+
+        <!-- Header Test Section -->
+        <header class="header">
+            <div class="header-left">
+                <h2>Test Environment</h2>
+            </div>
+            
+            <!-- Header Right Components -->
+            <div class="header-right">
+                <!-- Notification Center -->
+                <div class="notification-center">
+                    <button class="notification-btn" id="notificationBtn" title="Notifications" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </button>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="user-menu">
+                    <button class="user-menu-btn" id="userMenuBtn" title="User Menu" onclick="toggleUserMenu()">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="user-name">Test User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notification Dropdown -->
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+                <h3>Notifications</h3>
+                <button class="mark-read-btn">Mark all read</button>
+            </div>
+            <div class="notification-list">
+                <a href="#" class="notification-item unread">
+                    <div class="notification-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="notification-content">
+                        <h4>Test Notification 1</h4>
+                        <p>This is a test notification</p>
+                        <span class="notification-time">Just now</span>
+                    </div>
+                </a>
+                <a href="#" class="notification-item">
+                    <div class="notification-icon primary">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="notification-content">
+                        <h4>Test Notification 2</h4>
+                        <p>Another test notification</p>
+                        <span class="notification-time">5 minutes ago</span>
+                    </div>
+                </a>
+            </div>
+            <div class="notification-footer">
+                <a href="#" class="view-all-notifications">View all notifications</a>
+            </div>
+        </div>
+
+        <!-- User Dropdown -->
+        <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-header">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4>Test User</h4>
+                        <p>Test Role</p>
+                    </div>
+                </div>
+            </div>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Test Results Panel -->
+        <div class="test-panel">
+            <h3>Test Results</h3>
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <!-- Load the header components JavaScript -->
+    <script src="/Authentication_3/public/js/header-components.js"></script>
+    
+    <!-- Test Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const testResults = document.getElementById('testResults');
+            
+            // Function to log test results
+            function logTest(message, success) {
+                const status = document.createElement('div');
+                status.className = `status ${success ? 'success' : 'error'}`;
+                status.textContent = message;
+                testResults.appendChild(status);
+            }
+
+            // Test 1: Check if functions are defined
+            if (typeof toggleNotifications === 'function') {
+                logTest('✓ toggleNotifications function is available', true);
+            } else {
+                logTest('✗ toggleNotifications function is not defined', false);
+            }
+
+            if (typeof toggleUserMenu === 'function') {
+                logTest('✓ toggleUserMenu function is available', true);
+            } else {
+                logTest('✗ toggleUserMenu function is not defined', false);
+            }
+
+            // Test 2: Check if elements exist
+            if (document.getElementById('notificationDropdown')) {
+                logTest('✓ Notification dropdown element exists', true);
+            } else {
+                logTest('✗ Notification dropdown element not found', false);
+            }
+
+            if (document.getElementById('userDropdown')) {
+                logTest('✓ User dropdown element exists', true);
+            } else {
+                logTest('✗ User dropdown element not found', false);
+            }
+
+            // Listen for click events
+            document.getElementById('notificationBtn')?.addEventListener('click', () => {
+                logTest('✓ Notification button clicked', true);
+            });
+
+            document.getElementById('userMenuBtn')?.addEventListener('click', () => {
+                logTest('✓ User menu button clicked', true);
+            });
+        });
+    </script>
+</body>
+</html>

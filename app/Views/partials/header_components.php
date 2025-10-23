@@ -1,105 +1,57 @@
-<!-- Header Right Components -->
-<div class="header-right">
-  
-  <!-- Notification Center -->
-  <div class="notification-center">
-    <button class="notification-btn" id="notificationBtn" title="Notifications" onclick="toggleNotifications()">
-      <i class="fas fa-bell"></i>
-      <span class="notification-count">3</span>
-    </button>
-  </div>
-  
-  <!-- User Menu -->
-  <div class="user-menu">
-    <button class="user-menu-btn" id="userMenuBtn" title="User Menu" onclick="toggleUserMenu()">
-      <div class="user-avatar">
-        <?php 
-        $profilePic = session()->get('profile_picture');
-        if (!empty($profilePic)): ?>
-          <img src="<?= base_url('payments/serveUpload/' . basename($profilePic)) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-        <?php else: ?>
-          <i class="fas fa-user"></i>
-        <?php endif; ?>
-      </div>
-      <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('name') ?? session()->get('username') ?? 'Admin') ?></span>
-      <i class="fas fa-chevron-down"></i>
-    </button>
-  </div>
-</div>
+<link rel="stylesheet" href="/Authentication_3/public/css/header-components.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Notification Dropdown -->
-<div class="notification-dropdown" id="notificationDropdown">
-  <div class="notification-header">
-    <h3>Notifications</h3>
-    <button class="mark-read-btn">Mark all read</button>
-  </div>
-  <div class="notification-list">
-    <a href="<?= base_url('payments/verified') ?>" class="notification-item unread">
-      <div class="notification-icon success">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <div class="notification-content">
-        <h4>Payment Verified</h4>
-        <p>Successfully verified payment</p>
-        <span class="notification-time">2 minutes ago</span>
-      </div>
-    </a>
-    <a href="<?= base_url('announcements/view/system-update') ?>" class="notification-item">
-      <div class="notification-icon primary">
-        <i class="fas fa-info-circle"></i>
-      </div>
-      <div class="notification-content">
-        <h4>System Update</h4>
-        <p>QR scanner functionality improved</p>
-        <span class="notification-time">1 hour ago</span>
-      </div>
-    </a>
-    <a href="<?= base_url('announcements/view/new-student') ?>" class="notification-item">
-      <div class="notification-icon info">
-        <i class="fas fa-user-plus"></i>
-      </div>
-      <div class="notification-content">
-        <h4>New Student</h4>
-        <p>Student profile created successfully</p>
-        <span class="notification-time">3 hours ago</span>
-      </div>
-    </a>
-  </div>
-  <div class="notification-footer">
-    <a href="#" class="view-all-notifications">View all notifications</a>
-  </div>
-</div>
 
-<!-- User Dropdown -->
-<div class="user-dropdown" id="userDropdown">
-  <div class="dropdown-header">
-    <div class="user-info">
-      <div class="user-avatar">
-        <?php if (isset($profilePictureUrl) && !empty($profilePictureUrl)): ?>
-          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-        <?php else: ?>
-          <i class="fas fa-user"></i>
-        <?php endif; ?>
-      </div>
-      <div>
-        <h4><?= isset($name) ? esc($name) : (session()->get('name') ?? session()->get('username') ?? 'Admin User') ?></h4>
-        <p>System Administrator</p>
+<div class="dashboard-header">
+  <div class="dashboard-right">
+    <!-- Notification Bell-->
+    <div class="notification">
+      <button class="notification-btn" onclick="toggleNotifications()">
+        <i class="fas fa-bell"></i>
+        <span class="notification-count">3</span>
+      </button>
+    </div>
+
+    <!-- Profile Section -->
+    <div class="profile-section" id="profileSection">
+      <button type="button" class="profile-btn" id="profileBtn">
+        <div class="avatar">
+          <?php if (!empty($profilePictureUrl)): ?>
+            <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+          <?php else: ?>
+            <i class="fas fa-user"></i>
+          <?php endif; ?>
+        </div>
+        <span class="user-name"><?= esc($name ? explode(' ', $name)[0] : 'Admin') ?></span>
+        <i class="fas fa-chevron-down"></i>
+      </button>
+
+      <!-- User Dropdown Menu -->
+      <div class="user-dropdown" id="userDropdown" style="display: none;">
+        <div class="dropdown-header">
+          <div class="user-info">
+            <h4><?= esc($name ?? 'Admin User') ?></h4>
+            <p><?= esc($email ?? 'admin@clearpay.com') ?></p>
+          </div>
+        </div>
+        <div class="dropdown-menu">
+          <a href="<?= base_url('profile') ?>" class="dropdown-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="<?= base_url('settings') ?>" class="dropdown-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="<?= base_url('logout') ?>" class="dropdown-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Sign Out</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
-  <div class="dropdown-menu">
-    <a href="<?= base_url('profile') ?>" class="dropdown-item">
-      <i class="fas fa-user"></i>
-      <span>My Profile</span>
-    </a>
-    <a href="<?= base_url('settings') ?>" class="dropdown-item">
-      <i class="fas fa-cog"></i>
-      <span>Settings</span>
-    </a>
-    <div class="dropdown-divider"></div>
-    <a href="<?= base_url('auth/logout') ?>" class="dropdown-item logout">
-      <i class="fas fa-sign-out-alt"></i>
-      <span>Logout</span>
-    </a>
-  </div>
 </div>
+
+<script src="/Authentication_3/public/js/header-components.js"></script>

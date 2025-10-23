@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClearPay Dashboard - Admin Portal</title>
   <link rel="stylesheet" href="<?= base_url('css/dashboard.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('css/header-components.css') ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -52,8 +53,10 @@
           <h1 class="page-title">Dashboard</h1>
           <p class="page-subtitle">Welcome back, <?= esc($name) ?>! Here's your overview.</p>
         </div>
-        
-        <?= $this->include('partials/header_components') ?>
+
+        <div class="header-right">
+          <?= $this->include('partials/header_components') ?>
+        </div>
       </header>
 
       <!-- Dashboard Content -->
@@ -407,16 +410,6 @@
       }
     }
 
-    function toggleNotifications() {
-      const dropdown = document.getElementById('notificationDropdown');
-      dropdown.classList.toggle('active');
-    }
-
-    function toggleUserMenu() {
-      const dropdown = document.getElementById('userDropdown');
-      dropdown.classList.toggle('active');
-    }
-
     function toggleProfileMenu() {
       const dropdown = document.getElementById('profileMenuDropdown');
       dropdown.classList.toggle('active');
@@ -762,8 +755,8 @@
   
   <!-- Dashboard JavaScript -->
   <!-- JavaScript Dependencies -->
+  <script src="<?= base_url('js/header-components.js') ?>"></script>
   <script src="<?= base_url('js/main.js') ?>"></script>
-  <script src="<?= base_url('js/dropdown.js') ?>"></script>
   <script src="<?= base_url('js/dashboard.js') ?>"></script>
   <script src="<?= base_url('js/verification-functions.js') ?>"></script>
   

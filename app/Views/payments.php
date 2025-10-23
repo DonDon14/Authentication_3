@@ -44,134 +44,18 @@
   <div class="app-container">
     
     <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="app-logo">
-          <div class="logo-icon">
-            <i class="fas fa-credit-card"></i>
-          </div>
-          <a href="<?= base_url('dashboard') ?>" class="app-name-link">
-            <h2 class="app-name">ClearPay</h2>
-          </a>
-        </div>
-        <button class="sidebar-toggle" id="sidebarToggle">
-          <i class="fas fa-bars"></i>
-        </button>
-      </div>
-      
-      <nav class="sidebar-nav">
-        <ul class="nav-list">
-          <li class="nav-item">
-            <a href="<?= base_url('dashboard') ?>" class="nav-link">
-              <i class="fas fa-home"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item active">
-            <a href="<?= base_url('payments') ?>" class="nav-link">
-              <i class="fas fa-credit-card"></i>
-              <span>Payments</span>
-              <span class="nav-badge">New</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('contributions') ?>" class="nav-link">
-              <i class="fas fa-hand-holding-usd"></i>
-              <span>Contributions</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('payments/partial') ?>" class="nav-link">
-              <i class="fas fa-clock"></i>
-              <span>Partial Payments</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('payments/history') ?>" class="nav-link">
-              <i class="fas fa-history"></i>
-              <span>Payment History</span>
-            </a>
-          </li>
-        </ul>
-        
-        <div class="nav-divider"></div>
-        
-        <ul class="nav-list">
-          <li class="nav-item">
-            <a href="<?= base_url('analytics') ?>" class="nav-link">
-              <i class="fas fa-chart-bar"></i>
-              <span>Analytics</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('students') ?>" class="nav-link">
-              <i class="fas fa-users"></i>
-              <span>Students</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('announcements') ?>" class="nav-link">
-              <i class="fas fa-bullhorn"></i>
-              <span>Announcements</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('profile') ?>" class="nav-link">
-              <i class="fas fa-user"></i>
-              <span>Profile</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url('settings') ?>" class="nav-link">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      
-      <div class="sidebar-footer">
-       <?= $this->include('partials/help_section') ?>
-      </div>
-    </aside>
+    <?= $this->include('partials/sidebar') ?>
 
     <!-- Main Content -->
     <main class="main-content">
       <!-- Header -->
       <header class="header">
         <div class="header-left">
-          <h1>Record Payment</h1>
-          <p class="page-subtitle">Add a new student payment to the system</p>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back, <?= esc($name) ?>! Here's your overview.</p>
         </div>
-        <div class="header-right">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" class="search-input" placeholder="Search students, payments...">
-          </div>
-          
-          <!-- Notification Center -->
-          <div class="notification-center">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-count">3</span>
-            </button>
-          </div>
-          
-          <!-- User Menu -->
-          <div class="user-menu">
-            <button class="user-menu-btn" id="userMenuBtn">
-              <div class="user-avatar">
-                <?php if (!empty($profilePictureUrl)): ?>
-                  <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture">
-                <?php else: ?>
-                  <i class="fas fa-user"></i>
-                <?php endif; ?>
-              </div>
-              <span class="user-name"><?= isset($name) ? esc(explode(' ', $name)[0]) : (session()->get('username') ?? 'Admin') ?></span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+        
+        <?= $this->include('partials/header_components') ?>
       </header>
 
       <!-- Dashboard Content -->
@@ -630,93 +514,6 @@
     </div>
   </div>
 
-  <!-- Notification Dropdown -->
-  <div class="notification-dropdown" id="notificationDropdown">
-    <div class="notification-header">
-      <h3>Notifications</h3>
-      <button class="mark-read-btn">Mark all read</button>
-    </div>
-    <div class="notification-list">
-      <div class="notification-item unread">
-        <div class="notification-icon success">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>Payment Recorded</h4>
-          <p>Successfully recorded payment for John Doe</p>
-          <span class="notification-time">2 minutes ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon primary">
-          <i class="fas fa-info-circle"></i>
-        </div>
-        <div class="notification-content">
-          <h4>System Update</h4>
-          <p>QR scanner functionality improved</p>
-          <span class="notification-time">1 hour ago</span>
-        </div>
-      </div>
-      <div class="notification-item">
-        <div class="notification-icon info">
-          <i class="fas fa-user-plus"></i>
-        </div>
-        <div class="notification-content">
-          <h4>New Student</h4>
-          <p>Student profile created successfully</p>
-          <span class="notification-time">3 hours ago</span>
-        </div>
-      </div>
-    </div>
-    <div class="notification-footer">
-      <a href="#" class="view-all-notifications">View all notifications</a>
-    </div>
-  </div>
-
-  <!-- User Dropdown -->
-  <div class="user-dropdown" id="userDropdown">
-    <div class="dropdown-header">
-      <div class="user-info">
-        <h4><?= session()->get('username') ?? 'Admin User' ?></h4>
-        <p>System Administrator</p>
-      </div>
-    </div>
-    <div class="dropdown-menu">
-      <a href="<?= base_url('profile') ?>" class="dropdown-item">
-        <i class="fas fa-user"></i>
-        <span>My Profile</span>
-      </a>
-      <a href="<?= base_url('dashboard') ?>" class="dropdown-item">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a href="<?= base_url('auth/logout') ?>" class="dropdown-item logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- Profile Menu Dropdown (for sidebar) -->
-  <div class="profile-menu-dropdown" id="profileMenuDropdown">
-    <div class="dropdown-content">
-      <a href="<?= base_url('profile') ?>" class="dropdown-item">
-        <i class="fas fa-user"></i>
-        <span>Profile</span>
-      </a>
-      <a href="<?= base_url('dashboard') ?>" class="dropdown-item">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a href="<?= base_url('auth/logout') ?>" class="dropdown-item logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
-
   <!-- Additional Styles -->
   <style>
     .modal-overlay {
@@ -845,30 +642,6 @@
     
     // Dashboard functionality
     document.addEventListener('DOMContentLoaded', function() {
-      // Notification dropdown
-      const notificationBtn = document.getElementById('notificationBtn');
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      
-      if (notificationBtn) {
-        notificationBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          notificationDropdown.classList.toggle('active');
-          document.getElementById('userDropdown')?.classList.remove('active');
-        });
-      }
-      
-      // User dropdown
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const userDropdown = document.getElementById('userDropdown');
-      
-      if (userMenuBtn) {
-        userMenuBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          userDropdown.classList.toggle('active');
-          document.getElementById('notificationDropdown')?.classList.remove('active');
-        });
-      }
-      
       // Profile menu (sidebar)
       const profileMenuBtn = document.getElementById('profileMenuBtn');
       const profileMenuDropdown = document.getElementById('profileMenuDropdown');
@@ -878,21 +651,7 @@
           e.stopPropagation();
           profileMenuDropdown.classList.toggle('active');
         });
-      }
-      
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', function() {
-        document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-          dropdown.classList.remove('active');
-        });
-      });
-      
-      // Prevent dropdown close when clicking inside
-      document.querySelectorAll('.notification-dropdown, .user-dropdown, .profile-menu-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-          e.stopPropagation();
-        });
-      });
+      };
       
       // Listen for profile picture updates from other pages
       window.addEventListener('storage', function(e) {
@@ -916,5 +675,7 @@
   <!-- External JS -->
   <script src="<?= base_url('js/payments.js') ?>"></script>
   <script src="<?= base_url('js/main.js') ?>"></script>
+  <script src="<?= base_url('js/dashboard.js') ?>"></script>
+  <script src="<?= base_url('js/verification-functions.js') ?>"></script>
 </body>
 </html>
