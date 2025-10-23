@@ -166,17 +166,12 @@ class Auth extends BaseController
 
             // Start session and store user data
             $session = session();
-            $profilePictureUrl = '';
-            if (!empty($user['profile_picture'])) {
-                $profilePictureUrl = base_url('payments/serveUpload/' . $user['profile_picture']);
-            }
-            
             $session->set([
                 'user_id' => $user['id'],
                 'username' => $user['username'],
                 'name' => $user['name'],
                 'email' => $user['email'],
-                'profile_picture' => $profilePictureUrl,
+                'profile_picture' => $user['profile_picture'] ?? '',
                 'logged_in' => true
             ]);
 

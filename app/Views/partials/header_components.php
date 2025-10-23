@@ -18,8 +18,10 @@
   <div class="user-menu">
     <button class="user-menu-btn" id="userMenuBtn" title="User Menu">
       <div class="user-avatar">
-        <?php if (isset($profilePictureUrl) && !empty($profilePictureUrl)): ?>
-          <img src="<?= esc($profilePictureUrl) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+        <?php 
+        $profilePic = session()->get('profile_picture');
+        if (!empty($profilePic)): ?>
+          <img src="<?= base_url('payments/serveUpload/' . basename($profilePic)) ?>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
         <?php else: ?>
           <i class="fas fa-user"></i>
         <?php endif; ?>
