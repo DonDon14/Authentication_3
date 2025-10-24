@@ -9,33 +9,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <style>
-    /* Profile avatar styles for dashboard */
-    .profile-avatar {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .profile-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-    
-    /* Header user avatar styles */
-    .user-avatar {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .user-avatar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-  </style>
 </head>
 <body>
   <!-- Main App Container -->
@@ -374,31 +347,8 @@
     </main>
   </div>
 
-  <!-- Profile Menu Dropdown -->
-  <div class="profile-menu-dropdown" id="profileMenuDropdown">
-    <div class="dropdown-content">
-      <a href="<?= base_url('profile') ?>" class="dropdown-item">
-        <i class="fas fa-user"></i>
-        <span>Profile</span>
-      </a>
-      <a href="<?= base_url('settings') ?>" class="dropdown-item">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a href="<?= base_url('logout') ?>" class="dropdown-item logout">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-      </a>
-    </div>
-  </div>
-
   <!-- JavaScript -->
   <script>
-    // Initialize dashboard functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      initializeDashboard();
-    });
 
     function initializeDashboard() {
       // Auto-refresh recent payments every 30 seconds

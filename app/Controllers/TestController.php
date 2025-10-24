@@ -55,18 +55,9 @@ class TestController extends BaseController
     }
     public function sidebarTest()
     {
-        // Load session library if needed for sidebar functionality
-        $session = session();
-        
-        // Add any data needed for the sidebar
-        $data = [
-            'title' => 'Sidebar Test',
-            // Add any session data that your sidebar might need
-            'user_data' => $session->get('user_data') ?? null,
-        ];
-        
-        // Set content type and return view
+        // Disable layout if you're using one
         $this->response->setHeader('Content-Type', 'text/html');
-        return view('tests/sidebar_test', $data);
+        
+        return view('tests/sidebar_test');
     }
 }

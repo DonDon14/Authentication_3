@@ -103,11 +103,7 @@ $routes->get('/payments/renderReceiptPartial/(:num)', 'Payments::renderReceiptPa
 $routes->get('/payments/getQRCode/(:any)/(:num)', 'Payments::getQRCode/$1/$2');
 $routes->get('/test/receipt', 'TestController::receiptTest');
 $routes->get('/test/receiptTest', 'TestController::receiptTest');
-// Test routes for sidebar
 $routes->get('/test/sidebar', 'TestController::sidebarTest');
-$routes->get('test/sidebar', 'TestController::sidebarTest');
-$routes->get('Authentication_3/test/sidebar', 'TestController::sidebarTest');
-$routes->get('/Authentication_3/test/sidebar', 'TestController::sidebarTest');
 //$routes->get('/public/js/contribution_details.js', 'Home::serveJs');
 
 // Student/User Authentication Routes
